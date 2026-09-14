@@ -1,4 +1,88 @@
-<div class="container mt-5">
-  <h1>MALVITEC</h1>
-  <p>Página principal funcionando correctamente.</p>
+<!-- Barra superior -->
+<div class="top-bar text-center">
+  Envío gratis en compras superiores a <strong>S/.50</strong>
 </div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg bg-white shadow-sm">
+  <div class="container">
+
+    <!-- Logo -->
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img
+        src="/imagenes/malvitec-logo.png"
+        class="logo-malvitec"
+        alt="Malvitec"
+      >
+    </a>
+
+    <!-- Botón responsive -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarMain"
+      aria-controls="navbarMain"
+      aria-expanded="false"
+      aria-label="Mostrar navegación"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Contenido del navbar -->
+    <div class="collapse navbar-collapse" id="navbarMain">
+
+      <!-- Buscador -->
+      <form
+        class="d-flex mx-lg-4 my-3 my-lg-0 flex-grow-1"
+        role="search"
+      >
+        <input
+          class="form-control search-input"
+          type="search"
+          placeholder="Buscar productos, marcas..."
+          aria-label="Buscar productos"
+        >
+
+        <button
+          class="btn search-btn"
+          type="submit"
+        >
+          Buscar
+        </button>
+      </form>
+
+      <!-- Opciones -->
+      <ul class="navbar-nav ms-lg-3 align-items-lg-center nav-actions">
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            Ingresar
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            Mi cuenta
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#" title="Favoritos">
+            <span class="nav-icon">❤</span>
+            <span class="d-none d-lg-inline">Favoritos</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#" title="Carrito">
+            <span class="nav-icon">🛒</span>
+            <span class="d-none d-lg-inline">Carrito</span>
+          </a>
+        </li>
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
