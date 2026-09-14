@@ -111,3 +111,62 @@
   background-color: var(--malvi-red);
   color: #ffffff;
 }
+
+/* Carrusel promocional */
+#promoCarousel {
+  margin-bottom: 2rem;
+}
+
+.carousel-banner {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+}
+
+/* Fondos de cada banner */
+.banner-ofertas {
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 100%
+  );
+}
+
+.banner-lanzamientos {
+  background: linear-gradient(
+    135deg,
+    #f093fb 0%,
+    #f5576c 100%
+  );
+}
+
+.banner-envio {
+  background: linear-gradient(
+    135deg,
+    #4facfe 0%,
+    #00f2fe 100%
+  );
+}
+
+.carousel-icon {
+  font-size: 8rem;
+  opacity: 0.3;
+}
+
+/* Indicadores */
+.carousel-indicators button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .carousel-banner {
+    min-height: 250px;
+  }
+
+  .carousel-icon {
+    font-size: 5rem;
+  }
+}
