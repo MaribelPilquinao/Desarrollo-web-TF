@@ -34,15 +34,21 @@ export class Checkout {
   total = this.subtotal + this.envio;
 
   confirmarCompra() {
-    console.log('Nombres:', this.nombres);
-    console.log('Apellidos:', this.apellidos);
-    console.log('Correo:', this.correo);
-    console.log('Teléfono:', this.telefono);
-    console.log('Departamento:', this.departamento);
-    console.log('Distrito:', this.distrito);
-    console.log('Dirección:', this.direccion);
-    console.log('Método de pago:', this.metodoPago);
 
-    alert('Datos registrados correctamente');
+  if (
+    this.nombres === '' ||
+    this.apellidos === '' ||
+    this.correo === '' ||
+    this.telefono === '' ||
+    this.departamento === '' ||
+    this.distrito === '' ||
+    this.direccion === '' ||
+    this.metodoPago === ''
+  ) {
+    alert('Por favor complete todos los campos obligatorios');
+    return;
   }
+
+  alert('Datos correctos. Compra lista para confirmar');
+}
 }
