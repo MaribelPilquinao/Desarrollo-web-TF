@@ -27,8 +27,8 @@
             <input
                 type="text"
                 class="form-control"
-                placeholder="Ingrese sus nombres">
-            </div>
+                placeholder="Ingrese sus nombres"
+                [(ngModel)]="nombres">
 
             <div class="col-md-6 mb-3">
             <label class="form-label">
@@ -38,8 +38,8 @@
             <input
                 type="text"
                 class="form-control"
-                placeholder="Ingrese sus apellidos">
-            </div>
+                placeholder="Ingrese sus apellidos"
+                [(ngModel)]="apellidos">
 
         </div>
 
@@ -53,7 +53,8 @@
             <input
                 type="email"
                 class="form-control"
-                placeholder="correo@ejemplo.com">
+                placeholder="correo@ejemplo.com"
+                [(ngModel)]="correo">
             </div>
 
             <div class="col-md-6 mb-3">
@@ -64,7 +65,8 @@
             <input
                 type="tel"
                 class="form-control"
-                placeholder="999 999 999">
+                placeholder="999 999 999"
+                [(ngModel)]="telefono">
             </div>
 
         </div>
@@ -88,13 +90,31 @@
                 Departamento
             </label>
 
-            <select class="form-select">
-                <option selected>Seleccione</option>
-                <option>Lima</option>
-                <option>Arequipa</option>
-                <option>La Libertad</option>
-                <option>Piura</option>
-            </select>
+            <select
+        class="form-select"
+        [(ngModel)]="departamento">
+
+        <option value="">
+    Seleccione
+        </option>
+
+            <option value="Lima">
+    Lima
+        </option>
+
+        <option value="Arequipa">
+    Arequipa
+        </option>
+
+        <option value="La Libertad">
+    La Libertad
+        </option>
+
+        <option value="Piura">
+    Piura
+        </option>
+
+</select>
             </div>
 
             <div class="col-md-6 mb-3">
@@ -102,10 +122,11 @@
                 Distrito
             </label>
 
-            <input
-                type="text"
-                class="form-control"
-                placeholder="Ingrese su distrito">
+        <input
+            type="text"
+            class="form-control"
+            placeholder="Ingrese su distrito"
+            [(ngModel)]="distrito">
             </div>
 
         </div>
@@ -118,8 +139,9 @@
             <input
             type="text"
             class="form-control"
-            placeholder="Av. / Jr. / Calle">
-          </div>
+            placeholder="Av. / Jr. / Calle"
+            [(ngModel)]="direccion">
+        </div>
 
         <div class="mb-3">
             <label class="form-label">
@@ -129,7 +151,8 @@
             <textarea
             class="form-control"
             rows="2"
-            placeholder="Referencia de la dirección"></textarea>
+            placeholder="Referencia de la dirección"
+            [(ngModel)]="referencia"></textarea>
         </div>
 
         </div>
@@ -149,7 +172,9 @@
             class="form-check-input"
             type="radio"
             name="metodoPago"
-            id="tarjeta">
+            id="tarjeta"
+            value="tarjeta"
+            [(ngModel)]="metodoPago">
 
             <label
             class="form-check-label"
@@ -163,7 +188,9 @@
             class="form-check-input"
             type="radio"
             name="metodoPago"
-            id="yape">
+            id="yape"
+            value="yape"
+            [(ngModel)]="metodoPago">
 
             <label
             class="form-check-label"
@@ -177,7 +204,9 @@
             class="form-check-input"
             type="radio"
             name="metodoPago"
-            id="contraEntrega">
+            id="contraEntrega"
+            value="contraEntrega"
+            [(ngModel)]="metodoPago">
 
             <label
             class="form-check-label"
