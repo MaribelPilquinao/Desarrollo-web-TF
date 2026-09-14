@@ -80,3 +80,34 @@
     align-items: flex-start;
   }
 }
+
+/* Categorías */
+.categories-strip {
+  border-bottom: 1px solid #eceff1;
+  background-color: #ffffff;
+}
+
+.category-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+
+  background-color: #f4f4f6;
+  color: #333333;
+
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease-in-out,
+    color 0.15s ease-in-out;
+}
+
+.category-chip:hover {
+  background-color: #e0e0e7;
+}
+
+.category-chip.active {
+  background-color: var(--malvi-red);
+  color: #ffffff;
+}
