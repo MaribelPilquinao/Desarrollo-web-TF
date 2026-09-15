@@ -269,3 +269,77 @@
   </button>
 
 </div>
+
+<!-- Productos -->
+<main class="container my-4">
+
+  <section>
+    <h5 class="products-section-title">
+      Todos los productos
+    </h5>
+
+    <div class="row g-3">
+
+      @for (producto of productos; track producto.id) {
+
+        <div class="col-sm-6 col-md-4 col-lg-3">
+
+          <article class="product-card">
+
+            <!-- Imagen -->
+            <div class="product-image-wrapper">
+
+              <span class="badge-discount">
+                {{ producto.descuento }}
+              </span>
+
+              <span class="badge-shipping">
+                Envío gratis
+              </span>
+
+              <img
+                [src]="producto.imagen"
+                [alt]="producto.nombre"
+              >
+
+            </div>
+
+            <!-- Información -->
+            <div class="product-body">
+
+              <h6 class="product-title">
+                {{ producto.nombre }}
+              </h6>
+
+              <div class="product-rating">
+                {{ producto.calificacion }}
+
+                <span class="small-muted">
+                  ({{ producto.opiniones }})
+                </span>
+              </div>
+
+              <div class="product-price-old">
+                {{ producto.precioAnterior }}
+              </div>
+
+              <div class="product-price-new">
+                {{ producto.precioActual }}
+              </div>
+
+              <button class="btn btn-add-cart">
+                🛒 Agregar al carrito
+              </button>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      }
+
+    </div>
+  </section>
+
+</main>
