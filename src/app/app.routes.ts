@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Checkout } from './pages/checkout/checkout';
 import { Confirmacion } from './pages/confirmacion/confirmacion';
+import { MiCuenta } from './pages/mi-cuenta/mi-cuenta';
 
 export const routes: Routes = [
   {
@@ -10,6 +11,10 @@ export const routes: Routes = [
   {
     path: 'confirmacion',
     component: Confirmacion
+  },
+  {
+    path: 'mi-cuenta',
+    component: MiCuenta
   },
   {
     path: '',
