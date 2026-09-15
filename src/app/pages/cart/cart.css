@@ -1,0 +1,50 @@
+:host {
+  display: block;
+}
+
+.carrito-page h3 {
+  font-weight: 600;
+}
+
+.carrito-item {
+  position: relative;
+}
+
+.carrito-img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.carrito-precio {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.carrito-cantidad input {
+  width: 55px;
+  text-align: center;
+}
+
+.btn-remove:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.card {
+  border-radius: 0.85rem !important;
+}
+
+.btn-add-cart {
+  background-color: var(--malvi-red);
+  border-color: var(--malvi-red);
+  color: #fff;
+  border-radius: 999px;
+}
+
+.btn-add-cart:hover {
+  background-color: var(--malvi-red-dark);
+  border-color: var(--malvi-red-dark);
+}

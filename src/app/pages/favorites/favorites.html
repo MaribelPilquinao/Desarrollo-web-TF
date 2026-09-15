@@ -1,0 +1,28 @@
+<!-- Contenido principal -->
+<main class="container my-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h4 class="fw-semibold mb-1">Mis favoritos</h4>
+      <p class="text-muted mb-0">Productos guardados desde el catálogo.</p>
+    </div>
+
+    <a href="#" class="btn btn-outline-secondary rounded-pill">
+      ← Volver al catálogo
+    </a>
+  </div>
+
+  <!-- Estado vacío -->
+  <div id="estadoVacio" class="card border-0 shadow-sm p-4">
+    <div class="d-flex align-items-center gap-3">
+      <div class="empty-heart">❤</div>
+      <div>
+        <h6 class="fw-semibold mb-1">Aún no tienes favoritos</h6>
+        <p class="text-muted mb-0">Vuelve al catálogo y marca productos con ❤.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Productos favoritos -->
+  <div id="gridFavoritos" class="row g-3"></div>
+</main>
+

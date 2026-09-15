@@ -1,0 +1,64 @@
+<!-- Contenido principal -->
+<main class="container my-4 carrito-page">
+  <h3 class="fw-semibold mb-3">Carrito de compras</h3>
+
+  <div class="row g-4">
+    <!-- Lista de productos -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm p-3">
+
+        <!-- Productos del carrito -->
+        <div id="carritoLista"></div>
+
+        <!-- Estado vacío -->
+        <div id="carritoVacio" class="text-center text-muted py-4">
+          <div style="font-size: 2rem;">🛒</div>
+          <div class="fw-semibold mt-2">Tu carrito está vacío</div>
+          <div class="small mb-3">Agrega productos desde el catálogo.</div>
+          <a href="#" class="btn btn-outline-secondary rounded-pill">
+            Volver al catálogo
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm p-3">
+        <h5 class="fw-semibold mb-3">Resumen de compra</h5>
+
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Subtotal</span>
+          <span id="subtotal">S/. 0.00</span>
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Envío</span>
+          <span id="envio">S/. 0.00</span>
+        </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between fw-bold mb-3">
+          <span>Total</span>
+          <span id="total">S/. 0.00</span>
+        </div>
+
+        <button id="btnPagar" class="btn btn-add-cart w-100 mb-2">
+          Proceder al pago
+        </button>
+
+        <a href="#" class="btn btn-outline-secondary w-100">
+          Seguir comprando
+        </a>
+
+        <p class="text-muted small mt-3 mb-0">
+          🔒 Pago seguro. Tus datos están protegidos.
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+

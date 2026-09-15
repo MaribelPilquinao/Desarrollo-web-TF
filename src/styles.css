@@ -1,1 +1,44 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --malvi-yellow: #ffc107;
+  --malvi-red: #e9184b;
+  --malvi-red-dark: #c3133e;
+  --malvi-blue-dark: #113b7a;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body, app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+/* Footer */
+footer {
+  margin-top: auto;
+  background-color: var(--malvi-blue-dark);
+  color: #e0e7ff;
+  padding-top: 2.5rem;
+  padding-bottom: 1.5rem;
+}
+
+footer a {
+  color: #e0e7ff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  text-align: center;
+  opacity: 0.85;
+}

@@ -1,1 +1,50 @@
+<!-- Barra superior -->
+<div class="top-bar text-center">
+  Envío gratis en compras superiores a <strong>S/.50</strong>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/home">
+      <img src="/imagenes/malvitec-logo.png" class="logo-malvitec" alt="Malvitec">
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <form class="d-flex mx-lg-4 my-3 my-lg-0 flex-grow-1">
+        <input class="form-control search-input" type="search" placeholder="Buscar productos, marcas..." />
+        <button class="btn search-btn" type="submit" aria-label="Buscar"></button>
+      </form>
+
+      <ul class="navbar-nav ms-lg-3 align-items-lg-center nav-actions">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Ingresar</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">Mi cuenta</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/favorites" routerLinkActive="fw-semibold" title="Favoritos">
+            <span class="nav-icon">❤</span>
+            <span class="d-lg-inline d-none">Favoritos</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/cart" routerLinkActive="fw-semibold" title="Carrito">
+            <span class="nav-icon">🛒</span>
+            <span class="d-lg-inline d-none">Carrito</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
 <router-outlet></router-outlet>
