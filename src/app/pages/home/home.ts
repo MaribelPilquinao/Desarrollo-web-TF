@@ -52,7 +52,51 @@ export class Home {
       opiniones: 289,
       precioAnterior: 'S/ 2,399',
       precioActual: 'S/ 1,919'
-    }
-  ];
+    },
 
+    {
+      id: 'logitech-g-pro-x',
+      categoria: 'perifericos',
+      nombre: 'Teclado Mecánico Logitech G Pro X - RGB, Switches GX Blue',
+      imagen: 'https://oechsle.vteximg.com.br/arquivos/ids/7324469-1000-1000/imageUrl_2.jpg?v=637810641594700000',
+      descuento: '24% OFF',
+      calificacion: '⭐⭐⭐⭐⭐',
+      opiniones: 178,
+      precioAnterior: 'S/ 549',
+      precioActual: 'S/ 417'
+    },
+    {
+      id: 'ipad-air-m2',
+      categoria: 'tablets',
+      nombre: 'iPad Air 11 M2 256GB - Azul',
+      imagen: 'https://images.pexels.com/photos/1334597/pexels-photo-1334597.jpeg?auto=compress&cs=tinysrgb&w=800',
+      descuento: '17% OFF',
+      calificacion: '⭐⭐⭐⭐⭐',
+      opiniones: 412,
+      precioAnterior: 'S/ 3,299',
+      precioActual: 'S/ 2,738'
+    },
+    {
+      id: 'logitech-mx-master-3s',
+      categoria: 'perifericos',
+      nombre: 'Mouse Logitech MX Master 3S - Inalámbrico',
+      imagen: 'https://images.pexels.com/photos/735911/pexels-photo-735911.jpeg?auto=compress&cs=tinysrgb&w=800',
+      descuento: '15% OFF',
+      calificacion: '⭐⭐⭐⭐⭐',
+      opiniones: 256,
+      precioAnterior: 'S/ 429',
+      precioActual: 'S/ 364'
+    },
+    {
+      id: 'sony-alpha-a7-iv',
+      categoria: 'camaras',
+      nombre: 'Cámara Sony Alpha A7 IV - Full Frame 33MP',
+      imagen: 'https://images.pexels.com/photos/279906/pexels-photo-279906.jpeg?auto=compress&cs=tinysrgb&w=800',
+      descuento: '13% OFF',
+      calificacion: '⭐⭐⭐⭐☆',
+      opiniones: 199,
+      precioAnterior: 'S/ 8,999',
+      precioActual: 'S/ 7,829'
+    }      
+  ];
 }
