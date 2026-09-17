@@ -365,7 +365,26 @@
                 [alt]="producto.nombre"
               >
 
-            </div>
+             <!-- Favoritos -->
+             <button
+               type="button"
+               class="fav-add"
+               [class.active]="esFavorito(producto.id)"
+               (click)="alternarFavorito(producto)"
+               [title]="
+                esFavorito(producto.id)
+                 ? 'Quitar de favoritos'
+                 : 'Agregar a favoritos'
+              "
+           >
+             @if (esFavorito(producto.id)) {
+               ❤️
+             } @else {
+               ❤
+           }
+          </button>
+
+        </div>
 
             <!-- Información -->
             <div class="product-body">

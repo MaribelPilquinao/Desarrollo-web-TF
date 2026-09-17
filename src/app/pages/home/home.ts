@@ -116,4 +116,84 @@ export class Home {
       producto => producto.categoria === this.categoriaSeleccionada
     );
   }
-}
+
+  /** Filtro favoritos */
+
+  private readonly FAV_KEY = 'malvitec_favorites';
+
+  favoritos: {
+    id: string;
+    title: string;
+    price: number;
+    img: string;
+  }[] = [];
+
+  ngOnInit(): void {
+    this.cargarFavoritos();
+  }
+
+  cargarFavoritos(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    const favoritosGuardados = localStorage.getItem(this.FAV_KEY);
+
+    if (!favoritosGuardados) {
+      this.favoritos = [];
+      return;
+    }
+
+    try {
+      const datos = JSON.parse(favoritosGuardados);
+
+      this.favoritos = Array.isArray(datos)
+        ? datos
+        : [];
+    } catch {
+      this.favoritos = [];
+    }
+  }
+
+  esFavorito(id: string): boolean {
+    return this.favoritos.some(
+      favorito => favorito.id === id
+    );
+  }
+
+  alternarFavorito(producto: any): void {
+    const existe = this.esFavorito(producto.id);
+
+    if (existe) {
+      this.favoritos = this.favoritos.filter(
+        favorito => favorito.id !== producto.id
+      );
+    } else {
+      this.favoritos.push({
+        id: producto.id,
+        title: producto.nombre,
+        price: this.convertirPrecio(producto.precioActual),
+        img: producto.imagen
+      });
+    }
+
+    this.guardarFavoritos();
+  }
+
+  guardarFavoritos(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    localStorage.setItem(
+      this.FAV_KEY,
+      JSON.stringify(this.favoritos)
+    );
+  }
+
+  convertirPrecio(precio: string): number {
+    return Number(
+      precio.replace(/[^\d.]/g, '')
+    ) || 0;
+  }
+  }
