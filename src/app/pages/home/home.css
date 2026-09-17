@@ -299,3 +299,41 @@
   border-color: var(--malvi-red-dark);
   color: #ffffff;
 }
+
+/* Footer */
+footer {
+  margin-top: 3rem;
+  padding-top: 2.5rem;
+  padding-bottom: 1.5rem;
+
+  background-color: #113b7a;
+  color: #e0e7ff;
+}
+
+footer h6 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+footer p {
+  margin-bottom: 0.5rem;
+}
+
+footer a {
+  color: #e0e7ff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+  text-align: center;
+  opacity: 0.85;
+}
