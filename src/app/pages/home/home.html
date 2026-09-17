@@ -90,16 +90,79 @@
 <!-- Categorías -->
 <div class="categories-strip py-2">
   <div class="container d-flex flex-wrap gap-2">
-    <button class="category-chip active">Todos</button>
-    <button class="category-chip">Laptops</button>
-    <button class="category-chip">Celulares</button>
-    <button class="category-chip">Audio</button>
-    <button class="category-chip">Wearables</button>
-    <button class="category-chip">Periféricos</button>
-    <button class="category-chip">Tablets</button>
-    <button class="category-chip">Accesorios</button>
-    <button class="category-chip">Cámaras</button>
-    <button class="category-chip">Consolas y videojuegos</button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'all'"
+      (click)="seleccionarCategoria('all')"
+    >
+      Todos
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'laptops'"
+      (click)="seleccionarCategoria('laptops')"
+    >
+      Laptops
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'celulares'"
+      (click)="seleccionarCategoria('celulares')"
+    >
+      Celulares
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'audio'"
+      (click)="seleccionarCategoria('audio')"
+    >
+      Audio
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'wearables'"
+      (click)="seleccionarCategoria('wearables')"
+    >
+      Wearables
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'perifericos'"
+      (click)="seleccionarCategoria('perifericos')"
+    >
+      Periféricos
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'tablets'"
+      (click)="seleccionarCategoria('tablets')"
+    >
+      Tablets
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'accesorios'"
+      (click)="seleccionarCategoria('accesorios')"
+    >
+      Accesorios
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'camaras'"
+      (click)="seleccionarCategoria('camaras')"
+    >
+      Cámaras
+    </button>
+
   </div>
 </div>
 
@@ -280,7 +343,7 @@
 
     <div class="row g-3">
 
-      @for (producto of productos; track producto.id) {
+      @for (producto of productosFiltrados; track producto.id) {
 
         <div class="col-sm-6 col-md-4 col-lg-3">
 
@@ -358,35 +421,35 @@
         </p>
       </div>
 
-      <!-- Categorías -->
-      <div class="col-md-2">
-        <h6>Categorías</h6>
+<!-- Categorías -->
+<div class="col-md-2">
+  <h6>Categorías</h6>
 
-        <p><a href="#">Laptops</a></p>
-        <p><a href="#">Celulares</a></p>
-        <p><a href="#">Audio</a></p>
-        <p><a href="#">Accesorios</a></p>
-      </div>
+  <p><a href="#">Laptops</a></p>
+  <p><a href="#">Celulares</a></p>
+  <p><a href="#">Audio</a></p>
+  <p><a href="#">Accesorios</a></p>
+</div>
 
-      <!-- Ayuda -->
-      <div class="col-md-3">
-        <h6>Ayuda</h6>
+<!-- Ayuda -->
+<div class="col-md-3">
+  <h6>Ayuda</h6>
 
-        <p><a href="#">Centro de ayuda</a></p>
-        <p><a href="#">Comprar</a></p>
-        <p><a href="#">Vender</a></p>
-        <p><a href="#">Contacto</a></p>
-      </div>
+  <p><a href="#">Centro de ayuda</a></p>
+  <p><a href="#">Comprar</a></p>
+  <p><a href="#">Vender</a></p>
+  <p><a href="#">Contacto</a></p>
+</div>
 
-      <!-- Redes sociales -->
-      <div class="col-md-3">
-        <h6>Redes sociales</h6>
+<!-- Redes sociales -->
+<div class="col-md-3">
+  <h6>Redes sociales</h6>
 
-        <p><a href="#">Facebook</a></p>
-        <p><a href="#">Instagram</a></p>
-        <p><a href="#">Twitter</a></p>
-        <p><a href="#">YouTube</a></p>
-      </div>
+  <p><a href="#">Facebook</a></p>
+  <p><a href="#">Instagram</a></p>
+  <p><a href="#">Twitter</a></p>
+  <p><a href="#">YouTube</a></p>
+</div>
 
     </div>
 

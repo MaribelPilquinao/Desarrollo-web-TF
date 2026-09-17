@@ -97,6 +97,23 @@ export class Home {
       opiniones: 199,
       precioAnterior: 'S/ 8,999',
       precioActual: 'S/ 7,829'
-    }      
+    },   
+
   ];
+
+  categoriaSeleccionada = 'all';
+
+  seleccionarCategoria(categoria: string) {
+    this.categoriaSeleccionada = categoria;
+  }
+
+  get productosFiltrados() {
+    if (this.categoriaSeleccionada === 'all') {
+      return this.productos;
+    }
+
+    return this.productos.filter(
+      producto => producto.categoria === this.categoriaSeleccionada
+    );
+  }
 }
