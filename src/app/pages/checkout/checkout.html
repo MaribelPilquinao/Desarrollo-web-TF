@@ -1,0 +1,275 @@
+<div class="container py-5">
+
+<h2 class="mb-4">
+    Finalizar compra
+</h2>
+
+<div class="row g-4">
+
+    <!-- LADO IZQUIERDO -->
+    <div class="col-lg-8">
+
+    <!-- DATOS PERSONALES -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+        <h5 class="card-title mb-3">
+            Datos personales
+        </h5>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+            <label class="form-label">
+                Nombres
+            </label>
+
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Ingrese sus nombres"
+                [(ngModel)]="nombres">
+
+            <div class="col-md-6 mb-3">
+            <label class="form-label">
+                Apellidos
+            </label>
+
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Ingrese sus apellidos"
+                [(ngModel)]="apellidos">
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+            <label class="form-label">
+                Correo electrónico
+            </label>
+
+            <input
+                type="email"
+                class="form-control"
+                placeholder="correo@ejemplo.com"
+                [(ngModel)]="correo">
+            </div>
+
+            <div class="col-md-6 mb-3">
+            <label class="form-label">
+                Teléfono
+            </label>
+
+            <input
+                type="tel"
+                class="form-control"
+                placeholder="999 999 999"
+                [(ngModel)]="telefono">
+            </div>
+
+        </div>
+
+        </div>
+    </div>
+
+
+    <!-- DIRECCIÓN -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+        <h5 class="card-title mb-3">
+            Dirección de entrega
+        </h5>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+            <label class="form-label">
+                Departamento
+            </label>
+
+            <select
+        class="form-select"
+        [(ngModel)]="departamento">
+
+        <option value="">
+    Seleccione
+        </option>
+
+            <option value="Lima">
+    Lima
+        </option>
+
+        <option value="Arequipa">
+    Arequipa
+        </option>
+
+        <option value="La Libertad">
+    La Libertad
+        </option>
+
+        <option value="Piura">
+    Piura
+        </option>
+
+</select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+            <label class="form-label">
+                Distrito
+            </label>
+
+        <input
+            type="text"
+            class="form-control"
+            placeholder="Ingrese su distrito"
+            [(ngModel)]="distrito">
+            </div>
+
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+            Dirección
+            </label>
+
+            <input
+            type="text"
+            class="form-control"
+            placeholder="Av. / Jr. / Calle"
+            [(ngModel)]="direccion">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+            Referencia
+            </label>
+
+            <textarea
+            class="form-control"
+            rows="2"
+            placeholder="Referencia de la dirección"
+            [(ngModel)]="referencia"></textarea>
+        </div>
+
+        </div>
+    </div>
+
+
+    <!-- MÉTODO DE PAGO -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+        <h5 class="card-title mb-3">
+            Método de pago
+        </h5>
+
+        <div class="form-check mb-2">
+            <input
+            class="form-check-input"
+            type="radio"
+            name="metodoPago"
+            id="tarjeta"
+            value="tarjeta"
+            [(ngModel)]="metodoPago">
+
+            <label
+            class="form-check-label"
+            for="tarjeta">
+            Tarjeta de crédito o débito
+            </label>
+        </div>
+
+        <div class="form-check mb-2">
+            <input
+            class="form-check-input"
+            type="radio"
+            name="metodoPago"
+            id="yape"
+            value="yape"
+            [(ngModel)]="metodoPago">
+
+            <label
+            class="form-check-label"
+            for="yape">
+            Yape / Plin
+            </label>
+        </div>
+
+        <div class="form-check">
+            <input
+            class="form-check-input"
+            type="radio"
+            name="metodoPago"
+            id="contraEntrega"
+            value="contraEntrega"
+            [(ngModel)]="metodoPago">
+
+            <label
+            class="form-check-label"
+            for="contraEntrega">
+            Pago contra entrega
+            </label>
+        </div>
+
+        </div>
+    </div>
+
+    </div>
+
+
+    <!-- LADO DERECHO -->
+    <div class="col-lg-4">
+
+    <div class="card shadow-sm resumen-compra">
+
+        <div class="card-body">
+
+        <h5 class="card-title mb-4">
+            Resumen de compra
+        </h5>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span>{{producto}}</span>
+            <span>S/ {{precio}}</span>
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span>Cantidad</span>
+            <span>{{ cantidad }}</span>
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span>Subtotal</span>
+            <span>S/ {{subtotal}}</span>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+            <span>Envío</span>
+            <span>S/ {{envio}}</span>
+        </div>
+
+        <hr>
+
+        <div class="d-flex justify-content-between fw-bold mb-4">
+            <span>Total</span>
+            <span>S/ {{total}}</span>
+        </div>
+
+        <button
+            class="btn btn-primary w-100" (click) = "confirmarCompra()">
+            Confirmar compra
+        </button>
+
+        </div>
+
+    </div>
+
+    </div>
+
+</div>
+
+</div>
