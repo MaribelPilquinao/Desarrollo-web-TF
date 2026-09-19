@@ -1,16 +1,79 @@
 <!-- Categorías -->
 <div class="categories-strip py-2">
   <div class="container d-flex flex-wrap gap-2">
-    <button class="category-chip active">Todos</button>
-    <button class="category-chip">Laptops</button>
-    <button class="category-chip">Celulares</button>
-    <button class="category-chip">Audio</button>
-    <button class="category-chip">Wearables</button>
-    <button class="category-chip">Periféricos</button>
-    <button class="category-chip">Tablets</button>
-    <button class="category-chip">Accesorios</button>
-    <button class="category-chip">Cámaras</button>
-    <button class="category-chip">Consolas y videojuegos</button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'all'"
+      (click)="seleccionarCategoria('all')"
+    >
+      Todos
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'laptops'"
+      (click)="seleccionarCategoria('laptops')"
+    >
+      Laptops
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'celulares'"
+      (click)="seleccionarCategoria('celulares')"
+    >
+      Celulares
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'audio'"
+      (click)="seleccionarCategoria('audio')"
+    >
+      Audio
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'wearables'"
+      (click)="seleccionarCategoria('wearables')"
+    >
+      Wearables
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'perifericos'"
+      (click)="seleccionarCategoria('perifericos')"
+    >
+      Periféricos
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'tablets'"
+      (click)="seleccionarCategoria('tablets')"
+    >
+      Tablets
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'accesorios'"
+      (click)="seleccionarCategoria('accesorios')"
+    >
+      Accesorios
+    </button>
+
+    <button
+      class="category-chip"
+      [class.active]="categoriaSeleccionada === 'camaras'"
+      (click)="seleccionarCategoria('camaras')"
+    >
+      Cámaras
+    </button>
+
   </div>
 </div>
 
@@ -180,3 +243,148 @@
   </button>
 
 </div>
+
+<!-- Productos -->
+<main class="container my-4">
+
+  <section>
+    <h5 class="products-section-title">
+      Todos los productos
+    </h5>
+
+    <div class="row g-3">
+
+      @for (producto of productosFiltrados; track producto.id) {
+
+        <div class="col-sm-6 col-md-4 col-lg-3">
+
+          <article class="product-card">
+
+            <!-- Imagen -->
+            <div class="product-image-wrapper">
+
+              <span class="badge-discount">
+                {{ producto.descuento }}
+              </span>
+
+              <span class="badge-shipping">
+                Envío gratis
+              </span>
+
+              <img
+                [src]="producto.imagen"
+                [alt]="producto.nombre"
+              >
+
+             <!-- Favoritos -->
+             <button
+               type="button"
+               class="fav-add"
+               [class.active]="esFavorito(producto.id)"
+               (click)="alternarFavorito(producto)"
+               [title]="
+                esFavorito(producto.id)
+                 ? 'Quitar de favoritos'
+                 : 'Agregar a favoritos'
+              "
+           >
+             @if (esFavorito(producto.id)) {
+               ❤️
+             } @else {
+               ❤
+           }
+          </button>
+
+        </div>
+
+            <!-- Información -->
+            <div class="product-body">
+
+              <h6 class="product-title">
+                {{ producto.nombre }}
+              </h6>
+
+              <div class="product-rating">
+                {{ producto.calificacion }}
+
+                <span class="small-muted">
+                  ({{ producto.opiniones }})
+                </span>
+              </div>
+
+              <div class="product-price-old">
+                {{ producto.precioAnterior }}
+              </div>
+
+              <div class="product-price-new">
+                {{ producto.precioActual }}
+              </div>
+
+              <button class="btn btn-add-cart">
+                🛒 Agregar al carrito
+              </button>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      }
+
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row gy-4">
+
+      <!-- Información -->
+      <div class="col-md-4">
+        <h6>MALVITEC</h6>
+        <p>
+          Tu tienda de tecnología de confianza.
+          Los mejores productos a los mejores precios.
+        </p>
+      </div>
+
+<!-- Categorías -->
+<div class="col-md-2">
+  <h6>Categorías</h6>
+
+  <p><a href="#">Laptops</a></p>
+  <p><a href="#">Celulares</a></p>
+  <p><a href="#">Audio</a></p>
+  <p><a href="#">Accesorios</a></p>
+</div>
+
+<!-- Ayuda -->
+<div class="col-md-3">
+  <h6>Ayuda</h6>
+
+  <p><a href="#">Centro de ayuda</a></p>
+  <p><a href="#">Comprar</a></p>
+  <p><a href="#">Vender</a></p>
+  <p><a href="#">Contacto</a></p>
+</div>
+
+<!-- Redes sociales -->
+<div class="col-md-3">
+  <h6>Redes sociales</h6>
+
+  <p><a href="#">Facebook</a></p>
+  <p><a href="#">Instagram</a></p>
+  <p><a href="#">Twitter</a></p>
+  <p><a href="#">YouTube</a></p>
+</div>
+
+    </div>
+
+    <div class="footer-bottom">
+      © 2026 MALVITEC. Todos los derechos reservados.
+    </div>
+  </div>
+</footer>
