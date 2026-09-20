@@ -206,6 +206,215 @@
               </p>
             </div>
 
+            <!-- Información adicional del producto -->
+            <section class="mt-4">
+
+              <!-- Pestañas -->
+              <ul
+                class="nav nav-tabs nav-tabs-alt"
+                id="productTab"
+                role="tablist"
+              >
+
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link active"
+                    id="descripcion-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#descripcion"
+                    type="button"
+                    role="tab"
+                  >
+                    Descripción
+                  </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="especificaciones-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#especificaciones"
+                    type="button"
+                    role="tab"
+                  >
+                    Especificaciones
+                  </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="opiniones-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#opiniones"
+                    type="button"
+                    role="tab"
+                  >
+                    Opiniones ({{ producto.opiniones }})
+                  </button>
+                </li>
+
+              </ul>
+
+
+              <!-- Contenido -->
+              <div
+                class="tab-content border border-top-0 rounded-bottom p-3 p-md-4 bg-white shadow-sm"
+              >
+                <!-- Descripción -->
+                <div
+                  class="tab-pane fade show active"
+                  id="descripcion"
+                  role="tabpanel"
+                >
+
+                  <p>
+                    La HP OMEN 16 es una laptop gamer diseñada para ofrecer
+                    alto rendimiento en juegos exigentes y tareas de productividad.
+                    Cuenta con procesador Intel Core i7, 16GB de RAM y tarjeta
+                    gráfica NVIDIA RTX 3070.
+                  </p>
+
+                  <ul>
+                    <li>Pantalla 16" Full HD 144Hz.</li>
+                    <li>Teclado retroiluminado RGB.</li>
+                    <li>Sistema de refrigeración optimizado.</li>
+                    <li>Diseñada para gaming y creación de contenido.</li>
+                  </ul>
+
+                </div>
+
+
+                <!-- Especificaciones -->
+                <div
+                  class="tab-pane fade"
+                  id="especificaciones"
+                  role="tabpanel"
+                >
+
+                  <div class="row">
+
+                    <div class="col-md-6">
+
+                      <ul class="list-unstyled small spec-list">
+                        <li>
+                          <strong>Procesador:</strong>
+                          Intel Core i7 (12ª gen)
+                        </li>
+
+                        <li>
+                          <strong>Memoria RAM:</strong>
+                          16GB DDR5
+                        </li>
+
+                        <li>
+                          <strong>Almacenamiento:</strong>
+                          1TB SSD NVMe
+                        </li>
+
+                        <li>
+                          <strong>Gráficos:</strong>
+                          NVIDIA GeForce RTX 3070
+                        </li>
+
+                        <li>
+                          <strong>Pantalla:</strong>
+                          16" FHD 144Hz
+                        </li>
+                      </ul>
+
+                    </div>
+
+
+                     <div class="col-md-6">
+
+                      <ul class="list-unstyled small spec-list">
+
+                        <li>
+                          <strong>Sistema operativo:</strong>
+                          Windows 11
+                        </li>
+
+                        <li>
+                          <strong>Conectividad:</strong>
+                          Wi-Fi 6, Bluetooth 5.2
+                        </li>
+
+                        <li>
+                          <strong>Puertos:</strong>
+                          USB-C, USB-A, HDMI, RJ-45
+                        </li>
+
+                        <li>
+                          <strong>Peso:</strong>
+                          2.3 kg aprox.
+                        </li>
+
+                        <li>
+                          <strong>Color:</strong>
+                          Negro sombra
+                        </li>
+
+                      </ul>
+
+                    </div>
+
+                  </div>
+
+               </div>
+
+
+                <!-- Opiniones -->
+                <div
+                  class="tab-pane fade"
+                  id="opiniones"
+                  role="tabpanel"
+                >
+
+                  <div class="small">
+
+                    <p class="mb-3">
+                      ⭐⭐⭐⭐☆
+                      <strong>4.5 de 5</strong>
+                      — basado en
+                      <strong>{{ producto.opiniones }} opiniones</strong>
+                    </p>
+
+                    <div class="review-item">
+                      <strong>Carlos M.</strong>
+                      <p>
+                        Rinde muy bien con juegos exigentes y la pantalla
+                        ofrece una buena calidad.
+                      </p>
+                    </div>
+
+                    <div class="review-item">
+                      <strong>Lucía P.</strong>
+                      <p>
+                        Muy rápida para edición de video y trabajos pesados.
+                      </p>
+                    </div>
+
+                    <div class="review-item">
+                      <strong>Juan R.</strong>
+                      <p>
+                        Buena relación entre rendimiento y precio.
+                      </p>
+                    </div>
+
+                    <p class="text-muted mt-3 mb-0">
+                      *Las opiniones mostradas son demostrativas para el prototipo.
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </section>
+
           </section>
 
         </div>
