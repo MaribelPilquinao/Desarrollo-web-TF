@@ -9,7 +9,7 @@ import { ProductoDetalle } from './pages/producto-detalle/producto-detalle';
 
 
 export const routes: Routes = [
-    { path: "", redirectTo: "producto-detalle", pathMatch: "full" },
+    { path: "", redirectTo: "home", pathMatch: "full" },
     { path: "home", component: Home },
     { path: "cart", component: Cart },
     { path: "producto-detalle", component: ProductoDetalle },

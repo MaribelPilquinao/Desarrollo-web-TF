@@ -271,10 +271,26 @@
                 Envío gratis
               </span>
 
+              @if (producto.id === 'hp-omen-16') {
+
+              <a
+               routerLink="/producto-detalle"
+               class="product-detail-link"
+              >
+               <img
+                 [src]="producto.imagen"
+                 [alt]="producto.nombre"
+               >
+              </a>
+
+            } @else {
+
               <img
                 [src]="producto.imagen"
                 [alt]="producto.nombre"
               >
+
+            }
 
              <!-- Favoritos -->
              <button
@@ -300,9 +316,24 @@
             <!-- Información -->
             <div class="product-body">
 
-              <h6 class="product-title">
+              @if (producto.id === 'hp-omen-16') {
+
+            <h6 class="product-title">
+               <a
+                 routerLink="/producto-detalle"
+                 class="product-title-link"
+               >
+                  {{ producto.nombre }}
+               </a>
+            </h6>
+
+            } @else {
+
+             <h6 class="product-title">
                 {{ producto.nombre }}
-              </h6>
+             </h6>
+
+            }
 
               <div class="product-rating">
                 {{ producto.calificacion }}
