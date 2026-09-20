@@ -112,3 +112,69 @@
     height: 300px;
   }
 }
+
+/* Información del producto */
+.product-info {
+  height: 100%;
+  background-color: #ffffff;
+  border-radius: 0.85rem;
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  color: #ffb300;
+  font-size: 0.85rem;
+}
+
+.small-muted {
+  color: #9ca3af;
+}
+
+.divider-dot {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+
+/* Precios */
+.product-detail-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.product-price-old {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+.product-price-new {
+  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+
+/* Configuraciones */
+.config-option {
+  border-radius: 999px;
+}
+
+.config-option.active {
+  background-color: #111827;
+  border-color: #111827;
+  color: #ffffff;
+}
+
+
+/* Stock */
+.stock-info {
+  padding: 0.75rem;
+
+  background-color: #f9fafb;
+  border-radius: 0.6rem;
+}

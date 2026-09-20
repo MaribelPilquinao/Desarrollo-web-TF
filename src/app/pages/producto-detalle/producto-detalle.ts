@@ -11,6 +11,31 @@ export class ProductoDetalle {
 
   imagenPrincipal =
     'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1200';
+  
+  producto = {
+  id: 'hp-omen-16',
+  nombre: 'Laptop Gaming HP OMEN 16 - Intel Core i7, 16GB RAM, RTX 3070',
+  calificacion: '⭐⭐⭐⭐☆',
+  opiniones: 342,
+  stock: 15,
+  vendedor: 'TechPower Store',
+  garantia: '12 meses',
+  precioAnterior: 'S/ 7,299',
+  precioActual: 'S/ 5,547',
+  ahorro: 'S/ 1,752'
+};
+
+configuraciones = [
+  '16GB RAM • 1TB SSD',
+  '32GB RAM • 1TB SSD',
+  '32GB RAM • 2TB SSD'
+];
+
+configuracionSeleccionada = '16GB RAM • 1TB SSD';
+
+seleccionarConfiguracion(configuracion: string): void {
+  this.configuracionSeleccionada = configuracion;
+}
 
   imagenes = [
     {

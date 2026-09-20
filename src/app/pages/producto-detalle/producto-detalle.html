@@ -48,7 +48,6 @@
 
         </div>
 
-
         <!-- Miniaturas -->
         <div class="product-gallery-thumbs">
 
@@ -68,6 +67,111 @@
       </div>
 
     </div>
+
+        <!-- Información del producto -->
+        <div class="col-lg-6">
+
+          <section class="product-info card border-0 shadow-sm p-3 p-md-4">
+
+            <!-- Nombre -->
+            <h1 class="h4 mb-2">
+              {{ producto.nombre }}
+            </h1>
+
+
+            <!-- Calificación y stock -->
+            <div class="d-flex align-items-center gap-2 mb-2">
+
+              <div class="product-rating">
+                {{ producto.calificacion }}
+
+                <span class="small-muted">
+                  ({{ producto.opiniones }} opiniones)
+                </span>
+              </div>
+
+              <span class="divider-dot">•</span>
+
+              <span class="small text-success fw-semibold">
+                En stock
+              </span>
+
+            </div>
+
+
+            <!-- Vendedor -->
+            <p class="small text-muted mb-3">
+              Vendido y enviado por
+              <strong>{{ producto.vendedor }}</strong>
+              • Garantía {{ producto.garantia }}
+            </p>
+
+
+            <!-- Precios -->
+            <div class="product-detail-price mb-3">
+
+              <div class="product-price-old">
+                {{ producto.precioAnterior }}
+              </div>
+
+              <div class="product-price-new">
+                {{ producto.precioActual }}
+              </div>
+
+              <span
+                class="badge bg-success-subtle text-success-emphasis ms-2"
+              >
+                Ahorra {{ producto.ahorro }}
+              </span>
+
+            </div>
+
+            <hr>
+
+
+            <!-- Configuración -->
+            <div class="mb-3">
+
+              <h6 class="small text-uppercase text-muted mb-2">
+                Configuración
+              </h6>
+
+              <div class="d-flex flex-wrap gap-2">
+
+                @for (
+                  configuracion of configuraciones;
+                  track configuracion
+                ) {
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm config-option"
+                    [class.active]="
+                      configuracionSeleccionada === configuracion
+                    "
+                    (click)="seleccionarConfiguracion(configuracion)"
+                  >
+                    {{ configuracion }}
+                  </button>
+
+                }
+
+              </div>
+
+            </div>
+
+
+            <!-- Stock -->
+            <div class="stock-info">
+              <p class="small text-muted mb-0">
+                Stock disponible:
+                <strong>{{ producto.stock }} unidades</strong>
+              </p>
+            </div>
+
+          </section>
+
+        </div>
 
   </div>
 
