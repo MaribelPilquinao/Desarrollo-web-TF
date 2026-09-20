@@ -239,3 +239,21 @@
   background-color: #e9184b;
   color: #ffffff;
 }
+
+/* Botón carrito */
+.btn-add-cart {
+  background-color: #e9184b;
+  border-color: #e9184b;
+  color: #ffffff;
+  border-radius: 999px;
+}
+
+.btn-add-cart:hover {
+  background-color: #c3133e;
+  border-color: #c3133e;
+  color: #ffffff;
+}
+
+.btn-add-cart:disabled {
+  opacity: 0.8;
+}

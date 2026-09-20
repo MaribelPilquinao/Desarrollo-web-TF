@@ -165,4 +165,48 @@ convertirPrecio(precio: string): number {
     precio.replace(/[^\d.]/g, '')
   ) || 0;
 }
+
+private readonly CART_KEY = 'malvitec_cart';
+agregarAlCarrito(): void {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+
+  const carritoGuardado = localStorage.getItem(this.CART_KEY);
+
+  let carrito = carritoGuardado
+    ? JSON.parse(carritoGuardado)
+    : [];
+
+  const productoExistente = carrito.find(
+    (item: any) => item.id === this.producto.id
+  );
+
+  if (productoExistente) {
+    productoExistente.qty += this.cantidad;
+  } else {
+    carrito.push({
+      id: this.producto.id,
+      title: this.producto.nombre,
+      price: this.convertirPrecio(this.producto.precioActual),
+      img: this.imagenes[0].completa,
+      qty: this.cantidad
+    });
+  }
+
+  localStorage.setItem(
+    this.CART_KEY,
+    JSON.stringify(carrito)
+  );
+
+  this.mostrarConfirmacionCarrito();
+}
+productoAgregado = false;
+mostrarConfirmacionCarrito(): void {
+  this.productoAgregado = true;
+
+  setTimeout(() => {
+    this.productoAgregado = false;
+  }, 900);
+}
 }

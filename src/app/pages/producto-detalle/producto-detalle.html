@@ -226,6 +226,26 @@
 
             </div>
 
+            <!-- Carrito -->
+            <div class="mt-3">
+
+              <button
+                type="button"
+                class="btn btn-add-cart w-100"
+                (click)="agregarAlCarrito()"
+                [disabled]="productoAgregado"
+              >
+
+                @if (productoAgregado) {
+                  ✔ Producto agregado
+                } @else {
+                  🛒 Agregar {{ cantidad }} al carrito
+                }
+
+              </button>
+
+            </div>
+
             <!-- Información adicional del producto -->
             <section class="mt-4">
 
