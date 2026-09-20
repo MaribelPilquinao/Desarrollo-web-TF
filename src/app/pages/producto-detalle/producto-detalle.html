@@ -1,4 +1,81 @@
-<div class="container my-5">
-  <h1>Detalle de producto</h1>
-  <p>Componente de detalle funcionando correctamente.</p>
-</div>
+<main class="container my-4 product-detail">
+
+  <!-- Migas de pan -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+
+      <li class="breadcrumb-item">
+        <a routerLink="/home">Inicio</a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="#">Laptops</a>
+      </li>
+
+      <li
+        class="breadcrumb-item active"
+        aria-current="page"
+      >
+        Laptop Gaming HP OMEN 16
+      </li>
+
+    </ol>
+  </nav>
+
+
+  <!-- Galería del producto -->
+  <div class="row g-4">
+
+    <div class="col-lg-6">
+
+      <div class="product-gallery card border-0 shadow-sm">
+
+        <!-- Imagen principal -->
+        <div class="product-gallery-main">
+
+          <img
+            src="https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1200"
+            alt="Laptop Gaming HP OMEN 16"
+          >
+
+          <span class="badge-discount badge-detail">
+            24% OFF
+          </span>
+
+          <span class="badge-shipping badge-detail">
+            Envío gratis
+          </span>
+
+        </div>
+
+
+        <!-- Miniaturas -->
+        <div class="product-gallery-thumbs">
+
+          <img
+            src="https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400"
+            alt="Vista 1"
+            class="thumb active"
+          >
+
+          <img
+            src="https://images.pexels.com/photos/374074/pexels-photo-374074.jpeg?auto=compress&cs=tinysrgb&w=400"
+            alt="Vista 2"
+            class="thumb"
+          >
+
+          <img
+            src="https://images.pexels.com/photos/177598/pexels-photo-177598.jpeg?auto=compress&cs=tinysrgb&w=400"
+            alt="Vista 3"
+            class="thumb"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
