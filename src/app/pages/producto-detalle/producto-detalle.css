@@ -216,3 +216,26 @@
   margin-bottom: 0;
   color: #4b5563;
 }
+
+/* Favoritos */
+.btn-favorite {
+  border: 1px solid #e9184b;
+  border-radius: 999px;
+
+  background-color: #ffffff;
+  color: #e9184b;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.btn-favorite:hover {
+  background-color: rgba(233, 24, 75, 0.08);
+  color: #e9184b;
+}
+
+.btn-favorite.active {
+  background-color: #e9184b;
+  color: #ffffff;
+}

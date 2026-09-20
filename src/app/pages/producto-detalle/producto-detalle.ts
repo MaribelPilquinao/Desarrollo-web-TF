@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './producto-detalle.html',
   styleUrl: './producto-detalle.css'
 })
-export class ProductoDetalle {
+export class ProductoDetalle implements OnInit {
 
   imagenPrincipal =
     'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1200';
@@ -77,5 +77,92 @@ disminuirCantidad(): void {
   if (this.cantidad > 1) {
     this.cantidad--;
   }
+}
+private readonly FAV_KEY = 'malvitec_favorites';
+
+favoritos: {
+  id: string;
+  title: string;
+  price: number;
+  img: string;
+}[] = [];
+
+ngOnInit(): void {
+  this.cargarFavoritos();
+}
+cargarFavoritos(): void {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+
+  const favoritosGuardados = localStorage.getItem(this.FAV_KEY);
+
+  if (!favoritosGuardados) {
+    this.favoritos = [];
+    return;
+  }
+
+  try {
+    const datos = JSON.parse(favoritosGuardados);
+
+    this.favoritos = Array.isArray(datos)
+      ? datos
+      : [];
+  } catch {
+    this.favoritos = [];
+  }
+}
+
+
+esFavorito(): boolean {
+  return this.favoritos.some(
+    favorito => favorito.id === this.producto.id
+  );
+}
+
+
+alternarFavorito(): void {
+
+  const existe = this.esFavorito();
+
+  if (existe) {
+
+    this.favoritos = this.favoritos.filter(
+      favorito => favorito.id !== this.producto.id
+    );
+
+  } else {
+
+    this.favoritos.push({
+      id: this.producto.id,
+      title: this.producto.nombre,
+      price: this.convertirPrecio(
+        this.producto.precioActual
+      ),
+      img: this.imagenes[0].completa
+    });
+
+  }
+
+  this.guardarFavoritos();
+}
+
+
+guardarFavoritos(): void {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+
+  localStorage.setItem(
+    this.FAV_KEY,
+    JSON.stringify(this.favoritos)
+  );
+}
+
+
+convertirPrecio(precio: string): number {
+  return Number(
+    precio.replace(/[^\d.]/g, '')
+  ) || 0;
 }
 }
