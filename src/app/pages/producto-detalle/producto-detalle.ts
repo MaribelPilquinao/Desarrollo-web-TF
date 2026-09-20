@@ -64,4 +64,18 @@ seleccionarConfiguracion(configuracion: string): void {
   cambiarImagen(imagen: string): void {
     this.imagenPrincipal = imagen;
   }
+
+  cantidad = 1;
+
+aumentarCantidad(): void {
+  if (this.cantidad < this.producto.stock) {
+    this.cantidad++;
+  }
+}
+
+disminuirCantidad(): void {
+  if (this.cantidad > 1) {
+    this.cantidad--;
+  }
+}
 }

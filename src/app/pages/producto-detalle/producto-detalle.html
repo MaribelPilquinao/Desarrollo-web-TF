@@ -160,6 +160,43 @@
 
             </div>
 
+            <!-- Cantidad -->
+            <div class="mb-3">
+
+              <h6 class="small text-uppercase text-muted mb-2">
+                Cantidad
+              </h6>
+
+              <div class="input-group input-group-sm quantity-control">
+
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="disminuirCantidad()"
+                  [disabled]="cantidad <= 1"
+                >
+                  −
+                </button>
+
+                <input
+                  type="text"
+                  class="form-control text-center"
+                  [value]="cantidad"
+                  readonly
+                >
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="aumentarCantidad()"
+                  [disabled]="cantidad >= producto.stock"
+                >
+                  +
+                </button>
+
+              </div>
+
+            </div>
+
 
             <!-- Stock -->
             <div class="stock-info">
