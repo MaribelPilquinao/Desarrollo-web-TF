@@ -6,16 +6,20 @@
   border-radius: 0.85rem !important;
 }
 
+/* Tarjeta */
 .product-card {
-  border-radius: 0.85rem;
+  height: 100%;
   overflow: hidden;
+
+  background-color: #ffffff;
   border: 1px solid #eceff1;
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+  border-radius: 0.85rem;
+
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease;
-  background-color: #fff;
-  position: relative;
 }
 
 .product-card:hover {
@@ -23,36 +27,101 @@
   box-shadow: 0 8px 26px rgba(15, 23, 42, 0.12);
 }
 
+/* Contenedor de imagen */
+.product-image-wrapper {
+  position: relative;
+
+  width: 100%;
+  height: 230px;
+
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+/* Imagen */
+.product-image-wrapper img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+/* Información */
+.product-body {
+  padding: 1rem;
+}
+
+.product-title {
+  min-height: 3em;
+
+  margin-bottom: 0.5rem;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Precio */
+.product-price-new {
+  margin-bottom: 0.75rem;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Corazón */
 .fav-remove {
   position: absolute;
   top: 10px;
   right: 10px;
+
+  z-index: 2;
+
   width: 38px;
-  height: 32px;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  color: #e9184b;
-  font-weight: 800;
-  cursor: pointer;
+  height: 38px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background-color: rgba(255, 255, 255, 0.92);
+  color: #e9184b;
+
+  font-size: 1.1rem;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+  cursor: pointer;
+
+  transition: transform 0.2s ease;
 }
 
 .fav-remove:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
+/* Corazón del estado vacío */
 .empty-heart {
   width: 52px;
   height: 52px;
-  border-radius: 16px;
-  background: rgba(233, 24, 75, 0.08);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border-radius: 16px;
+
+  background-color: rgba(233, 24, 75, 0.08);
   color: #e9184b;
+
   font-size: 1.6rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-image-wrapper {
+    height: 200px;
+  }
 }

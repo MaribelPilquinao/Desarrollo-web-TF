@@ -25,6 +25,15 @@ footer {
   padding-bottom: 1.5rem;
 }
 
+footer h6 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+footer p {
+  margin-bottom: 0.5rem;
+}
+
 footer a {
   color: #e0e7ff;
   text-decoration: none;
