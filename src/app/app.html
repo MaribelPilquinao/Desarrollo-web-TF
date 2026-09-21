@@ -10,23 +10,26 @@
       <img src="/imagenes/malvitec-logo.png" class="logo-malvitec" alt="Malvitec">
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+    <button class="navbar-toggler" type="button" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()" aria-controls="navbarMain" aria-label="Abrir o cerrar menú">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarMain">
+    <div class="collapse navbar-collapse" id="navbarMain" [class.show]="menuOpen()">
       <form class="d-flex mx-lg-4 my-3 my-lg-0 flex-grow-1">
         <input class="form-control search-input" type="search" placeholder="Buscar productos, marcas..." />
         <button class="btn search-btn" type="submit" aria-label="Buscar"></button>
       </form>
 
       <ul class="navbar-nav ms-lg-3 align-items-lg-center nav-actions">
+        <li class="nav-item"><a class="nav-link" routerLink="/malvino-chatbot" (click)="menuOpen.set(false)">Malvino</a></li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Ingresar</a>
+          @if(demoAuth.stateView().loggedIn) {
+            <button class="nav-link border-0 bg-transparent" type="button" (click)="logout()">Cerrar sesión</button>
+          } @else { <a class="nav-link" routerLink="/login" (click)="menuOpen.set(false)">Ingresar</a> }
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#">Mi cuenta</a>
+          <a class="nav-link" routerLink="/mi-cuenta">Mi cuenta</a>
         </li>
 
         <li class="nav-item">

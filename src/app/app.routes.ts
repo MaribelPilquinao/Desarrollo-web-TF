@@ -7,9 +7,16 @@ import { Home } from './pages/home/home';
 import { MiCuenta } from './pages/mi-cuenta/mi-cuenta';
 import { ProductoDetalle } from './pages/producto-detalle/producto-detalle';
 
+import { Login } from './pages/login/login';
+import { Registro } from './pages/registro/registro';
+import { MalvinoChatbot } from './pages/malvino/malvino-chatbot';
 
 export const routes: Routes = [
     { path: "", redirectTo: "home", pathMatch: "full" },
+    { path: 'login', component: Login },
+    { path: 'registro', component: Registro },
+    { path: 'malvino-chatbot', component: MalvinoChatbot },
+    { path: 'malvino', redirectTo: 'malvino-chatbot', pathMatch: 'full' },
     { path: "home", component: Home },
     { path: "cart", component: Cart },
     { path: "producto-detalle", component: ProductoDetalle },
