@@ -16,6 +16,8 @@ export const routes: Routes = [
     { path: "favorites", component: Favorites },
     { path: 'checkout', component: Checkout },
     { path: 'confirmacion', component: Confirmacion },
-    { path: 'mi-cuenta', component: MiCuenta }
+    { path: 'mi-cuenta', component: MiCuenta },
+    { path: 'proveedor', loadChildren: () =>
+            import('./pages/proveedor/proveedor.routes').then(m => m.PROVEEDOR_ROUTES)
+    }
 ];
-

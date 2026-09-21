@@ -1,0 +1,64 @@
+<main class="container my-4 proveedor">
+  <h3 class="fw-bold mb-3">Panel del Proveedor</h3>
+
+  <p class="text-muted" *ngIf="proveedor$ | async as proveedor">
+    Bienvenido, <strong>{{ proveedor.nombre }}</strong>. Aquí puedes gestionar todo tu catálogo, stock y pedidos.
+  </p>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm metric-card p-3">
+        <h6 class="text-muted mb-1">Productos publicados</h6>
+        <h2 class="fw-bold">{{ productos.length }}</h2>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm metric-card p-3">
+        <h6 class="text-muted mb-1">Pedidos pendientes</h6>
+        <h2 class="fw-bold text-warning">{{ pedidosPendientes.length }}</h2>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm metric-card p-3">
+        <h6 class="text-muted mb-1">Productos sin stock</h6>
+        <h2 class="fw-bold text-danger">{{ sinStock.length }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 p-4 mb-4">
+    <h5 class="fw-semibold mb-3">Accesos rápidos</h5>
+    <div class="d-flex flex-wrap gap-3">
+      <a routerLink="/proveedor/agregar-producto" class="btn btn-outline-dark px-4 rounded-pill">➕ Agregar producto</a>
+      <a routerLink="/proveedor/productos" class="btn btn-outline-dark px-4 rounded-pill">📦 Ver productos</a>
+      <a routerLink="/proveedor/pedidos" class="btn btn-outline-dark px-4 rounded-pill">📨 Pedidos</a>
+      <a routerLink="/proveedor/consultas" class="btn btn-outline-dark px-4 rounded-pill">💬 Consultas</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 p-4">
+    <h5 class="fw-semibold mb-3">Últimos pedidos</h5>
+    <table class="table align-middle">
+      <thead>
+        <tr><th>ID</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of pedidos">
+          <td>{{ p.id }}</td>
+          <td>{{ p.cliente }}</td>
+          <td>{{ p.producto }}</td>
+          <td>S/ {{ p.total.toFixed(2) }}</td>
+          <td>
+            <span class="badge"
+              [ngClass]="{
+                'bg-warning': p.estado === 'Pendiente',
+                'bg-success': p.estado === 'Completado' || p.estado === 'Entregado'
+              }">
+              {{ p.estado }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
