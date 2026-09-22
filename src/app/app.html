@@ -36,6 +36,9 @@
           <a class="nav-link" routerLink="/favorites" routerLinkActive="fw-semibold" title="Favoritos">
             <span class="nav-icon">❤</span>
             <span class="d-lg-inline d-none">Favoritos</span>
+            @if (favoritos.cantidad() > 0) {
+              <span class="badge rounded-pill bg-danger ms-1">{{ favoritos.cantidad() }}</span>
+            }
           </a>
         </li>
 
@@ -43,6 +46,9 @@
           <a class="nav-link" routerLink="/cart" routerLinkActive="fw-semibold" title="Carrito">
             <span class="nav-icon">🛒</span>
             <span class="d-lg-inline d-none">Carrito</span>
+            @if (carrito.cantidadTotal() > 0) {
+              <span class="badge rounded-pill bg-danger ms-1">{{ carrito.cantidadTotal() }}</span>
+            }
           </a>
         </li>
       </ul>

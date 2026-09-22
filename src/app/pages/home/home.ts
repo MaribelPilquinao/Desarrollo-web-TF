@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CarritoService } from '../../core/services/carrito.service';
+import { FavoritosService } from '../../core/services/favoritos.service';
 
 @Component({
   selector: 'app-home',
@@ -118,78 +120,39 @@ export class Home {
     );
   }
 
-  /** Filtro favoritos */
+  /** Favoritos y carrito */
 
-  private readonly FAV_KEY = 'malvitec_favorites';
+  private readonly favoritosService = inject(FavoritosService);
+  private readonly carritoService = inject(CarritoService);
 
-  favoritos: {
-    id: string;
-    title: string;
-    price: number;
-    img: string;
-  }[] = [];
-
-  ngOnInit(): void {
-    this.cargarFavoritos();
-  }
-
-  cargarFavoritos(): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
-    const favoritosGuardados = localStorage.getItem(this.FAV_KEY);
-
-    if (!favoritosGuardados) {
-      this.favoritos = [];
-      return;
-    }
-
-    try {
-      const datos = JSON.parse(favoritosGuardados);
-
-      this.favoritos = Array.isArray(datos)
-        ? datos
-        : [];
-    } catch {
-      this.favoritos = [];
-    }
-  }
+  productoAgregadoId: string | null = null;
 
   esFavorito(id: string): boolean {
-    return this.favoritos.some(
-      favorito => favorito.id === id
-    );
+    return this.favoritosService.esFavorito(id);
   }
 
   alternarFavorito(producto: any): void {
-    const existe = this.esFavorito(producto.id);
-
-    if (existe) {
-      this.favoritos = this.favoritos.filter(
-        favorito => favorito.id !== producto.id
-      );
-    } else {
-      this.favoritos.push({
-        id: producto.id,
-        title: producto.nombre,
-        price: this.convertirPrecio(producto.precioActual),
-        img: producto.imagen
-      });
-    }
-
-    this.guardarFavoritos();
+    this.favoritosService.alternar({
+      id: producto.id,
+      title: producto.nombre,
+      price: this.convertirPrecio(producto.precioActual),
+      img: producto.imagen
+    });
   }
 
-  guardarFavoritos(): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
+  agregarAlCarrito(producto: any): void {
+    this.carritoService.agregar({
+      id: producto.id,
+      title: producto.nombre,
+      price: this.convertirPrecio(producto.precioActual),
+      img: producto.imagen
+    });
 
-    localStorage.setItem(
-      this.FAV_KEY,
-      JSON.stringify(this.favoritos)
-    );
+    this.productoAgregadoId = producto.id;
+
+    setTimeout(() => {
+      this.productoAgregadoId = null;
+    }, 900);
   }
 
   convertirPrecio(precio: string): number {
@@ -197,4 +160,4 @@ export class Home {
       precio.replace(/[^\d.]/g, '')
     ) || 0;
   }
-  }
+}

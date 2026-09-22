@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CarritoService } from '../../core/services/carrito.service';
+import { FavoritosService } from '../../core/services/favoritos.service';
 
 @Component({
   selector: 'app-producto-detalle',
@@ -7,7 +9,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './producto-detalle.html',
   styleUrl: './producto-detalle.css'
 })
-export class ProductoDetalle implements OnInit {
+export class ProductoDetalle {
 
   imagenPrincipal =
     'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1200';
@@ -78,87 +80,21 @@ disminuirCantidad(): void {
     this.cantidad--;
   }
 }
-private readonly FAV_KEY = 'malvitec_favorites';
-
-favoritos: {
-  id: string;
-  title: string;
-  price: number;
-  img: string;
-}[] = [];
-
-ngOnInit(): void {
-  this.cargarFavoritos();
-}
-cargarFavoritos(): void {
-  if (typeof localStorage === 'undefined') {
-    return;
-  }
-
-  const favoritosGuardados = localStorage.getItem(this.FAV_KEY);
-
-  if (!favoritosGuardados) {
-    this.favoritos = [];
-    return;
-  }
-
-  try {
-    const datos = JSON.parse(favoritosGuardados);
-
-    this.favoritos = Array.isArray(datos)
-      ? datos
-      : [];
-  } catch {
-    this.favoritos = [];
-  }
-}
-
+private readonly favoritosService = inject(FavoritosService);
+private readonly carritoService = inject(CarritoService);
 
 esFavorito(): boolean {
-  return this.favoritos.some(
-    favorito => favorito.id === this.producto.id
-  );
+  return this.favoritosService.esFavorito(this.producto.id);
 }
-
 
 alternarFavorito(): void {
-
-  const existe = this.esFavorito();
-
-  if (existe) {
-
-    this.favoritos = this.favoritos.filter(
-      favorito => favorito.id !== this.producto.id
-    );
-
-  } else {
-
-    this.favoritos.push({
-      id: this.producto.id,
-      title: this.producto.nombre,
-      price: this.convertirPrecio(
-        this.producto.precioActual
-      ),
-      img: this.imagenes[0].completa
-    });
-
-  }
-
-  this.guardarFavoritos();
+  this.favoritosService.alternar({
+    id: this.producto.id,
+    title: this.producto.nombre,
+    price: this.convertirPrecio(this.producto.precioActual),
+    img: this.imagenes[0].completa
+  });
 }
-
-
-guardarFavoritos(): void {
-  if (typeof localStorage === 'undefined') {
-    return;
-  }
-
-  localStorage.setItem(
-    this.FAV_KEY,
-    JSON.stringify(this.favoritos)
-  );
-}
-
 
 convertirPrecio(precio: string): number {
   return Number(
@@ -166,37 +102,15 @@ convertirPrecio(precio: string): number {
   ) || 0;
 }
 
-private readonly CART_KEY = 'malvitec_cart';
 agregarAlCarrito(): void {
-  if (typeof localStorage === 'undefined') {
-    return;
-  }
-
-  const carritoGuardado = localStorage.getItem(this.CART_KEY);
-
-  let carrito = carritoGuardado
-    ? JSON.parse(carritoGuardado)
-    : [];
-
-  const productoExistente = carrito.find(
-    (item: any) => item.id === this.producto.id
-  );
-
-  if (productoExistente) {
-    productoExistente.qty += this.cantidad;
-  } else {
-    carrito.push({
+  this.carritoService.agregar(
+    {
       id: this.producto.id,
       title: this.producto.nombre,
       price: this.convertirPrecio(this.producto.precioActual),
-      img: this.imagenes[0].completa,
-      qty: this.cantidad
-    });
-  }
-
-  localStorage.setItem(
-    this.CART_KEY,
-    JSON.stringify(carrito)
+      img: this.imagenes[0].completa
+    },
+    this.cantidad
   );
 
   this.mostrarConfirmacionCarrito();

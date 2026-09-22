@@ -6,23 +6,74 @@
       <p class="text-muted mb-0">Productos guardados desde el catálogo.</p>
     </div>
 
-    <a href="#" class="btn btn-outline-secondary rounded-pill">
+    <a routerLink="/home" class="btn btn-outline-secondary rounded-pill">
       ← Volver al catálogo
     </a>
   </div>
 
-  <!-- Estado vacío -->
-  <div id="estadoVacio" class="card border-0 shadow-sm p-4">
-    <div class="d-flex align-items-center gap-3">
-      <div class="empty-heart">❤</div>
-      <div>
-        <h6 class="fw-semibold mb-1">Aún no tienes favoritos</h6>
-        <p class="text-muted mb-0">Vuelve al catálogo y marca productos con ❤.</p>
+  @if (favoritos().length === 0) {
+
+    <!-- Estado vacío -->
+    <div class="card border-0 shadow-sm p-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="empty-heart">❤</div>
+        <div>
+          <h6 class="fw-semibold mb-1">Aún no tienes favoritos</h6>
+          <p class="text-muted mb-0">Vuelve al catálogo y marca productos con ❤.</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Productos favoritos -->
-  <div id="gridFavoritos" class="row g-3"></div>
+  } @else {
+
+    <!-- Productos favoritos -->
+    <div class="row g-3">
+      @for (favorito of favoritos(); track favorito.id) {
+
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <article class="product-card h-100 d-flex flex-column">
+
+            <button
+              type="button"
+              class="fav-remove"
+              title="Quitar de favoritos"
+              (click)="quitar(favorito.id)"
+            >
+              ✕
+            </button>
+
+            <img
+              [src]="favorito.img"
+              [alt]="favorito.title"
+              class="fav-img"
+            >
+
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <h6 class="fav-title">{{ favorito.title }}</h6>
+
+              <div class="fw-bold mb-3">
+                S/ {{ favorito.price | number: '1.2-2' }}
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-add-cart mt-auto"
+                (click)="agregarAlCarrito(favorito)"
+                [disabled]="productoAgregadoId === favorito.id"
+              >
+                @if (productoAgregadoId === favorito.id) {
+                  ✔ Agregado
+                } @else {
+                  🛒 Agregar al carrito
+                }
+              </button>
+            </div>
+
+          </article>
+        </div>
+
+      }
+    </div>
+
+  }
 </main>
-

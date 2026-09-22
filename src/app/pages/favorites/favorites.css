@@ -56,3 +56,28 @@
   color: #e9184b;
   font-size: 1.6rem;
 }
+
+.fav-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.fav-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.btn-add-cart {
+  background-color: var(--malvi-red);
+  border-color: var(--malvi-red);
+  color: #fff;
+  border-radius: 999px;
+}
+
+.btn-add-cart:hover {
+  background-color: var(--malvi-red-dark);
+  border-color: var(--malvi-red-dark);
+  color: #fff;
+}

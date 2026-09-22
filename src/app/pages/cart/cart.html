@@ -7,18 +7,68 @@
     <div class="col-lg-8">
       <div class="card border-0 shadow-sm p-3">
 
-        <!-- Productos del carrito -->
-        <div id="carritoLista"></div>
+        @if (carrito.items().length === 0) {
 
-        <!-- Estado vacío -->
-        <div id="carritoVacio" class="text-center text-muted py-4">
-          <div style="font-size: 2rem;">🛒</div>
-          <div class="fw-semibold mt-2">Tu carrito está vacío</div>
-          <div class="small mb-3">Agrega productos desde el catálogo.</div>
-          <a href="#" class="btn btn-outline-secondary rounded-pill">
-            Volver al catálogo
-          </a>
-        </div>
+          <!-- Estado vacío -->
+          <div class="text-center text-muted py-4">
+            <div style="font-size: 2rem;">🛒</div>
+            <div class="fw-semibold mt-2">Tu carrito está vacío</div>
+            <div class="small mb-3">Agrega productos desde el catálogo.</div>
+            <a routerLink="/home" class="btn btn-outline-secondary rounded-pill">
+              Volver al catálogo
+            </a>
+          </div>
+
+        } @else {
+
+          <!-- Productos del carrito -->
+          @for (item of carrito.items(); track item.id; let ultimo = $last) {
+
+            <div class="carrito-item d-flex gap-3 py-3" [class.border-bottom]="!ultimo">
+              <img [src]="item.img" [alt]="item.title" class="carrito-img">
+
+              <div class="flex-grow-1">
+                <div class="fw-semibold mb-1">{{ item.title }}</div>
+                <div class="text-muted small mb-2">
+                  S/ {{ item.price | number: '1.2-2' }} c/u
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                  <div class="input-group input-group-sm carrito-cantidad w-auto">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="disminuir(item.id, item.qty)"
+                      [disabled]="item.qty <= 1"
+                    >
+                      −
+                    </button>
+
+                    <input type="text" class="form-control" [value]="item.qty" readonly>
+
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="aumentar(item.id, item.qty)"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <span class="btn-remove small text-danger" (click)="quitar(item.id)">
+                    Eliminar
+                  </span>
+                </div>
+              </div>
+
+              <div class="carrito-precio text-nowrap">
+                S/ {{ item.price * item.qty | number: '1.2-2' }}
+              </div>
+            </div>
+
+          }
+
+        }
 
       </div>
     </div>
@@ -29,27 +79,37 @@
         <h5 class="fw-semibold mb-3">Resumen de compra</h5>
 
         <div class="d-flex justify-content-between mb-2">
-          <span class="text-muted">Subtotal</span>
-          <span id="subtotal">S/. 0.00</span>
+          <span class="text-muted">Subtotal ({{ carrito.cantidadTotal() }} productos)</span>
+          <span>S/. {{ carrito.subtotal() | number: '1.2-2' }}</span>
         </div>
 
         <div class="d-flex justify-content-between mb-2">
           <span class="text-muted">Envío</span>
-          <span id="envio">S/. 0.00</span>
+          <span>
+            @if (carrito.items().length > 0 && carrito.envio() === 0) {
+              Gratis
+            } @else {
+              S/. {{ carrito.envio() | number: '1.2-2' }}
+            }
+          </span>
         </div>
 
         <hr />
 
         <div class="d-flex justify-content-between fw-bold mb-3">
           <span>Total</span>
-          <span id="total">S/. 0.00</span>
+          <span>S/. {{ carrito.total() | number: '1.2-2' }}</span>
         </div>
 
-        <button id="btnPagar" class="btn btn-add-cart w-100 mb-2">
+        <a
+          routerLink="/checkout"
+          class="btn btn-add-cart w-100 mb-2"
+          [class.disabled]="carrito.items().length === 0"
+        >
           Proceder al pago
-        </button>
+        </a>
 
-        <a href="#" class="btn btn-outline-secondary w-100">
+        <a routerLink="/home" class="btn btn-outline-secondary w-100">
           Seguir comprando
         </a>
 
@@ -60,5 +120,3 @@
     </div>
   </div>
 </main>
-
-

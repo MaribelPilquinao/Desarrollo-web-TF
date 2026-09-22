@@ -351,8 +351,17 @@
                 {{ producto.precioActual }}
               </div>
 
-              <button class="btn btn-add-cart">
-                🛒 Agregar al carrito
+              <button
+                type="button"
+                class="btn btn-add-cart"
+                (click)="agregarAlCarrito(producto)"
+                [disabled]="productoAgregadoId === producto.id"
+              >
+                @if (productoAgregadoId === producto.id) {
+                  ✔ Agregado
+                } @else {
+                  🛒 Agregar al carrito
+                }
               </button>
 
             </div>
