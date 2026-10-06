@@ -4,7 +4,14 @@
   --malvi-red-dark: #c3133e;
   --malvi-blue-dark: #113b7a;
 
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Contenido de la página: ocupa el espacio libre para que el footer quede al final */
+.app-content {
+  flex: 1 0 auto;
 }
 
 /* Barra superior */
@@ -70,6 +77,43 @@
   font-size: 1.1rem;
 }
 
+/* Footer */
+footer {
+  margin-top: 3rem;
+  padding-top: 2.5rem;
+  padding-bottom: 1.5rem;
+
+  background-color: var(--malvi-blue-dark);
+  color: #e0e7ff;
+}
+
+footer h6 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+footer p {
+  margin-bottom: 0.5rem;
+}
+
+footer a {
+  color: #e0e7ff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+  text-align: center;
+  opacity: 0.85;
+}
 
 /* Responsive */
 @media (max-width: 991px) {
