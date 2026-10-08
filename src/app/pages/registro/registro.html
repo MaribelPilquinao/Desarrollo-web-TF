@@ -1,6 +1,5 @@
-<main class="access-page"><section class="access-card" aria-labelledby="register-title"><a routerLink="/login">← Volver al login</a><img src="/imagenes/malvitec-logo.png" alt="MALVITEC" class="access-logo"><h1 id="register-title">Registro de usuario</h1><p class="intro">Demostración con una sola cuenta de prueba.</p>
+<main class="access-page"><section class="access-card" aria-labelledby="register-title"><a routerLink="/login">← Volver al login</a><img src="/imagenes/malvitec-logo.png" alt="MALVITEC" class="access-logo"><h1 id="register-title">Registro de usuario</h1><p class="intro">Crea tu cuenta para guardar favoritos y comprar.</p>
 @if(step()==='form') {
-<aside class="demo-box"><p>Correo: <code>{{email}}</code><br>Contraseña: <code>{{password}}</code></p><button type="button" (click)="fillDemo()">Completar datos de prueba</button><small>El registro simula la activación de esta cuenta. No crea usuarios adicionales.</small></aside>
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 <label for="reg-name">Nombre *</label><input id="reg-name" formControlName="name" autocomplete="name" required aria-describedby="name-error"><p id="name-error" class="field-error">@if(invalid('name')){Escribe un nombre de al menos 2 caracteres.}</p>
 <label for="reg-email">Correo electrónico *</label><input id="reg-email" type="email" formControlName="email" autocomplete="email" required aria-describedby="email-error"><p id="email-error" class="field-error">@if(invalid('email')){Escribe un correo válido.}</p>
@@ -8,13 +7,13 @@
 <label for="reg-password">Contraseña *</label><input id="reg-password" type="password" formControlName="password" autocomplete="new-password" required aria-describedby="password-error"><p id="password-error" class="field-error">@if(invalid('password')){Mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.}</p>
 <label for="reg-confirm">Confirmar contraseña *</label><input id="reg-confirm" type="password" formControlName="confirm" autocomplete="new-password" required><p class="field-error">@if(form.controls.confirm.touched && (invalid('confirm') || form.hasError('mismatch'))){Las contraseñas deben coincidir.}</p>
 <label for="reg-address">Dirección de entrega (opcional)</label><input id="reg-address" formControlName="address" autocomplete="street-address">
-<label for="reg-payment">Método de pago preferido (opcional)</label><select id="reg-payment" formControlName="payment"><option value="">Sin preferencia</option><option>Yape</option><option>Plin</option><option>Tarjeta</option><option>Contra entrega</option></select><small>Solo se guarda la preferencia de prueba; no se solicitan datos de tarjeta.</small>
+<label for="reg-payment">Método de pago preferido (opcional)</label><select id="reg-payment" formControlName="payment"><option value="">Sin preferencia</option><option>Yape</option><option>Plin</option><option>Tarjeta</option><option>Contra entrega</option></select><small>Solo se guarda tu preferencia; no se solicitan datos de tarjeta.</small>
 @if(error()){<p class="error-box" role="alert">{{error()}}</p>}<button type="submit" class="primary">Continuar a verificación</button>
 </form>
 } @else if(step()==='verify') {
-<section class="demo-box"><h2>Verifica tu cuenta de prueba</h2><p>Simulación de código por correo o SMS. No se envía ningún mensaje.</p><p>Código de demostración: <strong>{{code}}</strong></p></section>
-<form (submit)="$event.preventDefault(); verify()"><label for="code">Código de 6 dígitos</label><input id="code" [formControl]="verification" inputmode="numeric" maxlength="6" autocomplete="one-time-code">@if(error()){<p class="error-box" role="alert">{{error()}}</p>}<button type="submit" class="primary">Verificar y finalizar</button><button type="button" (click)="back()">Corregir datos</button></form>
+<section class="demo-box"><h2>Verifica tu cuenta</h2><p>Simulación de código por correo o SMS. No se envía ningún mensaje.</p><p>Código de verificación: <strong>{{code}}</strong></p></section>
+<form (submit)="$event.preventDefault(); verify()"><label for="code">Código de 6 dígitos</label><input id="code" [formControl]="verification" inputmode="numeric" maxlength="6" autocomplete="one-time-code">@if(error()){<p class="error-box" role="alert">{{error()}}</p>}<button type="submit" class="primary" [disabled]="loading()">{{loading() ? 'Creando cuenta…' : 'Verificar y finalizar'}}</button><button type="button" (click)="back()">Corregir datos</button></form>
 } @else {
-<div class="success-box" role="status"><h2>Registro de prueba completado</h2><p>Ahora puedes iniciar sesión con {{email}} y la contraseña de prueba.</p></div><a routerLink="/login" class="primary action-link">Ir a iniciar sesión</a>
+<div class="success-box" role="status"><h2>Cuenta creada</h2><p>Ya puedes iniciar sesión con tu correo y tu contraseña.</p></div><a routerLink="/login" class="primary action-link">Ir a iniciar sesión</a>
 }
 </section></main>

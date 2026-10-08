@@ -7,11 +7,11 @@
 <label for="login-password">Contraseña</label><div class="password-row"><input id="login-password" [type]="visible() ? 'text':'password'" autocomplete="current-password" formControlName="password" required aria-describedby="login-password-error"><button type="button" (click)="visible.set(!visible())" [attr.aria-pressed]="visible()" aria-controls="login-password">{{visible() ? 'Ocultar':'Mostrar'}}</button></div>
 <p id="login-password-error" class="field-error" aria-live="polite">@if(form.controls.password.touched && form.controls.password.invalid){Ingresa una contraseña de al menos 8 caracteres.}</p>
 @if(error()){<p role="alert" class="error-box">{{error()}}</p>}
-<button type="submit" class="primary">Ingresar</button></form>
-<p class="access-links"><a routerLink="/registro">Crear cuenta de prueba</a><button type="button" class="link-button" (click)="recovery.set(!recovery())" [attr.aria-expanded]="recovery()">Recuperar acceso</button></p>
-@if(recovery()) {<section class="demo-box"><h2>Recuperación simulada</h2><p>No se envían correos ni SMS. Usa el código de prueba <strong>{{code}}</strong>.</p>
-<form [formGroup]="recoveryForm" (ngSubmit)="recover()" novalidate><label for="recover-email">Correo de prueba</label><input id="recover-email" type="email" formControlName="email"><label for="recover-code">Código</label><input id="recover-code" inputmode="numeric" maxlength="6" formControlName="code"><button type="submit">Verificar código</button></form>
-@if(recovered()){<p role="status">Acceso de prueba recuperado. La contraseña sigue siendo <strong>{{password}}</strong>.</p>} @else if(recoveryForm.touched){<p role="alert">Utiliza {{email}} y el código {{code}}.</p>}
+<button type="submit" class="primary" [disabled]="loading()">{{loading() ? 'Ingresando…' : 'Ingresar'}}</button></form>
+<p class="access-links"><a routerLink="/registro">Crear cuenta</a><button type="button" class="link-button" (click)="recovery.set(!recovery())" [attr.aria-expanded]="recovery()">Recuperar acceso</button></p>
+@if(recovery()) {<section class="demo-box"><h2>Recuperar contraseña</h2><p>No se envían correos ni SMS. Usa el código <strong>{{code}}</strong>.</p>
+<form [formGroup]="recoveryForm" (ngSubmit)="recover()" novalidate><label for="recover-email">Correo de tu cuenta</label><input id="recover-email" type="email" autocomplete="username" formControlName="email"><label for="recover-code">Código</label><input id="recover-code" inputmode="numeric" maxlength="6" formControlName="code"><label for="recover-password">Contraseña nueva</label><input id="recover-password" type="password" autocomplete="new-password" formControlName="password"><small>Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo.</small><button type="submit">Cambiar contraseña</button></form>
+@if(recovered()){<p role="status">Contraseña actualizada. Ya puedes iniciar sesión.</p>} @else if(recoveryError()){<p role="alert">{{recoveryError()}}</p>}
 </section>}
-<aside class="demo-box"><strong>Único usuario de prueba</strong><p>Correo: <code>{{email}}</code><br>Contraseña: <code>{{password}}</code></p><small>Demostración sin backend. No uses datos personales reales.</small></aside>
+<aside class="demo-box"><strong>Usuario de prueba</strong><p>Correo: <code>{{email}}</code><br>Contraseña: <code>{{password}}</code></p><small>Cuenta de ejemplo creada en la base de datos.</small></aside>
 </section></main>

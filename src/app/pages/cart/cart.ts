@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CarritoService } from '../../core/services/carrito.service';
+import { SesionService } from '../../core/services/sesion.service';
 
 @Component({
   selector: 'app-cart',
@@ -11,6 +12,7 @@ import { CarritoService } from '../../core/services/carrito.service';
 })
 export class Cart {
   readonly carrito = inject(CarritoService);
+  readonly sesion = inject(SesionService);
 
   aumentar(id: string, cantidad: number): void {
     this.carrito.cambiarCantidad(id, cantidad + 1);

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CarritoService } from '../../core/services/carrito.service';
 import { FavoritosService } from '../../core/services/favoritos.service';
@@ -102,8 +102,8 @@ convertirPrecio(precio: string): number {
   ) || 0;
 }
 
-agregarAlCarrito(): void {
-  this.carritoService.agregar(
+async agregarAlCarrito(): Promise<void> {
+  const agregado = await this.carritoService.agregar(
     {
       id: this.producto.id,
       title: this.producto.nombre,
@@ -113,14 +113,16 @@ agregarAlCarrito(): void {
     this.cantidad
   );
 
-  this.mostrarConfirmacionCarrito();
+  if (agregado) {
+    this.mostrarConfirmacionCarrito();
+  }
 }
-productoAgregado = false;
+readonly productoAgregado = signal(false);
 mostrarConfirmacionCarrito(): void {
-  this.productoAgregado = true;
+  this.productoAgregado.set(true);
 
   setTimeout(() => {
-    this.productoAgregado = false;
+    this.productoAgregado.set(false);
   }, 900);
 }
 }
