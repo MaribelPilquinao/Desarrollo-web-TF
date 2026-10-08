@@ -39,6 +39,13 @@ testem.log
 /typings
 __screenshots__/
 
+# Backend (Lambdas)
+/backend/dist
+/backend/.venv
+/backend/.env
+__pycache__/
+
 # System files
 .DS_Store
 Thumbs.db
+

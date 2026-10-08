@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CarritoService } from '../../core/services/carrito.service';
 import { FavoritosService } from '../../core/services/favoritos.service';
@@ -125,7 +125,7 @@ export class Home {
   private readonly favoritosService = inject(FavoritosService);
   private readonly carritoService = inject(CarritoService);
 
-  productoAgregadoId: string | null = null;
+  readonly productoAgregadoId = signal<string | null>(null);
 
   esFavorito(id: string): boolean {
     return this.favoritosService.esFavorito(id);
@@ -140,18 +140,21 @@ export class Home {
     });
   }
 
-  agregarAlCarrito(producto: any): void {
-    this.carritoService.agregar({
+  async agregarAlCarrito(producto: any): Promise<void> {
+    const agregado = await this.carritoService.agregar({
       id: producto.id,
       title: producto.nombre,
       price: this.convertirPrecio(producto.precioActual),
       img: producto.imagen
     });
+    if (!agregado) {
+      return;
+    }
 
-    this.productoAgregadoId = producto.id;
+    this.productoAgregadoId.set(producto.id);
 
     setTimeout(() => {
-      this.productoAgregadoId = null;
+      this.productoAgregadoId.set(null);
     }, 900);
   }
 

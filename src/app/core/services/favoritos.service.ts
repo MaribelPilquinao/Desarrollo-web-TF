@@ -1,6 +1,10 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
-const FAV_KEY = 'malvitec_favorites';
+import { API_URL, mensajeDeError } from '../api';
+import { SesionService } from './sesion.service';
 
 export interface Favorito {
   id: string;
@@ -9,47 +13,97 @@ export interface Favorito {
   img: string;
 }
 
+interface FavoritoApi {
+  slug: string;
+  titulo: string;
+  precio_actual: number;
+  imagen_url: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class FavoritosService {
-  private readonly lista = signal<Favorito[]>(this.leer());
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly sesion = inject(SesionService);
+  private readonly lista = signal<Favorito[]>([]);
 
   readonly favoritos = this.lista.asReadonly();
   readonly cantidad = computed(() => this.lista().length);
+  readonly error = signal('');
+
+  constructor() {
+    effect(() => {
+      if (this.sesion.conectado()) {
+        void this.cargar();
+      } else {
+        this.lista.set([]);
+      }
+    });
+  }
 
   esFavorito(id: string): boolean {
     return this.lista().some(favorito => favorito.id === id);
   }
 
-  alternar(favorito: Favorito): void {
+  async alternar(favorito: Favorito): Promise<void> {
     if (this.esFavorito(favorito.id)) {
-      this.quitar(favorito.id);
-    } else {
-      this.guardar([...this.lista(), favorito]);
+      await this.quitar(favorito.id);
+      return;
     }
-  }
-
-  quitar(id: string): void {
-    this.guardar(this.lista().filter(favorito => favorito.id !== id));
-  }
-
-  private leer(): Favorito[] {
-    if (typeof localStorage === 'undefined') {
-      return [];
+    if (!this.exigirSesion()) {
+      return;
     }
 
+    // Se muestra al instante y se corrige si el backend lo rechaza.
+    this.lista.update(lista => [favorito, ...lista]);
     try {
-      const datos = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
-      return Array.isArray(datos) ? datos : [];
-    } catch {
-      return [];
+      await firstValueFrom(this.http.post(`${API_URL}/favoritos`, { slug: favorito.id }));
+    } catch (error) {
+      this.fallo(error);
     }
   }
 
-  private guardar(favoritos: Favorito[]): void {
-    this.lista.set(favoritos);
-
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(FAV_KEY, JSON.stringify(favoritos));
+  async quitar(id: string): Promise<void> {
+    if (!this.exigirSesion()) {
+      return;
     }
+
+    this.lista.update(lista => lista.filter(favorito => favorito.id !== id));
+    try {
+      await firstValueFrom(this.http.delete(`${API_URL}/favoritos/${encodeURIComponent(id)}`));
+    } catch (error) {
+      this.fallo(error);
+    }
+  }
+
+  private async cargar(): Promise<void> {
+    try {
+      const datos = await firstValueFrom(this.http.get<FavoritoApi[]>(`${API_URL}/favoritos`));
+      this.lista.set(
+        datos.map(producto => ({
+          id: producto.slug,
+          title: producto.titulo,
+          price: producto.precio_actual,
+          img: producto.imagen_url
+        }))
+      );
+    } catch (error) {
+      this.error.set(mensajeDeError(error));
+    }
+  }
+
+  private fallo(error: unknown): void {
+    this.error.set(mensajeDeError(error));
+    if (this.sesion.conectado()) {
+      void this.cargar();
+    }
+  }
+
+  private exigirSesion(): boolean {
+    if (!this.sesion.conectado()) {
+      void this.router.navigate(['/login']);
+      return false;
+    }
+    return true;
   }
 }

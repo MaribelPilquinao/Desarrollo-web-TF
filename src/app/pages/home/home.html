@@ -355,9 +355,9 @@
                 type="button"
                 class="btn btn-add-cart"
                 (click)="agregarAlCarrito(producto)"
-                [disabled]="productoAgregadoId === producto.id"
+                [disabled]="productoAgregadoId() === producto.id"
               >
-                @if (productoAgregadoId === producto.id) {
+                @if (productoAgregadoId() === producto.id) {
                   ✔ Agregado
                 } @else {
                   🛒 Agregar al carrito

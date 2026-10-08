@@ -23,7 +23,7 @@
       <ul class="navbar-nav ms-lg-3 align-items-lg-center nav-actions">
         <li class="nav-item"><a class="nav-link" routerLink="/malvino-chatbot" (click)="menuOpen.set(false)">Malvino</a></li>
         <li class="nav-item">
-          @if(demoAuth.stateView().loggedIn) {
+          @if(sesion.conectado()) {
             <button class="nav-link border-0 bg-transparent" type="button" (click)="logout()">Cerrar sesión</button>
           } @else { <a class="nav-link" routerLink="/login" (click)="menuOpen.set(false)">Ingresar</a> }
         </li>
@@ -57,6 +57,14 @@
 </nav>
 
 <div class="app-content">
+  @if (carrito.error() || favoritos.error()) {
+    <div class="container mt-3">
+      <div class="alert alert-warning alert-dismissible mb-0" role="alert">
+        {{ carrito.error() || favoritos.error() }}
+        <button type="button" class="btn-close" aria-label="Cerrar aviso" (click)="cerrarAviso()"></button>
+      </div>
+    </div>
+  }
   <router-outlet></router-outlet>
 </div>
 

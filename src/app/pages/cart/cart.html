@@ -12,11 +12,19 @@
           <!-- Estado vacío -->
           <div class="text-center text-muted py-4">
             <div style="font-size: 2rem;">🛒</div>
-            <div class="fw-semibold mt-2">Tu carrito está vacío</div>
-            <div class="small mb-3">Agrega productos desde el catálogo.</div>
-            <a routerLink="/home" class="btn btn-outline-secondary rounded-pill">
-              Volver al catálogo
-            </a>
+            @if (sesion.conectado()) {
+              <div class="fw-semibold mt-2">Tu carrito está vacío</div>
+              <div class="small mb-3">Agrega productos desde el catálogo.</div>
+              <a routerLink="/home" class="btn btn-outline-secondary rounded-pill">
+                Volver al catálogo
+              </a>
+            } @else {
+              <div class="fw-semibold mt-2">Inicia sesión para ver tu carrito</div>
+              <div class="small mb-3">Tu carrito se guarda en tu cuenta.</div>
+              <a routerLink="/login" class="btn btn-outline-secondary rounded-pill">
+                Iniciar sesión
+              </a>
+            }
           </div>
 
         } @else {
