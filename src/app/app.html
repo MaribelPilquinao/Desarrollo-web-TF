@@ -1,3 +1,4 @@
+@if(!esProveedor()) {
 <!-- Barra superior -->
 <div class="top-bar text-center">
   Envío gratis en compras superiores a <strong>S/.50</strong>
@@ -55,6 +56,7 @@
     </div>
   </div>
 </nav>
+}
 
 <div class="app-content">
   @if (carrito.error() || favoritos.error()) {
@@ -68,6 +70,7 @@
   <router-outlet></router-outlet>
 </div>
 
+@if(!esProveedor()) {  
 <!-- Footer -->
 <footer>
   <div class="container">
@@ -115,3 +118,4 @@
     </div>
   </div>
 </footer>
+}

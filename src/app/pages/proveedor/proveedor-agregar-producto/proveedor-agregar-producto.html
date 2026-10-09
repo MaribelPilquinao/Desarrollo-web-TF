@@ -1,0 +1,112 @@
+<main class="container my-4 formulario">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold mb-0">{{ editando ? 'Editar producto' : 'Agregar producto' }}</h3>
+    <a routerLink="/proveedor/productos" class="btn btn-outline-secondary rounded-pill">← Volver</a>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <p class="text-muted" role="status">Cargando…</p>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate class="card shadow-sm border-0 p-4">
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label for="titulo" class="form-label fw-semibold">Nombre del producto *</label>
+          <input id="titulo" type="text" class="form-control" formControlName="titulo" maxlength="200"
+                 [class.is-invalid]="invalido('titulo')">
+          <div class="invalid-feedback">Escribe un nombre de al menos 3 caracteres.</div>
+        </div>
+
+        <div class="col-md-4">
+          <label for="categoria" class="form-label fw-semibold">Categoría *</label>
+          <select id="categoria" class="form-select" formControlName="categoria" [class.is-invalid]="invalido('categoria')">
+            <option value="" disabled>Elige una categoría</option>
+            @for (c of categorias(); track c.slug) {
+              <option [value]="c.slug">{{ c.nombre }}</option>
+            }
+          </select>
+          <div class="invalid-feedback">Elige una categoría.</div>
+        </div>
+
+        @if (esAccesorio()) {
+          <div class="col-md-4">
+            <label for="tipo_accesorio" class="form-label fw-semibold">Tipo de accesorio</label>
+            <select id="tipo_accesorio" class="form-select" formControlName="tipo_accesorio">
+              <option value="">Sin especificar</option>
+              <option value="case">Case</option>
+              <option value="protector">Protector de pantalla</option>
+              <option value="bateria">Batería</option>
+              <option value="cargador">Cargador</option>
+            </select>
+            <div class="form-text">Lo usa Malvino para responder compatibilidad.</div>
+          </div>
+        }
+
+        <div class="col-12">
+          <label for="descripcion" class="form-label fw-semibold">Descripción</label>
+          <textarea id="descripcion" rows="4" class="form-control" formControlName="descripcion" maxlength="4000"
+                    [class.is-invalid]="invalido('descripcion')"></textarea>
+        </div>
+
+        <div class="col-md-4">
+          <label for="precio_actual" class="form-label fw-semibold">Precio (S/) *</label>
+          <input id="precio_actual" type="number" step="0.01" min="0" class="form-control" formControlName="precio_actual"
+                 [class.is-invalid]="invalido('precio_actual')">
+          <div class="invalid-feedback">Ingresa un monto mayor que 0, con máximo 2 decimales.</div>
+        </div>
+
+        <div class="col-md-4">
+          <label for="precio_anterior" class="form-label fw-semibold">Precio anterior (S/)</label>
+          <input id="precio_anterior" type="number" step="0.01" min="0" class="form-control" formControlName="precio_anterior"
+                 [class.is-invalid]="invalido('precio_anterior') || (form.controls.precio_anterior.touched && form.hasError('precioAnterior'))">
+          <div class="invalid-feedback">
+            @if (form.hasError('precioAnterior')) { Debe ser mayor que el precio actual. } @else { Monto no válido. }
+          </div>
+          <div class="form-text">Opcional. Si lo pones, se muestra tachado con su descuento.</div>
+        </div>
+
+        <div class="col-md-4">
+          <label for="stock" class="form-label fw-semibold">Stock *</label>
+          <input id="stock" type="number" step="1" min="0" class="form-control" formControlName="stock"
+                 [class.is-invalid]="invalido('stock')">
+          <div class="invalid-feedback">Ingresa un entero de 0 en adelante.</div>
+        </div>
+
+        <div class="col-md-4">
+          <label for="tipo_envio" class="form-label fw-semibold">Envío</label>
+          <select id="tipo_envio" class="form-select" formControlName="tipo_envio">
+            <option value="estandar">Estándar</option>
+            <option value="gratis">Gratis</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="garantia" class="form-label fw-semibold">Garantía (meses)</label>
+          <input id="garantia" type="number" step="1" min="0" class="form-control" formControlName="garantia_meses"
+                 [class.is-invalid]="invalido('garantia_meses')">
+          <div class="invalid-feedback">Entre 0 y 60 meses.</div>
+        </div>
+
+        <div class="col-12">
+          <label for="imagen_url" class="form-label fw-semibold">Imagen (enlace)</label>
+          <input id="imagen_url" type="url" class="form-control" formControlName="imagen_url" placeholder="https://…"
+                 [class.is-invalid]="invalido('imagen_url')">
+          <div class="invalid-feedback">Debe empezar con http:// o https://</div>
+          @if (vistaPrevia()) {
+            <img [src]="vistaPrevia()" class="vista-previa mt-2" alt="Vista previa de la imagen">
+          }
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-warning fw-semibold rounded-pill px-4" [disabled]="guardando() || cargaFallida()">
+          {{ guardando() ? 'Guardando…' : editando ? 'Guardar cambios' : 'Publicar producto' }}
+        </button>
+        <a routerLink="/proveedor/productos" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
+      </div>
+    </form>
+  }
+</main>

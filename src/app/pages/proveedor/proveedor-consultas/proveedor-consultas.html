@@ -1,0 +1,64 @@
+<main class="container my-4">
+  <h3 class="fw-bold mb-3">Consultas de clientes</h3>
+
+  @if (error()) {
+    <div class="alert alert-danger alert-dismissible" role="alert">
+      {{ error() }}
+      <button type="button" class="btn-close" aria-label="Cerrar aviso" (click)="error.set('')"></button>
+    </div>
+  }
+
+  <div class="btn-group mb-3" role="group" aria-label="Filtrar consultas">
+    @for (f of filtros; track f.valor) {
+      <button type="button" class="btn btn-outline-dark" [class.active]="filtro() === f.valor" (click)="filtro.set(f.valor)">
+        {{ f.texto }} <span class="badge text-bg-light">{{ cantidad(f.valor) }}</span>
+      </button>
+    }
+  </div>
+
+  @if (cargando()) {
+    <p class="text-muted" role="status">Cargando consultas…</p>
+  } @else if (consultas().length === 0) {
+    <div class="card shadow-sm border-0 p-4 text-muted">Todavía no tienes consultas de clientes.</div>
+  } @else if (visibles().length === 0) {
+    <div class="card shadow-sm border-0 p-4 text-muted">No hay consultas en este filtro.</div>
+  } @else {
+    <div class="d-grid gap-3">
+      @for (c of visibles(); track c.id) {
+        <article class="card shadow-sm border-0 p-3">
+          <div class="d-flex flex-wrap justify-content-between gap-2">
+            <div>
+              <span class="fw-semibold">{{ c.cliente }}</span>
+              <span class="text-muted"> preguntó por </span>
+              <span class="fw-semibold">{{ c.producto }}</span>
+            </div>
+            <div class="small text-muted">
+              {{ c.fecha | date: 'dd/MM/yyyy HH:mm' }}
+              <span class="badge ms-2" [class]="c.estado === 'Nueva' ? 'badge bg-primary' : 'badge bg-success'">{{ c.estado }}</span>
+            </div>
+          </div>
+
+          <p class="mensaje my-3">{{ c.mensaje }}</p>
+
+          @if (c.estado === 'Respondida') {
+            <div class="respuesta p-3">
+              <div class="small text-muted mb-1">
+                Tu respuesta @if (c.respondida_en) { · {{ c.respondida_en | date: 'dd/MM/yyyy HH:mm' }} }
+              </div>
+              {{ c.respuesta }}
+            </div>
+          } @else {
+            <label class="form-label small text-muted" [attr.for]="'resp-'  c.id">Tu respuesta (máx. 500 caracteres)</label>
+            <textarea class="form-control" rows="2" maxlength="500" #respuesta [id]="'resp-'  c.id"></textarea>
+            <div class="mt-2">
+              <button type="button" class="btn btn-warning fw-semibold rounded-pill px-4" [disabled]="enviando() !== null"
+                      (click)="responder(c, respuesta.value)">
+                {{ enviando() === c.id ? 'Enviando…' : 'Responder' }}
+              </button>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</main>

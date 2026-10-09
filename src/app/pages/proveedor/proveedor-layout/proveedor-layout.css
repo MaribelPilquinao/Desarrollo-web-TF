@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f6f7f9;
+}
+
+.top-bar {
+  background-color: #ffc107;
+  font-size: 0.85rem;
+  padding: 0.4rem 0;
+}
+
+.logo-malvitec {
+  width: auto;
+  height: 56px;
+  object-fit: contain;
+}

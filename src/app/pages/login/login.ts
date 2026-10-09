@@ -27,7 +27,7 @@ export class Login {
     try { await this.sesion.iniciarSesion(email,password); }
     catch(error) { this.error.set(mensajeDeError(error)); return; }
     finally { this.loading.set(false); }
-    this.form.controls.password.reset();void this.router.navigate(['/home']);
+    this.form.controls.password.reset();void this.router.navigate([this.sesion.usuario()?.rol==='proveedor'?'/proveedor/dashboard':'/home']);
   }
   async recover(): Promise<void> {
     this.recovered.set(false);this.recoveryError.set('');this.recoveryForm.markAllAsTouched();

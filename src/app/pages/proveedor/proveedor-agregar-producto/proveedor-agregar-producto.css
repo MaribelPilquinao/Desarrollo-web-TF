@@ -1,0 +1,12 @@
+.formulario {
+  max-width: 860px;
+}
+
+.vista-previa {
+  display: block;
+  max-height: 160px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #f1f3f5;
+}
