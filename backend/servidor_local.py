@@ -5,7 +5,7 @@ import os
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 BACKEND = Path(__file__).resolve().parent
 PUERTO = 3000
@@ -41,7 +41,18 @@ def cargar_handler(carpeta):
 
 class Peticion(BaseHTTPRequestHandler):
     def atender(self):
-        tramos = [unquote(tramo) for tramo in urlsplit(self.path).path.split("/") if tramo]
+
+        url = urlsplit(self.path)
+        tramos = [
+            unquote(tramo)
+            for tramo in url.path.split("/")
+            if tramo
+        ]
+        consulta = {
+            clave: valores[-1]
+            for clave, valores in parse_qs(url.query).items()
+        }
+
         carpeta = LAMBDAS.get(tramos[0]) if tramos else None
         if not carpeta or len(tramos) > 2:
             self.responder({"statusCode": 404, "headers": {}, "body": '{"error": "Ruta no encontrada"}'})
@@ -50,9 +61,10 @@ class Peticion(BaseHTTPRequestHandler):
         largo = int(self.headers.get("Content-Length") or 0)
         event = {
             "requestContext": {"http": {"method": self.command}},
-            "rawPath": urlsplit(self.path).path,
+            "rawPath": url.path,
             "headers": dict(self.headers.items()),
             "pathParameters": {"slug": tramos[1]} if len(tramos) == 2 else None,
+            "queryStringParameters": consulta or None,
             "body": self.rfile.read(largo).decode("utf-8") if largo else None,
         }
         self.responder(cargar_handler(carpeta)(event, None))
