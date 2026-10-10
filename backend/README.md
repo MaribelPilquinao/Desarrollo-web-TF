@@ -14,7 +14,7 @@ URL del API (etapa `v1`): `https://y1fqqcqake.execute-api.us-east-1.amazonaws.co
 | Carpeta / archivo | Contenido |
 |---|---|
 | `capa/python/malvitec_comun/` | Código compartido: conexión, token y formato de respuestas |
-| `auth/`, `favoritos/`, `carrito/`, `pedidos/` | Una Lambda por carpeta, cada una con su `lambda_function.py` |
+| `auth/`, `favoritos/`, `carrito/`, `pedidos/`, `perfil/` | Una Lambda por carpeta, cada una con su `lambda_function.py` |
 | `empaquetar.py` | Genera los `.zip` para subir a AWS |
 | `servidor_local.py` | Simula API Gateway en tu PC |
 | `.env.ejemplo` | Plantilla de variables de entorno para trabajar en local |
@@ -64,6 +64,14 @@ Todas devuelven el carrito actualizado: `items` (`slug`, `titulo`, `imagen_url`,
 | POST | `/pedidos` | `nombres`, `apellidos`, `correo`, `telefono`, `departamento`, `distrito`, `direccion`, `referencia` (opcional), `metodo_pago` (`tarjeta`, `yape_plin` o `contra_entrega`), `clave` (opcional) |
 
 Crea el pedido con lo que hay en el carrito del usuario y responde `201` con `id`, `codi`, `subtotal`, `costo_envio` y `total`. En la misma transacción descuenta el stock de cada producto y vacía el carrito. Si se repite la `clave` (doble clic o reintento), devuelve el pedido ya creado con `200` en vez de duplicarlo.
+
+### `malvitec-perfil` (tablas `usuarios` y `direcciones`) 🔒
+
+| Método | Ruta | Cuerpo |
+|---|---|---|
+| GET | `/perfil` | — |
+
+Devuelve los datos de la cuenta para Mi Cuenta: `nombre`, `apellidos`, `correo`, `telefono`, `rol`, `preferencia_pago`, `creado_en` y `direccion` (`departamento`, `distrito`, `direccion`, `referencia`). La dirección es la marcada como principal o, si no hay, la más reciente; es `null` si el usuario no tiene ninguna.
 
 ### Errores
 

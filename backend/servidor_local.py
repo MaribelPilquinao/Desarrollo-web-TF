@@ -16,6 +16,7 @@ LAMBDAS = {
     "favoritos": "favoritos",
     "carrito": "carrito",
     "pedidos": "pedidos",
+    "perfil": "perfil",
 }
 
 

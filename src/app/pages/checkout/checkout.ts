@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -30,7 +30,8 @@ export class Checkout {
   // Método de pago
   metodoPago = '';
 
-  enviando = false;
+  // signal: cambia después de un await y la app no usa zone.js.
+  readonly enviando = signal(false);
 
   // Una clave por compra: si el pedido se reenvía, el backend no lo duplica.
   private readonly clave = crypto.randomUUID();
@@ -69,7 +70,7 @@ export class Checkout {
       return;
     }
 
-    this.enviando = true;
+    this.enviando.set(true);
     try {
       const pedido = await this.pedidoService.crear({
         nombres: this.nombres,
@@ -92,7 +93,7 @@ export class Checkout {
     } catch (error) {
       alert(mensajeDeError(error));
     } finally {
-      this.enviando = false;
+      this.enviando.set(false);
     }
   }
 }

@@ -267,8 +267,8 @@
         </div>
 
         <button
-            class="btn btn-primary w-100" [disabled]="enviando" (click)="confirmarCompra()">
-            {{ enviando ? 'Procesando...' : 'Confirmar compra' }}
+            class="btn btn-primary w-100" [disabled]="enviando()" (click)="confirmarCompra()">
+            {{ enviando() ? 'Procesando...' : 'Confirmar compra' }}
         </button>
 
         </div>
