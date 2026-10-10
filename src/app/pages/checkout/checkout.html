@@ -189,7 +189,7 @@
             type="radio"
             name="metodoPago"
             id="yape"
-            value="yape"
+            value="yape_plin"
             [(ngModel)]="metodoPago">
 
             <label
@@ -205,7 +205,7 @@
             type="radio"
             name="metodoPago"
             id="contraEntrega"
-            value="contraEntrega"
+            value="contra_entrega"
             [(ngModel)]="metodoPago">
 
             <label
@@ -232,36 +232,43 @@
             Resumen de compra
         </h5>
 
-        <div class="d-flex justify-content-between mb-2">
-            <span>{{producto}}</span>
-            <span>S/ {{precio}}</span>
-        </div>
+    @for (item of carrito.items(); track item.id) {
 
-        <div class="d-flex justify-content-between mb-2">
-            <span>Cantidad</span>
-            <span>{{ cantidad }}</span>
-        </div>
+    <div class="d-flex justify-content-between mb-2">
+
+    <span>
+    {{ item.title }} x {{ item.qty }}
+    </span>
+
+    <span>
+      S/ {{ item.price * item.qty | number:'1.2-2' }}
+    </span>
+
+    </div>
+
+}
 
         <div class="d-flex justify-content-between mb-2">
             <span>Subtotal</span>
-            <span>S/ {{subtotal}}</span>
+        <span>
+        S/ {{ carrito.subtotal() | number:'1.2-2' }}
+        </span>
         </div>
 
         <div class="d-flex justify-content-between mb-3">
             <span>Envío</span>
-            <span>S/ {{envio}}</span>
+            <span>S/ {{ carrito.envio() | number:'1.2-2' }}</span>
         </div>
-
         <hr>
 
         <div class="d-flex justify-content-between fw-bold mb-4">
             <span>Total</span>
-            <span>S/ {{total}}</span>
+            <span>S/ {{ carrito.total() | number:'1.2-2' }}</span>
         </div>
 
         <button
-            class="btn btn-primary w-100" (click) = "confirmarCompra()">
-            Confirmar compra
+            class="btn btn-primary w-100" [disabled]="enviando" (click)="confirmarCompra()">
+            {{ enviando ? 'Procesando...' : 'Confirmar compra' }}
         </button>
 
         </div>
