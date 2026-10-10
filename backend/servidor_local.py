@@ -15,6 +15,7 @@ LAMBDAS = {
     "auth": "auth",
     "favoritos": "favoritos",
     "carrito": "carrito",
+    "productos": "productos",
 }
 
 
