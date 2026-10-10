@@ -10,6 +10,12 @@
         Tu pedido fue registrado correctamente.
     </p>
 
+    @if (codigo) {
+    <p>
+        Código de pedido: <strong>{{ codigo }}</strong>
+    </p>
+    }
+
     <a routerLink="/mi-cuenta" class="btn btn-primary">
     Ir a Mi Cuenta
     </a>

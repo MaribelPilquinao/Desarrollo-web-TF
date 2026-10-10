@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-confirmacion',
@@ -7,4 +7,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './confirmacion.html',
   styleUrl: './confirmacion.css',
 })
-export class Confirmacion {}
+export class Confirmacion {
+  // Código que devolvió el backend al crear el pedido; llega en la URL desde el checkout.
+  readonly codigo = inject(ActivatedRoute).snapshot.queryParamMap.get('codigo');
+}

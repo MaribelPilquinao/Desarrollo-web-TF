@@ -1,10 +1,15 @@
 import { Component } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { mensajeDeError } from '../../core/api';
+import { CarritoService } from '../../core/services/carrito.service';
+import { PedidoService } from '../../core/services/pedido.service';
+
 @Component({
   selector: 'app-checkout',
-  imports: [FormsModule],
+  imports: [FormsModule, DecimalPipe],
   templateUrl: './checkout.html',
   styleUrl: './checkout.css'
 })
@@ -25,18 +30,18 @@ export class Checkout {
   // Método de pago
   metodoPago = '';
 
-  // Producto temporal
-  producto = 'Laptop HP';
-  precio = 2500;
-  cantidad = 1;
-  envio = 15;
+  enviando = false;
 
-  subtotal = this.precio * this.cantidad;
-  total = this.subtotal + this.envio;
+  // Una clave por compra: si el pedido se reenvía, el backend no lo duplica.
+  private readonly clave = crypto.randomUUID();
 
-  constructor(private router: Router) {}
+  constructor(
+    public carrito: CarritoService,
+    private router: Router,
+    private pedidoService: PedidoService
+  ) {}
 
-  confirmarCompra() {
+  async confirmarCompra() {
 
     // Validar campos obligatorios
     if (
@@ -59,59 +64,35 @@ export class Checkout {
       return;
     }
 
-    // Crear pedido
-    const pedido = {
+    if (this.carrito.items().length === 0) {
+      alert('Tu carrito está vacío');
+      return;
+    }
 
-      numeroPedido: 'MALV-' + Date.now(),
-
-      fecha: new Date().toLocaleDateString('es-PE'),
-
-      cliente: {
+    this.enviando = true;
+    try {
+      const pedido = await this.pedidoService.crear({
         nombres: this.nombres,
         apellidos: this.apellidos,
         correo: this.correo,
-        telefono: this.telefono
-      },
-
-      entrega: {
+        telefono: this.telefono,
         departamento: this.departamento,
         distrito: this.distrito,
         direccion: this.direccion,
-        referencia: this.referencia
-      },
+        referencia: this.referencia,
+        metodo_pago: this.metodoPago,
+        clave: this.clave
+      });
 
-      metodoPago: this.metodoPago,
+      // El backend ya vació el carrito; esto actualiza el contador del header.
+      await this.carrito.vaciar();
 
-      producto: this.producto,
-      precio: this.precio,
-      cantidad: this.cantidad,
-
-      subtotal: this.subtotal,
-      envio: this.envio,
-      total: this.total
-    };
-
-    // Guardar el último pedido
-    localStorage.setItem(
-      'malvitec_last_order',
-      JSON.stringify(pedido)
-    );
-
-    // Recuperar pedidos anteriores
-    const pedidosGuardados = JSON.parse(
-      localStorage.getItem('malvitec_orders') || '[]'
-    );
-
-    // Agregar el pedido nuevo
-    pedidosGuardados.push(pedido);
-
-    // Guardar nuevamente el historial
-    localStorage.setItem(
-      'malvitec_orders',
-      JSON.stringify(pedidosGuardados)
-    );
-
-    // Ir a Confirmación
-    this.router.navigate(['/confirmacion']);
+      // Ir a Confirmación
+      this.router.navigate(['/confirmacion'], { queryParams: { codigo: pedido.codi } });
+    } catch (error) {
+      alert(mensajeDeError(error));
+    } finally {
+      this.enviando = false;
+    }
   }
 }
