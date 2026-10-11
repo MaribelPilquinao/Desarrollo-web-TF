@@ -4,11 +4,11 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Route, Router, UrlSegment, UrlTree, provideRouter } from '@angular/router';
 
 import { soloProveedor } from './guards';
-import { SesionService } from './services/sesion.service';
+import { SesionService } from '../services/sesion.service';
 
 // Un token con exp en el futuro para que SesionService lo considere vigente.
 function token(): string {
-  const cuerpo = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000)  3600 }));
+  const cuerpo = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }));
   return `a.${cuerpo}.c`;
 }
 

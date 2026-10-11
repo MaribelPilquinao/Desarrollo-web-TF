@@ -61,7 +61,7 @@
                 <td>
                   <div class="input-group input-group-sm stock">
                     <input type="number" min="0" step="1" class="form-control" #stock [value]="p.stock"
-                           [attr.aria-label]="'Stock de '  p.titulo" (keydown.enter)="guardarStock(p, stock.value)">
+                           [attr.aria-label]="'Stock de ' + p.titulo" (keydown.enter)="guardarStock(p, stock.value)">
                     <button type="button" class="btn btn-outline-secondary" [disabled]="ocupado() !== null"
                             (click)="guardarStock(p, stock.value)">Guardar</button>
                   </div>

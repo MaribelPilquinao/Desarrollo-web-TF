@@ -48,8 +48,8 @@
               {{ c.respuesta }}
             </div>
           } @else {
-            <label class="form-label small text-muted" [attr.for]="'resp-'  c.id">Tu respuesta (máx. 500 caracteres)</label>
-            <textarea class="form-control" rows="2" maxlength="500" #respuesta [id]="'resp-'  c.id"></textarea>
+            <label class="form-label small text-muted" [attr.for]="'resp-' + c.id">Tu respuesta (máx. 500 caracteres)</label>
+            <textarea class="form-control" rows="2" maxlength="500" #respuesta [id]="'resp-' + c.id"></textarea>
             <div class="mt-2">
               <button type="button" class="btn btn-warning fw-semibold rounded-pill px-4" [disabled]="enviando() !== null"
                       (click)="responder(c, respuesta.value)">

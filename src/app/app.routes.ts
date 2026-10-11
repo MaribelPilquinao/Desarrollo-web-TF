@@ -11,7 +11,7 @@ import { Login } from './pages/login/login';
 import { Registro } from './pages/registro/registro';
 import { MalvinoChatbot } from './pages/malvino/malvino-chatbot';
 
-import { esProveedor } from './core/guards';
+import { soloProveedor } from './core/guards/guards';
 
 export const routes: Routes = [
     { path: "", redirectTo: "home", pathMatch: "full" },
@@ -26,8 +26,7 @@ export const routes: Routes = [
     { path: 'checkout', component: Checkout },
     { path: 'confirmacion', component: Confirmacion },
     { path: 'mi-cuenta', component: MiCuenta },
-    //{ path: 'proveedor', loadChildren: () =>
-    { path: 'proveedor', canMatch: [esProveedor], loadChildren: () =>
+    { path: 'proveedor', canMatch: [soloProveedor], loadChildren: () =>
             import('./pages/proveedor/proveedor.routes').then(m => m.PROVEEDOR_ROUTES)
     }
 ];

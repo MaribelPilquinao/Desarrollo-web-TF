@@ -43,6 +43,22 @@ export interface ProductoDetalle extends Producto {
 }
 
 
+// Lo que envía el proveedor al crear o editar. categoria es el slug: 'laptops', 'audio', etc.
+export interface DatosProducto {
+  titulo: string;
+  categoria: string;
+  precio_actual: number;
+  precio_anterior: number | null;
+  descuento_pct: number;
+  stock: number;
+  imagen_url: string;
+  descripcion: string;
+  tipo_envio: string;
+  garantia_meses: number;
+  tipo_accesorio: string | null;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -60,13 +76,18 @@ export class ProductoService {
 
   buscarProductos(
     buscar?: string,
-    orden: string = 'relevancia'
+    orden: string = 'relevancia',
+    categoria?: string
   ): Observable<Producto[]> {
 
     let params = new HttpParams();
 
     if (buscar?.trim()) {
       params = params.set('buscar', buscar.trim());
+    }
+
+    if (categoria) {
+      params = params.set('categoria', categoria);
     }
 
     if (orden) {
@@ -85,6 +106,39 @@ export class ProductoService {
   ): Observable<ProductoDetalle> {
 
     return this.http.get<ProductoDetalle>(
+      `${this.apiUrl}/${encodeURIComponent(slug)}`
+    );
+  }
+
+
+  // Productos del proveedor con sesión iniciada.
+  listarMios(): Observable<Producto[]> {
+    return this.http.get<Producto[]>(
+      this.apiUrl,
+      { params: new HttpParams().set('mios', '1') }
+    );
+  }
+
+
+  crear(datos: DatosProducto): Observable<ProductoDetalle> {
+    return this.http.post<ProductoDetalle>(this.apiUrl, datos);
+  }
+
+
+  editar(
+    slug: string,
+    datos: Partial<DatosProducto>
+  ): Observable<ProductoDetalle> {
+
+    return this.http.put<ProductoDetalle>(
+      `${this.apiUrl}/${encodeURIComponent(slug)}`,
+      datos
+    );
+  }
+
+
+  eliminar(slug: string): Observable<unknown> {
+    return this.http.delete(
       `${this.apiUrl}/${encodeURIComponent(slug)}`
     );
   }

@@ -43,9 +43,16 @@ describe('MiCuenta', () => {
       creado_en: '2026-01-15T10:00:00',
       direccion: { departamento: 'Lima', distrito: 'Miraflores', direccion: 'Av. Ejemplo 123', referencia: 'Frente al parque' }
     });
+    TestBed.inject(HttpTestingController).expectOne(`${API_URL}/pedidos`).flush([{
+      id: 5, codi: 'MALV-ABC123', subtotal: 60, costo_envio: 0, total: 60, metodo_pago: 'tarjeta', fecha: '2026-10-10T12:00:00',
+      items: [{ id: 9, titulo: 'Mouse Gamer', precio: 30, cantidad: 2, estado: 'En camino' }]
+    }]);
     await new Promise(r => setTimeout(r));
     await f.whenStable();
     const texto = f.nativeElement.textContent;
+    expect(texto).toContain('MALV-ABC123');
+    expect(texto).toContain('Mouse Gamer');
+    expect(texto).toContain('En camino');
     expect(texto).toContain('demo@malvitec.com');
     expect(texto).toContain('999888777');
     expect(texto).toContain('Yape / Plin');

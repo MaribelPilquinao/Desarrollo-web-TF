@@ -40,4 +40,49 @@
 
 </div>
 
+@if (esCliente) {
+<div class="card shadow-sm mt-4">
+
+    <div class="card-body">
+
+    <h5>Mis compras</h5>
+
+    @if (cargandoCompras()) {
+    <p class="text-muted mb-0">Cargando tus compras...</p>
+    } @else if (errorCompras()) {
+    <div class="alert alert-danger mb-0">{{ errorCompras() }}</div>
+    } @else if (compras().length === 0) {
+    <p class="text-muted mb-0">Aún no has hecho compras.</p>
+    } @else {
+
+    @for (compra of compras(); track compra.id) {
+    <div class="border rounded p-3 mt-3">
+        <div class="d-flex flex-wrap justify-content-between gap-2">
+            <strong>{{ compra.codi }}</strong>
+            <span class="text-muted">{{ compra.fecha | date:'dd/MM/yyyy HH:mm' }} · {{ metodoPago(compra.metodo_pago) }}</span>
+        </div>
+
+        <ul class="list-unstyled my-2">
+            @for (item of compra.items; track item.id) {
+            <li class="d-flex flex-wrap justify-content-between gap-2">
+                <span>{{ item.titulo }} <span class="text-muted">×{{ item.cantidad }}</span></span>
+                <span>S/ {{ item.precio * item.cantidad | number:'1.2-2' }} <span class="badge bg-secondary">{{ item.estado }}</span></span>
+            </li>
+            }
+        </ul>
+
+        <div class="text-end">
+            <span class="text-muted">Envío: S/ {{ compra.costo_envio | number:'1.2-2' }}</span>
+            <strong class="ms-2">Total: S/ {{ compra.total | number:'1.2-2' }}</strong>
+        </div>
+    </div>
+    }
+
+    }
+
+    </div>
+
+</div>
+}
+
 </div>

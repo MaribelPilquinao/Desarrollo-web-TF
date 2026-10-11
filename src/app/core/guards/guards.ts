@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanMatchFn, Router } from '@angular/router';
 
-import { SesionService } from './services/sesion.service';
+import { SesionService } from '../services/sesion.service';
 
 export const soloProveedor: CanMatchFn = () => {
   const sesion = inject(SesionService);

@@ -1,14 +1,14 @@
-export type TipoEnvio =  'Gratis' | 'Estandar';
-export type TipoAccesorio = 'Case' | 'Protector' | 'Batería' | 'Cargador';
+export type TipoEnvio = 'gratis' | 'estandar';
+export type TipoAccesorio = 'case' | 'protector' | 'bateria' | 'cargador';
 
 export interface Producto {
   slug: string;
   titulo: string;
-  descripcion: string;
+  descripcion: string | null;
   categoria: string;
   categoria_nombre: string;
   precio_actual: number;
-  precio_anterior: number;
+  precio_anterior: number | null;
   descuento_pct: number;
   stock: number;
   imagen_url: string | null;
@@ -16,8 +16,7 @@ export interface Producto {
   garantia_meses: number;
   tipo_accesorio: TipoAccesorio | null;
   activo: boolean;
-  actualizado: string;
-
+  actualizado_en: string;
 }
 
 export interface DatosProducto {

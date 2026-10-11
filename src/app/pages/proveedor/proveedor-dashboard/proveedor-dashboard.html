@@ -89,7 +89,7 @@
                   <td>{{ p.cliente }}</td>
                   <td>{{ p.producto }} <span class="text-muted">×{{ p.cantidad }}</span></td>
                   <td>S/ {{ p.total | number: '1.2-2' }}</td>
-                  <td><span [class]="'badge '  claseEstado(p.estado)">{{ p.estado }}</span></td>
+                  <td><span [class]="'badge ' + claseEstado(p.estado)">{{ p.estado }}</span></td>
                 </tr>
               }
             </tbody>

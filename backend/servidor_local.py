@@ -19,6 +19,9 @@ LAMBDAS = {
     "perfil": "perfil",
     "productos": "productos",
     "proveedor": "proveedor",
+    "opiniones": "opiniones",
+    "consultas": "consultas",
+    "compatibilidad": "compatibilidad",
 }
 
 

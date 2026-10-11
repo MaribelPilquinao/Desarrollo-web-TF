@@ -288,12 +288,18 @@
   <section>
 
     <h5 class="products-section-title">
-      Todos los productos
+      {{ tituloSeccion() }}
     </h5>
+
+    @if (!cargandoProductos() && !errorProductos() && productosBackend().length === 0) {
+      <p class="text-muted">
+        No encontramos productos con esos filtros.
+      </p>
+    }
 
     <div class="row g-3">
 
-      @for (producto of productosFiltrados; track producto.id) {
+      @for (producto of productosBackend(); track producto.slug) {
 
         <div class="col-sm-6 col-md-4 col-lg-3">
 
@@ -302,48 +308,41 @@
             <!-- Imagen -->
             <div class="product-image-wrapper">
 
-              <span class="badge-discount">
-                {{ producto.descuento }}
-              </span>
-
-              <span class="badge-shipping">
-                Envío gratis
-              </span>
-
-              @if (producto.id === 'hp-omen-16') {
-
-                <a
-                  [routerLink]="['/producto-detalle', producto.id]"
-                  class="product-detail-link"
-                >
-                  <img
-                    [src]="producto.imagen"
-                    [alt]="producto.nombre"
-                  >
-                </a>
-
-              } @else {
-
-                <img
-                  [src]="producto.imagen"
-                  [alt]="producto.nombre"
-                >
-
+              @if (producto.descuento_pct) {
+                <span class="badge-discount">
+                  {{ producto.descuento_pct }}% OFF
+                </span>
               }
+
+              @if (producto.tipo_envio === 'gratis') {
+                <span class="badge-shipping">
+                  Envío gratis
+                </span>
+              }
+
+              <a
+                [routerLink]="['/producto-detalle', producto.slug]"
+                class="product-detail-link"
+              >
+                <img
+                  [src]="producto.imagen_url"
+                  [alt]="producto.titulo"
+                >
+              </a>
 
               <!-- Favoritos -->
               <button
                 type="button"
                 class="fav-add"
-                [class.active]="esFavorito(producto.id)"
+                [class.active]="esFavorito(producto.slug)"
                 (click)="alternarFavorito(producto)"
                 [title]="
-                  esFavorito(producto.id)
+                  esFavorito(producto.slug)
                     ? 'Quitar de favoritos'
                     : 'Agregar a favoritos'
                 "
               >
-                @if (esFavorito(producto.id)) {
+                @if (esFavorito(producto.slug)) {
                   ❤️
                 } @else {
                   ❤
@@ -355,48 +354,42 @@
             <!-- Información -->
             <div class="product-body">
 
-              @if (producto.id === 'hp-omen-16') {
-
-                <h6 class="product-title">
-                  <a
-                    [routerLink]="['/producto-detalle', producto.id]"
-                    class="product-title-link"
-                  >
-                    {{ producto.nombre }}
-                  </a>
-                </h6>
-
-              } @else {
-
-                <h6 class="product-title">
-                  {{ producto.nombre }}
-                </h6>
-
-              }
+              <h6 class="product-title">
+                <a
+                  [routerLink]="['/producto-detalle', producto.slug]"
+                  class="product-title-link"
+                >
+                  {{ producto.titulo }}
+                </a>
+              </h6>
 
               <div class="product-rating">
-                {{ producto.calificacion }}
+                {{ estrellas(producto.calificacion_prom) }}
 
                 <span class="small-muted">
-                  ({{ producto.opiniones }})
+                  ({{ producto.num_opiniones }})
                 </span>
               </div>
 
               <div class="product-price-old">
-                {{ producto.precioAnterior }}
+                @if (producto.precio_anterior) {
+                  {{ soles(producto.precio_anterior) }}
+                }
               </div>
 
               <div class="product-price-new">
-                {{ producto.precioActual }}
+                {{ soles(producto.precio_actual) }}
               </div>
 
               <button
                 type="button"
                 class="btn btn-add-cart"
                 (click)="agregarAlCarrito(producto)"
-                [disabled]="productoAgregadoId() === producto.id"
+                [disabled]="producto.stock === 0 || productoAgregadoId() === producto.slug"
               >
-                @if (productoAgregadoId() === producto.id) {
+                @if (producto.stock === 0) {
+                  Agotado
+                } @else if (productoAgregadoId() === producto.slug) {
                   ✔ Agregado
                 } @else {
                   🛒 Agregar al carrito

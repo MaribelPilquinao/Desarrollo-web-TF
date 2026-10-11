@@ -1,9 +1,11 @@
-import { Component, inject, signal, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, effect, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { CarritoService } from '../../core/services/carrito.service';
 import { FavoritosService } from '../../core/services/favoritos.service';
 import { ProductoService, Producto } from '../../services/producto';
 import { mensajeDeError } from '../../core/api';
+import { CATEGORIAS, estrellas, soles } from '../../core/formato';
 import { BusquedaService } from '../../core/services/busqueda.service';
 
 @Component({
@@ -12,8 +14,9 @@ import { BusquedaService } from '../../core/services/busqueda.service';
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class Home implements OnInit {
+export class Home {
   private readonly productoService = inject(ProductoService);
+  private readonly busquedaService = inject(BusquedaService);
 
   productosBackend = signal<Producto[]>([]);
 
@@ -22,52 +25,36 @@ export class Home implements OnInit {
 
   terminoBusqueda = signal('');
   ordenSeleccionado = signal('relevancia');
+  categoriaSeleccionada = 'all';
 
-  ngOnInit(): void {
-    this.cargarProductos();
-  }
+  readonly estrellas = estrellas;
+  readonly soles = soles;
 
-  private readonly busquedaService = inject(BusquedaService);
+  private peticion?: Subscription;
+
   constructor() {
-  effect(() => {
-    const termino = this.busquedaService.consulta();
+    // Carga al entrar y cada vez que se busca desde la barra superior.
+    effect(() => {
+      this.terminoBusqueda.set(this.busquedaService.consulta());
 
-    this.terminoBusqueda.set(termino);
+      // La barra superior busca en todo el catálogo; después se puede acotar con las categorías.
+      this.categoriaSeleccionada = 'all';
 
-    if (termino) {
-      this.buscarProductos();
-    }
-  });
-}
+      untracked(() => this.cargarProductos());
+    });
+  }
 
   cargarProductos(): void {
     this.cargandoProductos.set(true);
     this.errorProductos.set('');
 
-    this.productoService.listarProductos().subscribe({
-      next: (productos) => {
-        this.productosBackend.set(productos);
-        this.cargandoProductos.set(false);
+    // Si llega otra búsqueda antes de la respuesta, la anterior se descarta.
+    this.peticion?.unsubscribe();
 
-        console.log('Productos del backend:', productos);
-      },
-
-      error: (error) => {
-        this.errorProductos.set(mensajeDeError(error));
-        this.cargandoProductos.set(false);
-
-        console.error('Error al cargar productos:', error);
-      }
-    });
-  }
-
-  buscarProductos(): void {
-    this.cargandoProductos.set(true);
-    this.errorProductos.set('');
-
-    this.productoService.buscarProductos(
+    this.peticion = this.productoService.buscarProductos(
       this.terminoBusqueda(),
-      this.ordenSeleccionado()
+      this.ordenSeleccionado(),
+      this.categoriaSeleccionada === 'all' ? undefined : this.categoriaSeleccionada
     ).subscribe({
       next: (productos) => {
         this.productosBackend.set(productos);
@@ -77,131 +64,29 @@ export class Home implements OnInit {
       error: (error) => {
         this.errorProductos.set(mensajeDeError(error));
         this.cargandoProductos.set(false);
-
-        console.error('Error al buscar productos:', error);
       }
     });
-  }
-
-  cambiarBusqueda(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.terminoBusqueda.set(input.value);
   }
 
   cambiarOrden(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.ordenSeleccionado.set(select.value);
 
-    this.buscarProductos();
+    this.cargarProductos();
   }
-
-  productos = [
-    {
-      id: 'hp-omen-16',
-      categoria: 'laptops',
-      nombre: 'Laptop Gaming HP OMEN 16 - Intel Core i7, 16GB RAM, RTX 3070',
-      imagen: 'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800',
-      descuento: '24% OFF',
-      calificacion: '⭐⭐⭐⭐☆',
-      opiniones: 342,
-      precioAnterior: 'S/ 7,299',
-      precioActual: 'S/ 5,547'
-    },
-    {
-      id: 'iphone-15-pro-max',
-      categoria: 'celulares',
-      nombre: 'iPhone 15 Pro Max 256GB - Titanio Natural',
-      imagen: 'https://images.pexels.com/photos/47261/pexels-photo-47261.jpeg?auto=compress&cs=tinysrgb&w=800',
-      descuento: '11% OFF',
-      calificacion: '⭐⭐⭐⭐⭐',
-      opiniones: 567,
-      precioAnterior: 'S/ 6,499',
-      precioActual: 'S/ 5,784'
-    },
-    {
-      id: 'sony-wh-1000xm5',
-      categoria: 'audio',
-      nombre: 'Audífonos Sony WH-1000XM5 - Cancelación de ruido',
-      imagen: 'https://images.pexels.com/photos/3394664/pexels-photo-3394664.jpeg?auto=compress&cs=tinysrgb&w=800',
-      descuento: '25% OFF',
-      calificacion: '⭐⭐⭐⭐⭐',
-      opiniones: 423,
-      precioAnterior: 'S/ 1,799',
-      precioActual: 'S/ 1,349'
-    },
-    {
-      id: 'apple-watch-series-9',
-      categoria: 'wearables',
-      nombre: 'Apple Watch Series 9 GPS 45mm - Medianoche',
-      imagen: 'https://plazavea.vteximg.com.br/arquivos/ids/28839799-418-418/imageUrl_4.jpg',
-      descuento: '20% OFF',
-      calificacion: '⭐⭐⭐⭐☆',
-      opiniones: 289,
-      precioAnterior: 'S/ 2,399',
-      precioActual: 'S/ 1,919'
-    },
-
-    {
-      id: 'logitech-g-pro-x',
-      categoria: 'perifericos',
-      nombre: 'Teclado Mecánico Logitech G Pro X - RGB, Switches GX Blue',
-      imagen: 'https://oechsle.vteximg.com.br/arquivos/ids/7324469-1000-1000/imageUrl_2.jpg?v=637810641594700000',
-      descuento: '24% OFF',
-      calificacion: '⭐⭐⭐⭐⭐',
-      opiniones: 178,
-      precioAnterior: 'S/ 549',
-      precioActual: 'S/ 417'
-    },
-    {
-      id: 'ipad-air-m2',
-      categoria: 'tablets',
-      nombre: 'iPad Air 11 M2 256GB - Azul',
-      imagen: 'https://images.pexels.com/photos/1334597/pexels-photo-1334597.jpeg?auto=compress&cs=tinysrgb&w=800',
-      descuento: '17% OFF',
-      calificacion: '⭐⭐⭐⭐⭐',
-      opiniones: 412,
-      precioAnterior: 'S/ 3,299',
-      precioActual: 'S/ 2,738'
-    },
-    {
-      id: 'logitech-mx-master-3s',
-      categoria: 'perifericos',
-      nombre: 'Mouse Logitech MX Master 3S - Inalámbrico',
-      imagen: 'https://images.pexels.com/photos/735911/pexels-photo-735911.jpeg?auto=compress&cs=tinysrgb&w=800',
-      descuento: '15% OFF',
-      calificacion: '⭐⭐⭐⭐⭐',
-      opiniones: 256,
-      precioAnterior: 'S/ 429',
-      precioActual: 'S/ 364'
-    },
-    {
-      id: 'sony-alpha-a7-iv',
-      categoria: 'camaras',
-      nombre: 'Cámara Sony Alpha A7 IV - Full Frame 33MP',
-      imagen: 'https://images.pexels.com/photos/279906/pexels-photo-279906.jpeg?auto=compress&cs=tinysrgb&w=800',
-      descuento: '13% OFF',
-      calificacion: '⭐⭐⭐⭐☆',
-      opiniones: 199,
-      precioAnterior: 'S/ 8,999',
-      precioActual: 'S/ 7,829'
-    },   
-
-  ];
-
-  categoriaSeleccionada = 'all';
 
   seleccionarCategoria(categoria: string) {
     this.categoriaSeleccionada = categoria;
+
+    this.cargarProductos();
   }
 
-  get productosFiltrados() {
-    if (this.categoriaSeleccionada === 'all') {
-      return this.productos;
-    }
+  tituloSeccion(): string {
+    const categoria = CATEGORIAS.find(c => c.slug === this.categoriaSeleccionada)?.nombre ?? 'Todos los productos';
 
-    return this.productos.filter(
-      producto => producto.categoria === this.categoriaSeleccionada
-    );
+    return this.terminoBusqueda()
+      ? `Resultados de "${this.terminoBusqueda()}" en ${categoria.toLowerCase()}`
+      : categoria;
   }
 
   /** Favoritos y carrito */
@@ -211,40 +96,34 @@ export class Home implements OnInit {
 
   readonly productoAgregadoId = signal<string | null>(null);
 
-  esFavorito(id: string): boolean {
-    return this.favoritosService.esFavorito(id);
+  esFavorito(slug: string): boolean {
+    return this.favoritosService.esFavorito(slug);
   }
 
-  alternarFavorito(producto: any): void {
+  alternarFavorito(producto: Producto): void {
     this.favoritosService.alternar({
-      id: producto.id,
-      title: producto.nombre,
-      price: this.convertirPrecio(producto.precioActual),
-      img: producto.imagen
+      id: producto.slug,
+      title: producto.titulo,
+      price: producto.precio_actual,
+      img: producto.imagen_url
     });
   }
 
-  async agregarAlCarrito(producto: any): Promise<void> {
+  async agregarAlCarrito(producto: Producto): Promise<void> {
     const agregado = await this.carritoService.agregar({
-      id: producto.id,
-      title: producto.nombre,
-      price: this.convertirPrecio(producto.precioActual),
-      img: producto.imagen
+      id: producto.slug,
+      title: producto.titulo,
+      price: producto.precio_actual,
+      img: producto.imagen_url
     });
     if (!agregado) {
       return;
     }
 
-    this.productoAgregadoId.set(producto.id);
+    this.productoAgregadoId.set(producto.slug);
 
     setTimeout(() => {
       this.productoAgregadoId.set(null);
     }, 900);
-  }
-
-  convertirPrecio(precio: string): number {
-    return Number(
-      precio.replace(/[^\d.]/g, '')
-    ) || 0;
   }
 }

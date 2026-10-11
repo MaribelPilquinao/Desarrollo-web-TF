@@ -2,7 +2,7 @@ export type EstadoPedido = 'Pendiente' | 'En camino' | 'Completado' | 'Entregado
 
 export interface Pedido {
   id: number;
-  codigo: string;
+  codi: string;
   fecha: string;
   cliente: string;
   telefono: string;
@@ -10,7 +10,7 @@ export interface Pedido {
   distrito: string;
   direccion: string;
   referencia: string | null;
-  metodo_pago: 'Tarjeta' | 'QR' | 'Cash' | 'Transferencia';
+  metodo_pago: string;
   producto: string;
   cantidad: number;
   precio_unitario: number;

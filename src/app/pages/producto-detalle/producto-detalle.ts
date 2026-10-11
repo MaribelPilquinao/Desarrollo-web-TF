@@ -1,14 +1,18 @@
 import { Component, inject, signal, OnInit, computed  } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 
+import { DatePipe } from '@angular/common';
 import { CarritoService } from '../../core/services/carrito.service';
+import { ConsultaService } from '../../core/services/consulta.service';
 import { FavoritosService } from '../../core/services/favoritos.service';
+import { Opinion, OpinionService } from '../../core/services/opinion.service';
+import { SesionService } from '../../core/services/sesion.service';
 import {ProductoService, ProductoDetalle as ProductoDetalleApi } from '../../services/producto';
 import { mensajeDeError } from '../../core/api';
 
 @Component({
   selector: 'app-producto-detalle',
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe],
   templateUrl: './producto-detalle.html',
   styleUrl: './producto-detalle.css'
 })
@@ -18,6 +22,13 @@ export class ProductoDetalle implements OnInit {
   private readonly productoService = inject(ProductoService);
   private readonly favoritosService = inject(FavoritosService);
   private readonly carritoService = inject(CarritoService);
+  private readonly opinionService = inject(OpinionService);
+  private readonly consultaService = inject(ConsultaService);
+  private readonly sesion = inject(SesionService);
+
+  // Opinar y preguntar al vendedor son acciones de cliente.
+  readonly esCliente = computed(() => this.sesion.usuario()?.rol === 'cliente');
+  readonly conectado = this.sesion.conectado;
 
   productoBackend = signal<ProductoDetalleApi | null>(null);
 
@@ -68,9 +79,10 @@ export class ProductoDetalle implements OnInit {
        this.imagenPrincipal = producto.imagen_url;
      }
 
+      this.cantidad = 1;
       this.cargandoProducto.set(false);
 
-      console.log('Producto del backend:', producto);
+      void this.cargarOpiniones(slug);
     },
 
     error: (error) => {
@@ -93,6 +105,9 @@ export class ProductoDetalle implements OnInit {
   stock: 15,
   vendedor: 'TechPower Store',
   garantia: '12 meses',
+  descuento: 24,
+  envioGratis: true,
+  promedio: 4.5,
   precioAnterior: 'S/ 7,299',
   precioActual: 'S/ 5,547',
   ahorro: 'S/ 1,752'
@@ -118,6 +133,12 @@ productoVista = computed(() => {
     opiniones: backend.num_opiniones ?? 0,
 
     stock: backend.stock,
+
+    descuento: backend.descuento_pct ?? 0,
+
+    envioGratis: backend.tipo_envio === 'gratis',
+
+    promedio: backend.calificacion_prom ?? 0,
 
     vendedor:
       backend.proveedor || 'Proveedor no disponible',
@@ -312,5 +333,90 @@ mostrarConfirmacionCarrito(): void {
   setTimeout(() => {
     this.productoAgregado.set(false);
   }, 900);
+}
+
+/** Opiniones */
+
+readonly opiniones = signal<Opinion[]>([]);
+readonly errorOpiniones = signal('');
+readonly calificacionNueva = signal(5);
+readonly enviandoOpinion = signal(false);
+readonly avisoOpinion = signal('');
+
+async cargarOpiniones(slug: string): Promise<void> {
+  this.errorOpiniones.set('');
+
+  try {
+    this.opiniones.set(await this.opinionService.listar(slug));
+  } catch (error) {
+    this.opiniones.set([]);
+    this.errorOpiniones.set(mensajeDeError(error));
+  }
+}
+
+async opinar(comentario: HTMLTextAreaElement): Promise<void> {
+  const producto = this.productoBackend();
+
+  if (!producto || this.enviandoOpinion()) {
+    return;
+  }
+
+  this.enviandoOpinion.set(true);
+  this.errorOpiniones.set('');
+  this.avisoOpinion.set('');
+
+  try {
+    const resumen = await this.opinionService.opinar(
+      producto.slug,
+      this.calificacionNueva(),
+      comentario.value.trim()
+    );
+
+    // El backend devuelve el promedio ya recalculado.
+    this.productoBackend.set({ ...producto, ...resumen });
+    comentario.value = '';
+    this.avisoOpinion.set('¡Gracias! Tu opinión quedó publicada.');
+
+    await this.cargarOpiniones(producto.slug);
+  } catch (error) {
+    this.errorOpiniones.set(mensajeDeError(error));
+  } finally {
+    this.enviandoOpinion.set(false);
+  }
+}
+
+/** Consulta al vendedor */
+
+readonly enviandoConsulta = signal(false);
+readonly avisoConsulta = signal('');
+readonly errorConsulta = signal('');
+
+async preguntar(mensaje: HTMLTextAreaElement): Promise<void> {
+  const producto = this.productoBackend();
+  const texto = mensaje.value.trim();
+
+  if (!producto || this.enviandoConsulta()) {
+    return;
+  }
+
+  this.avisoConsulta.set('');
+
+  if (!texto) {
+    this.errorConsulta.set('Escribe tu pregunta antes de enviarla.');
+    return;
+  }
+
+  this.enviandoConsulta.set(true);
+  this.errorConsulta.set('');
+
+  try {
+    await this.consultaService.preguntar(producto.slug, texto);
+    mensaje.value = '';
+    this.avisoConsulta.set('Enviamos tu pregunta al vendedor.');
+  } catch (error) {
+    this.errorConsulta.set(mensajeDeError(error));
+  } finally {
+    this.enviandoConsulta.set(false);
+  }
 }
 }

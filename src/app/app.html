@@ -20,18 +20,16 @@
       id="navbarMain" 
       [class.show]="menuOpen()"
     >
-      <form class="search-box d-flex mx-lg-4 my-3 my-lg-0 flex-grow-1">
+      <form class="search-box d-flex mx-lg-4 my-3 my-lg-0 flex-grow-1" (submit)="buscarProductos($event)">
         <input
           type="text"
           placeholder="Buscar productos, marcas..."
           [value]="terminoBusqueda()"
           (input)="cambiarBusqueda($event)"
-          (keyup.enter)="buscarProductos()"
         >
         <button
-          type="button"
+          type="submit"
           class="search-button"
-          (click)="buscarProductos()"
           aria-label="Buscar productos">
         </button>
       </form>

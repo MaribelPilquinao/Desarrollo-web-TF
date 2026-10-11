@@ -47,16 +47,20 @@
 
           <img
             [src]="imagenPrincipal"
-            alt="Laptop Gaming HP OMEN 16"
+            [alt]="productoVista().nombre"
           >
 
-          <span class="badge-discount badge-detail">
-            24% OFF
-          </span>
+          @if (productoVista().descuento) {
+            <span class="badge-discount badge-detail">
+              {{ productoVista().descuento }}% OFF
+            </span>
+          }
 
-          <span class="badge-shipping badge-detail">
-            Envío gratis
-          </span>
+          @if (productoVista().envioGratis) {
+            <span class="badge-shipping badge-detail">
+              Envío gratis
+            </span>
+          }
 
         </div>
 
@@ -104,9 +108,15 @@
 
               <span class="divider-dot">•</span>
 
-              <span class="small text-success fw-semibold">
-                En stock
-              </span>
+              @if (productoVista().stock > 0) {
+                <span class="small text-success fw-semibold">
+                  En stock
+                </span>
+              } @else {
+                <span class="small text-danger fw-semibold">
+                  Agotado
+                </span>
+              }
 
             </div>
 
@@ -130,18 +140,21 @@
                 {{ productoVista().precioActual }}
               </div>
 
-              <span
-                class="badge bg-success-subtle text-success-emphasis ms-2"
-              >
-                Ahorra {{ productoVista().ahorro }}
-              </span>
+              @if (productoVista().precioAnterior) {
+                <span
+                  class="badge bg-success-subtle text-success-emphasis ms-2"
+                >
+                  Ahorra {{ productoVista().ahorro }}
+                </span>
+              }
 
             </div>
 
             <hr>
 
 
-            <!-- Configuración -->
+            <!-- Configuración: solo la laptop de ejemplo tiene variantes -->
+            @if (productoVista().id === 'hp-omen-16') {
             <div class="mb-3">
 
               <h6 class="small text-uppercase text-muted mb-2">
@@ -171,6 +184,7 @@
               </div>
 
             </div>
+            }
 
             <!-- Cantidad -->
             <div class="mb-3">
@@ -245,10 +259,12 @@
                 type="button"
                 class="btn btn-add-cart w-100"
                 (click)="agregarAlCarrito()"
-                [disabled]="productoAgregado()"
+                [disabled]="productoAgregado() || productoVista().stock === 0"
               >
 
-                @if (productoAgregado()) {
+                @if (productoVista().stock === 0) {
+                  Agotado
+                } @else if (productoAgregado()) {
                   ✔ Producto agregado
                 } @else {
                   🛒 Agregar {{ cantidad }} al carrito
@@ -307,6 +323,19 @@
                   </button>
                 </li>
 
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="consulta-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#consulta"
+                    type="button"
+                    role="tab"
+                  >
+                    Preguntar
+                  </button>
+                </li>
+
               </ul>
 
 
@@ -325,12 +354,14 @@
                     {{ descripcionVista() }}
                   </p>
 
+                  @if (productoVista().id === 'hp-omen-16') {
                   <ul>
                     <li>Pantalla 16" Full HD 144Hz.</li>
                     <li>Teclado retroiluminado RGB.</li>
                     <li>Sistema de refrigeración optimizado.</li>
                     <li>Diseñada para gaming y creación de contenido.</li>
                   </ul>
+                  }
 
                 </div>
 
@@ -369,38 +400,125 @@
 
                   <div class="small">
 
-                    <p class="mb-3">
-                      ⭐⭐⭐⭐☆
-                      <strong>4.5 de 5</strong>
-                      — basado en
-                      <strong>{{ productoVista().opiniones }} opiniones</strong>
-                    </p>
-
-                    <div class="review-item">
-                      <strong>Carlos M.</strong>
-                      <p>
-                        Rinde muy bien con juegos exigentes y la pantalla
-                        ofrece una buena calidad.
+                    @if (productoVista().opiniones > 0) {
+                      <p class="mb-3">
+                        {{ productoVista().calificacion }}
+                        <strong>{{ productoVista().promedio }} de 5</strong>
+                        — basado en
+                        <strong>{{ productoVista().opiniones }} opiniones</strong>
                       </p>
-                    </div>
-
-                    <div class="review-item">
-                      <strong>Lucía P.</strong>
-                      <p>
-                        Muy rápida para edición de video y trabajos pesados.
+                    } @else {
+                      <p class="text-muted mb-3">
+                        Este producto todavía no tiene opiniones.
                       </p>
-                    </div>
+                    }
 
-                    <div class="review-item">
-                      <strong>Juan R.</strong>
-                      <p>
-                        Buena relación entre rendimiento y precio.
+                    @for (opinion of opiniones(); track opinion.id) {
+                      <div class="review-item">
+                        <strong>{{ opinion.autor }}</strong>
+                        <span class="ms-1">{{ '⭐'.repeat(opinion.calificacion) }}</span>
+                        <span class="text-muted ms-1">{{ opinion.creado_en | date: 'dd/MM/yyyy' }}</span>
+                        @if (opinion.comentario) {
+                          <p>{{ opinion.comentario }}</p>
+                        }
+                      </div>
+                    }
+
+                    @if (errorOpiniones()) {
+                      <div class="alert alert-danger mt-3 mb-0">{{ errorOpiniones() }}</div>
+                    }
+
+                    @if (avisoOpinion()) {
+                      <div class="alert alert-success mt-3 mb-0">{{ avisoOpinion() }}</div>
+                    }
+
+                    <!-- Opinar -->
+                    @if (esCliente()) {
+                      <div class="mt-3">
+                        <label class="form-label fw-semibold" for="calificacion-nueva">Tu opinión</label>
+                        <select
+                          id="calificacion-nueva"
+                          class="form-select form-select-sm mb-2"
+                          [value]="calificacionNueva()"
+                          (change)="calificacionNueva.set(+$any($event.target).value)"
+                        >
+                          @for (valor of [5, 4, 3, 2, 1]; track valor) {
+                            <option [value]="valor">{{ '⭐'.repeat(valor) }} ({{ valor }})</option>
+                          }
+                        </select>
+                        <textarea
+                          #comentario
+                          class="form-control form-control-sm mb-2"
+                          rows="2"
+                          maxlength="500"
+                          placeholder="Cuéntanos qué te pareció (opcional)"
+                          aria-label="Comentario"
+                        ></textarea>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-dark"
+                          [disabled]="enviandoOpinion() || !productoBackend()"
+                          (click)="opinar(comentario)"
+                        >
+                          {{ enviandoOpinion() ? 'Enviando…' : 'Publicar opinión' }}
+                        </button>
+                      </div>
+                    } @else if (!conectado()) {
+                      <p class="text-muted mt-3 mb-0">
+                        <a routerLink="/login">Inicia sesión</a> para dejar tu opinión.
                       </p>
-                    </div>
+                    }
 
-                    <p class="text-muted mt-3 mb-0">
-                      *Las opiniones mostradas son demostrativas para el prototipo.
-                    </p>
+                  </div>
+
+                </div>
+
+                <!-- Consulta al vendedor -->
+                <div
+                  class="tab-pane fade"
+                  id="consulta"
+                  role="tabpanel"
+                >
+
+                  <div class="small">
+
+                    @if (esCliente()) {
+                      <label class="form-label fw-semibold" for="mensaje-consulta">
+                        Pregúntale a {{ productoVista().vendedor }}
+                      </label>
+                      <textarea
+                        #mensaje
+                        id="mensaje-consulta"
+                        class="form-control form-control-sm mb-2"
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Ej.: ¿Incluye cargador?"
+                      ></textarea>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-dark"
+                        [disabled]="enviandoConsulta() || !productoBackend()"
+                        (click)="preguntar(mensaje)"
+                      >
+                        {{ enviandoConsulta() ? 'Enviando…' : 'Enviar pregunta' }}
+                      </button>
+                    } @else if (!conectado()) {
+                      <p class="text-muted mb-0">
+                        <a routerLink="/login">Inicia sesión</a> para preguntarle al vendedor.
+                      </p>
+                    } @else {
+                      <p class="text-muted mb-0">
+                        Las preguntas al vendedor se envían desde una cuenta de cliente.
+                      </p>
+                    }
+
+                    @if (errorConsulta()) {
+                      <div class="alert alert-danger mt-3 mb-0">{{ errorConsulta() }}</div>
+                    }
+
+                    @if (avisoConsulta()) {
+                      <div class="alert alert-success mt-3 mb-0">{{ avisoConsulta() }}</div>
+                    }
 
                   </div>
 

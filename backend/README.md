@@ -14,7 +14,7 @@ URL del API (etapa `v1`): `https://y1fqqcqake.execute-api.us-east-1.amazonaws.co
 | Carpeta / archivo | Contenido |
 |---|---|
 | `capa/python/malvitec_comun/` | Código compartido: conexión, token y formato de respuestas |
-| `auth/`, `favoritos/`, `carrito/`, `pedidos/`, `perfil/` | Una Lambda por carpeta, cada una con su `lambda_function.py` |
+| `auth/`, `favoritos/`, `carrito/`, `pedidos/`, `perfil/`, `productos/`, `proveedor/`, `opiniones/`, `consultas/`, `compatibilidad/` | Una Lambda por carpeta, cada una con su `lambda_function.py` |
 | `empaquetar.py` | Genera los `.zip` para subir a AWS |
 | `servidor_local.py` | Simula API Gateway en tu PC |
 | `.env.ejemplo` | Plantilla de variables de entorno para trabajar en local |
@@ -61,9 +61,95 @@ Todas devuelven el carrito actualizado: `items` (`slug`, `titulo`, `imagen_url`,
 
 | Método | Ruta | Cuerpo |
 |---|---|---|
+| GET | `/pedidos` | — |
 | POST | `/pedidos` | `nombres`, `apellidos`, `correo`, `telefono`, `departamento`, `distrito`, `direccion`, `referencia` (opcional), `metodo_pago` (`tarjeta`, `yape_plin` o `contra_entrega`), `clave` (opcional) |
+| PUT | `/pedidos/{slug}` | `estado` (`En camino` o `Entregado`) |
 
-Crea el pedido con lo que hay en el carrito del usuario y responde `201` con `id`, `codi`, `subtotal`, `costo_envio` y `total`. En la misma transacción descuenta el stock de cada producto y vacía el carrito. Si se repite la `clave` (doble clic o reintento), devuelve el pedido ya creado con `200` en vez de duplicarlo.
+- **GET** responde según el rol del token. Al cliente le devuelve sus pedidos, del más reciente al más antiguo: `id`, `codi`, `subtotal`, `costo_envio`, `total`, `metodo_pago`, `fecha` e `items` (`id`, `titulo`, `precio`, `cantidad`, `estado`). Al proveedor le devuelve los ítems que le toca atender: `item_id`, `pedido_id`, `codi`, los datos de entrega (`entrega_nombres`, `entrega_apellidos`, `entrega_telefono`, `entrega_departamento`, `entrega_distrito`, `entrega_direccion`, `entrega_referencia`), `creado_en`, `titulo`, `precio_unitario`, `cantidad`, `total_item` y `estado`.
+- **POST** es solo para clientes. Crea el pedido con lo que hay en el carrito del usuario y responde `201` con `id`, `codi`, `subtotal`, `costo_envio` y `total`. En la misma transacción descuenta el stock de cada producto y vacía el carrito. Si se repite la `clave` (doble clic o reintento), devuelve el pedido ya creado con `200` en vez de duplicarlo.
+- **PUT** es solo para proveedores. En la ruta va el `item_id` del ítem (el estado vive en `pedido_items`, porque cada proveedor atiende sus propios ítems). El estado solo avanza `Pendiente` → `En camino` → `Entregado`; cualquier otro cambio responde `409`.
+
+### `malvitec-productos` (tablas `productos`, `producto_imagenes`, `producto_especificaciones` y `categorias`)
+
+Ver el catálogo es público. Las rutas marcadas con 🔒 son solo para proveedores.
+
+| Método | Ruta | Parámetros o cuerpo |
+|---|---|---|
+| GET | `/productos` | Parámetros opcionales: `buscar`, `categoria` (slug, por ejemplo `laptops`) y `orden` (`relevancia`, `precio_asc`, `precio_desc` o `valoracion`) |
+| GET | `/productos?mios=1` 🔒 | Los mismos parámetros. Devuelve solo los productos del proveedor |
+| GET | `/productos/{slug}` | — |
+| POST | `/productos` 🔒 | `titulo`, `categoria` (slug), `precio_actual` y, opcionales, `descripcion`, `precio_anterior`, `descuento_pct`, `stock`, `imagen_url`, `tipo_envio` (`gratis` o `estandar`), `garantia_meses`, `tipo_accesorio` (`case`, `protector`, `bateria` o `cargador`) |
+| PUT | `/productos/{slug}` 🔒 | Los mismos campos; solo se cambian los que se envían |
+| DELETE | `/productos/{slug}` 🔒 | — |
+
+- La lista devuelve solo productos activos, con `id`, `slug`, `titulo`, `descripcion`, `precio_actual`, `precio_anterior`, `descuento_pct`, `stock`, `imagen_url`, `tipo_envio`, `garantia_meses`, `calificacion_prom`, `num_opiniones`, `tipo_accesorio`, `proveedor` y `categoria`.
+- `buscar` compara con el título, la descripción y el nombre del proveedor. En el título y la descripción no distingue mayúsculas ni tildes.
+- El detalle agrega `imagenes` (`url`, `orden`) y `especificaciones` (`clave`, `valor`, `orden`). Responde `404` si el producto no existe o está inactivo.
+- **POST** responde `201` con el detalle del producto. El `slug` se arma con el título (`Audífonos Sony` → `audifonos-sony`) y, si ya existe, se le agrega un número.
+- **PUT** y **DELETE** responden `404` si el producto es de otro proveedor. El slug no cambia al editar el título.
+- **DELETE** no borra la fila: pone `activo = 0`, porque los pedidos ya hechos siguen apuntando al producto.
+- Todavía no hay rutas para cargar la galería de imágenes ni las especificaciones; esas tablas se llenan desde la base.
+
+### `malvitec-proveedor` (panel del proveedor) 🔒
+
+Todas las rutas son solo para proveedores y trabajan únicamente con los productos, pedidos y consultas de su tienda. Es la Lambda que usa el panel (`/proveedor` en el front).
+
+| Método | Ruta | Cuerpo |
+|---|---|---|
+| GET | `/proveedor/resumen` | — |
+| GET | `/proveedor/categorias` | — |
+| GET | `/proveedor/productos` | — |
+| POST | `/proveedor/productos` | `titulo`, `categoria` (slug), `precio_actual`, `stock` y, opcionales, `descripcion`, `precio_anterior`, `imagen_url`, `tipo_envio`, `garantia_meses`, `tipo_accesorio` |
+| GET | `/proveedor/productos/{slug}` | — |
+| PUT | `/proveedor/productos/{slug}` | Los mismos campos, más `activo` (`true` o `false`); solo se cambian los que se envían |
+| GET | `/proveedor/pedidos` | — |
+| PUT | `/proveedor/pedidos/{id}` | `estado` |
+| GET | `/proveedor/consultas` | — |
+| PUT | `/proveedor/consultas/{id}` | `respuesta` (hasta 500 caracteres) |
+
+- **Resumen:** `nombre_comercial`, `productos_publicados`, `sin_stock`, `pedidos_pendientes`, `consultas_nuevas`, `ventas`, `ultimos_pedidos` y `productos_sin_stock`.
+- **Productos:** la lista incluye los ocultos (`activo = false`). El descuento se calcula solo a partir de `precio_anterior`, que debe ser mayor que `precio_actual`. `tipo_accesorio` solo se guarda en la categoría `accesorios`.
+- **Pedidos:** una fila por ítem. El estado avanza `Pendiente` → `En camino` → `Entregado`, y desde los dos primeros se puede pasar a `Cancelado`; cualquier otro cambio responde `409`.
+- **Consultas:** responder una consulta ya respondida da `409`.
+- **API Gateway:** la Lambda lee la ruta completa, así que basta un solo recurso `/proveedor/{proxy+}` con el método `ANY` (integración de proxy de Lambda y CORS activado), en lugar de un recurso por ruta.
+
+Las rutas de proveedor que también existen en `malvitec-productos` (`POST`, `PUT`, `DELETE`, `?mios=1`), `malvitec-pedidos` (`PUT` y el `GET` de proveedor) y `malvitec-consultas` (`PUT` y el `GET` de proveedor) hacen lo mismo de forma más simple; el front no las usa.
+
+### `malvitec-opiniones` (tabla `opiniones`)
+
+| Método | Ruta | Cuerpo |
+|---|---|---|
+| GET | `/opiniones/{slug}` | — |
+| POST | `/opiniones/{slug}` 🔒 | `calificacion` (entero del 1 al 5), `comentario` (opcional, hasta 500 caracteres) |
+
+- El `{slug}` es el del producto. **GET** es público y devuelve `id`, `autor`, `calificacion`, `comentario` y `creado_en`, de la más reciente a la más antigua.
+- **POST** es solo para clientes. Cada usuario tiene una opinión por producto: la primera responde `201`; si vuelve a opinar, se reemplaza y responde `200`.
+- En la misma transacción se recalculan `calificacion_prom` y `num_opiniones` del producto, y la respuesta trae esos dos valores ya actualizados.
+- No se comprueba que el cliente haya comprado el producto.
+
+### `malvitec-consultas` (tabla `consultas`) 🔒
+
+| Método | Ruta | Cuerpo |
+|---|---|---|
+| GET | `/consultas` | — |
+| POST | `/consultas` | `slug` (del producto), `mensaje` (hasta 500 caracteres) |
+| PUT | `/consultas/{slug}` | `respuesta` (hasta 500 caracteres) |
+
+- **GET** responde según el rol: al cliente, las consultas que hizo; al proveedor, las de sus productos. Devuelve `id`, `cliente`, `slug`, `producto`, `mensaje`, `respuesta`, `estado` (`Nueva` o `Respondida`), `creado_en` y `respondida_en`.
+- **POST** es solo para clientes y responde `201`.
+- **PUT** es solo para proveedores. En la ruta va el `id` de la consulta. Guarda la respuesta y pasa el estado a `Respondida`; responde `404` si la consulta es de un producto de otro proveedor.
+
+### `malvitec-compatibilidad` (tablas `compatibilidad` y `modelos_celular`)
+
+Rutas públicas, para Malvino.
+
+| Método | Ruta | Parámetros |
+|---|---|---|
+| GET | `/compatibilidad` | — |
+| GET | `/compatibilidad/{slug}` | `modelo` (slug del modelo, por ejemplo `iphone-13`) |
+
+- La primera devuelve `modelos` (`slug`, `nombre`) y `accesorios` (`slug`, `titulo`, `tipo_accesorio`, `precio_actual`, `stock`, `imagen_url` y `modelos`, la lista de slugs con los que es compatible). Un accesorio es un producto activo con `tipo_accesorio`.
+- La segunda recibe el slug del accesorio y devuelve `compatible` (`true` o `false`), `accesorio`, `modelo` y `alternativas`: si no es compatible, los accesorios del mismo tipo que sí sirven para ese modelo.
 
 ### `malvitec-perfil` (tablas `usuarios` y `direcciones`) 🔒
 

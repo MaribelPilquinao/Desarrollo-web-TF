@@ -1,26 +1,48 @@
-import { Injectable } from '@angular/core';
-export const DEMO_ACCESSORIES = [
- {id:'case-13',name:'Case de ejemplo para iPhone 13',type:'case',models:['iphone 13']},
- {id:'case-14',name:'Case de ejemplo para iPhone 14',type:'case',models:['iphone 14']},
- {id:'glass-13',name:'Protector de ejemplo para iPhone 13',type:'protector',models:['iphone 13']},
- {id:'battery-a32-4g',name:'Batería de ejemplo para Samsung A32 4G',type:'bateria',models:['samsung a32 4g']},
- {id:'battery-a32-5g',name:'Batería de ejemplo para Samsung A32 5G',type:'bateria',models:['samsung a32 5g']},
- {id:'charger-13',name:'Kit cargador de ejemplo para iPhone 13',type:'cargador',models:['iphone 13']}
-];
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { API_URL } from '../api';
+
+export interface ModeloCelular { slug: string; nombre: string; }
+export interface Accesorio { slug: string; titulo: string; tipo_accesorio: string; modelos: string[]; }
+export interface CatalogoCompatibilidad { modelos: ModeloCelular[]; accesorios: Accesorio[]; }
+interface Compatibilidad {
+  compatible: boolean;
+  accesorio: { titulo: string };
+  modelo: { nombre: string };
+  alternativas: { titulo: string }[];
+}
+
+// Modelos que reconoce el chat de respuestas programadas.
 export const DEMO_MODELS=['iphone 13','iphone 14','samsung a32 4g','samsung a32 5g'];
 @Injectable({providedIn:'root'})
 export class MalvinoService {
-  check(accessoryId:string,model:string):string {
-    const a=DEMO_ACCESSORIES.find(a=>a.id===accessoryId);
-    if(!a || !DEMO_MODELS.includes(model)) return 'Selecciona un accesorio y un modelo de la demostración.';
-    if(a.models.includes(model)) return `Según la ficha de ejemplo, ${a.name} es compatible con ${model}. Esta respuesta usa datos ficticios de prueba; no confirma compatibilidad ni stock de un producto real.`;
-    const alternative=DEMO_ACCESSORIES.find(p=>p.type===a.type && p.models.includes(model));
-    return `La ficha de ejemplo de ${a.name} no incluye ${model}. `+(alternative ? `Alternativa de demostración: ${alternative.name}.` : 'No tengo una alternativa para ese modelo en las fichas de prueba. Consulta el modelo exacto y la referencia con el vendedor.');
+  private readonly http = inject(HttpClient);
+
+  // Accesorios y modelos del catálogo real, para los desplegables del comprobador.
+  catalogo(): Promise<CatalogoCompatibilidad> {
+    return firstValueFrom(this.http.get<CatalogoCompatibilidad>(`${API_URL}/compatibilidad`));
+  }
+
+  async comprobar(accesorio: string, modelo: string): Promise<string> {
+    const r = await firstValueFrom(
+      this.http.get<Compatibilidad>(`${API_URL}/compatibilidad/${encodeURIComponent(accesorio)}`, {
+        params: new HttpParams().set('modelo', modelo)
+      })
+    );
+    if (r.compatible) {
+      return `Sí: según el catálogo de Malvitec, ${r.accesorio.titulo} es compatible con ${r.modelo.nombre}.`;
+    }
+    const alternativas = r.alternativas.map(a => a.titulo).join(', ');
+    return `${r.accesorio.titulo} no figura como compatible con ${r.modelo.nombre}. ` +
+      (alternativas
+        ? `Para ese modelo sí tenemos: ${alternativas}.`
+        : 'No tenemos una alternativa de ese tipo para ese modelo. Consulta el modelo exacto con el vendedor.');
   }
   answer(text:string):string {
     const q=text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     if(/bateria|case|funda|protector|cargador|compatible|compatibilidad/.test(q)) {
-      if(/a32/.test(q) && !/4g|5g/.test(q)) return '¿Tu Samsung A32 es 4G o 5G? Necesito la variante exacta y la referencia del accesorio. Puedes usar el comprobador de fichas de ejemplo.';
+      if(/a32/.test(q) && !/4g|5g/.test(q)) return '¿Tu Samsung A32 es 4G o 5G? Necesito la variante exacta y la referencia del accesorio. Puedes usar el comprobador de compatibilidad.';
       const model=DEMO_MODELS.find(m=>q.includes(m));
       if(!model) return 'Indica el modelo exacto del celular y la referencia del accesorio. Puedo demostrar consultas para iPhone 13, iPhone 14 y Samsung A32 4G/5G. No debo asumir que un accesorio sirve solo por su apariencia.';
       return `Para ${model}, selecciona el accesorio exacto en el comprobador. “Este case” o “esta batería” no identifican una referencia; no puedo confirmar su compatibilidad sin esa información.`;

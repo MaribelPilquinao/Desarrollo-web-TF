@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { API_URL } from '../api';
+import { EstadoPedido } from '../models/pedido.model';
 
 export interface NuevoPedido {
   nombres: string;
@@ -26,11 +27,27 @@ export interface PedidoCreado {
   total: number;
 }
 
+// Pedido como lo ve el cliente en Mi Cuenta. El estado va por ítem, porque cada proveedor atiende los suyos.
+export interface Compra {
+  id: number;
+  codi: string;
+  subtotal: number;
+  costo_envio: number;
+  total: number;
+  metodo_pago: string;
+  fecha: string;
+  items: { id: number; titulo: string; precio: number; cantidad: number; estado: EstadoPedido }[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
   private readonly http = inject(HttpClient);
 
   crear(datos: NuevoPedido): Promise<PedidoCreado> {
     return firstValueFrom(this.http.post<PedidoCreado>(`${API_URL}/pedidos`, datos));
+  }
+
+  listarMisCompras(): Promise<Compra[]> {
+    return firstValueFrom(this.http.get<Compra[]>(`${API_URL}/pedidos`));
   }
 }

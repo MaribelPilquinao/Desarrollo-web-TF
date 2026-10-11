@@ -8,7 +8,7 @@ PRECIO_MAXIMO = Decimal("99999999.99")
 STOCK_MAXIMO = 100000
 TIPOS_ENVIO = ("gratis", "estandar")
 TIPOS_ACCESORIO = ("case", "protector", "bateria", "cargador")
-URL_VALIDA = re.compile(r"^https?://\S$", re.IGNORECASE)
+URL_VALIDA = re.compile(r"^https?://\S+$", re.IGNORECASE)
 MAXIMO_RESPUESTA = 500
 
 # Estados que un proveedor puede dar a un ítem de pedido. Completado, Entregado y Cancelado son finales.
@@ -55,7 +55,7 @@ def leer_id(texto):
 
 def crear_slug(titulo):
     base = unicodedata.normalize("NFKD", titulo).encode("ascii", "ignore").decode("ascii")
-    base = re.sub(r"[^a-z0-9]", "-", base.lower()).strip("-")[:100].strip("-")
+    base = re.sub(r"[^a-z0-9]+", "-", base.lower()).strip("-")[:100].strip("-")
     return base or "producto"
 
 
@@ -66,7 +66,7 @@ def slug_libre(cursor, titulo):
         cursor.execute("SELECT 1 AS existe FROM productos WHERE slug = %s", (candidato,))
         if not cursor.fetchone():
             return candidato
-        numero = 1
+        numero += 1
         candidato = f"{base}-{numero}"
 
 
@@ -154,7 +154,7 @@ def validar_campos(cursor, datos, completo):
         cambios["garantia_meses"] = leer_entero(datos.get("garantia_meses", 12), "la garantía", 0, 60)
     if enviado("tipo_accesorio"):
         tipo = datos["tipo_accesorio"]
-        if tipo not in (None, "")  TIPOS_ACCESORIO:
+        if tipo not in (None, "") + TIPOS_ACCESORIO:
             raise ErrorApi(400, "El tipo de accesorio no es válido")
         cambios["tipo_accesorio"] = tipo or None
     if enviado("activo"):
@@ -379,7 +379,7 @@ def tramos_de_ruta(event):
     partes = [parte for parte in camino.split("/") if parte]
     if "proveedor" not in partes:
         raise ErrorApi(404, "Ruta no encontrada")
-    return partes[partes.index("proveedor")  1:]
+    return partes[partes.index("proveedor") + 1:]
 
 
 @manejar

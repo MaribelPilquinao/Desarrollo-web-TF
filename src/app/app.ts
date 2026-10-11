@@ -42,8 +42,13 @@ export class App {
     this.busquedaService.actualizarTermino(input.value);
   }
 
-  buscarProductos(): void {
+  buscarProductos(event: Event): void {
+    // Sin esto, Enter envía el formulario y el navegador recarga la página antes de buscar.
+    event.preventDefault();
+    this.menuOpen.set(false);
     this.busquedaService.buscar();
+    // Los resultados se muestran en el inicio; desde otra página hay que ir ahí.
+    void this.router.navigate(['/home']);
   }
 
   protected readonly title = signal('desarrollo-web-TF');

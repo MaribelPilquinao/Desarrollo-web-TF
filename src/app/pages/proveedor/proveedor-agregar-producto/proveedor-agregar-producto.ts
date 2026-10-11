@@ -42,12 +42,12 @@ export class ProveedorAgregarProducto implements OnInit {
       titulo: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3), Validators.maxLength(200), Validators.pattern(/.*\S.*/)] }),
       categoria: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       descripcion: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(4000)] }),
-      precio_actual: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01), Validators.max(99999999.99), Validators.pattern(/^\d(\.\d{1,2})?$/)]),
-      precio_anterior: new FormControl<number | null>(null, [Validators.min(0.01), Validators.max(99999999.99), Validators.pattern(/^\d(\.\d{1,2})?$/)]),
-      stock: new FormControl<number | null>(0, [Validators.required, Validators.min(0), Validators.max(100000), Validators.pattern(/^\d$/)]),
-      imagen_url: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(500), Validators.pattern(/^\s*(https?:\/\/\S)?\s*$/i)] }),
+      precio_actual: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01), Validators.max(99999999.99), Validators.pattern(/^\d+(\.\d{1,2})?$/)]),
+      precio_anterior: new FormControl<number | null>(null, [Validators.min(0.01), Validators.max(99999999.99), Validators.pattern(/^\d+(\.\d{1,2})?$/)]),
+      stock: new FormControl<number | null>(0, [Validators.required, Validators.min(0), Validators.max(100000), Validators.pattern(/^\d+$/)]),
+      imagen_url: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(500), Validators.pattern(/^\s*(https?:\/\/\S+)?\s*$/i)] }),
       tipo_envio: new FormControl<TipoEnvio>('estandar', { nonNullable: true }),
-      garantia_meses: new FormControl<number | null>(12, [Validators.required, Validators.min(0), Validators.max(60), Validators.pattern(/^\d$/)]),
+      garantia_meses: new FormControl<number | null>(12, [Validators.required, Validators.min(0), Validators.max(60), Validators.pattern(/^\d+$/)]),
       tipo_accesorio: new FormControl<TipoAccesorio | ''>('', { nonNullable: true })
     },
     { validators: preciosCoherentes }

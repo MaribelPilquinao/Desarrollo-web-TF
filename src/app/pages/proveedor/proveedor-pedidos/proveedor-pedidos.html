@@ -46,7 +46,7 @@
                 <td>{{ p.producto }} <span class="text-muted">×{{ p.cantidad }}</span></td>
                 <td>S/ {{ p.total | number: '1.2-2' }}</td>
                 <td>{{ metodos[p.metodo_pago] }}</td>
-                <td><span [class]="'badge '  claseEstado(p.estado)">{{ p.estado }}</span></td>
+                <td><span [class]="'badge ' + claseEstado(p.estado)">{{ p.estado }}</span></td>
                 <td class="text-end text-nowrap">
                   @if (p.estado === 'Pendiente') {
                     <button type="button" class="btn btn-sm btn-primary me-1" [disabled]="ocupado() !== null"
