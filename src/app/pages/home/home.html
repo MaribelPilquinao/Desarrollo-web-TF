@@ -244,6 +244,44 @@
 
 </div>
 
+<!-- BUSCADOR Y ORDENAMIENTO -->
+<div class="container mb-4">
+
+  <div class="row justify-content-end">
+
+    <div class="col-md-4">
+      <select
+        class="form-select"
+        [value]="ordenSeleccionado()"
+        (change)="cambiarOrden($event)"
+      >
+        <option value="relevancia">Relevancia</option>
+        <option value="precio_asc">Precio: menor a mayor</option>
+        <option value="precio_desc">Precio: mayor a menor</option>
+        <option value="valoracion">Mejor valoración</option>
+      </select>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- MENSAJES DEL BACKEND -->
+@if (cargandoProductos()) {
+  <div class="container">
+    <p>Cargando productos...</p>
+  </div>
+}
+
+@if (errorProductos()) {
+  <div class="container">
+    <div class="alert alert-danger">
+      {{ errorProductos() }}
+    </div>
+  </div>
+}
+
 <!-- Productos -->
 <main class="container my-4">
 

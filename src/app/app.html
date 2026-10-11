@@ -14,10 +14,25 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarMain" [class.show]="menuOpen()">
-      <form class="d-flex mx-lg-4 my-3 my-lg-0 flex-grow-1">
-        <input class="form-control search-input" type="search" placeholder="Buscar productos, marcas..." />
-        <button class="btn search-btn" type="submit" aria-label="Buscar"></button>
+    <div 
+      class="collapse navbar-collapse" 
+      id="navbarMain" 
+      [class.show]="menuOpen()"
+    >
+      <form class="search-box d-flex mx-lg-4 my-3 my-lg-0 flex-grow-1">
+        <input
+          type="text"
+          placeholder="Buscar productos, marcas..."
+          [value]="terminoBusqueda()"
+          (input)="cambiarBusqueda($event)"
+          (keyup.enter)="buscarProductos()"
+        >
+        <button
+          type="button"
+          class="search-button"
+          (click)="buscarProductos()"
+          aria-label="Buscar productos">
+        </button>
       </form>
 
       <ul class="navbar-nav ms-lg-3 align-items-lg-center nav-actions">

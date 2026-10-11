@@ -1,7 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CarritoService } from '../../core/services/carrito.service';
 import { FavoritosService } from '../../core/services/favoritos.service';
+import { ProductoService, Producto } from '../../services/producto';
+import { mensajeDeError } from '../../core/api';
+import { BusquedaService } from '../../core/services/busqueda.service';
 
 @Component({
   selector: 'app-home',
@@ -9,7 +12,88 @@ import { FavoritosService } from '../../core/services/favoritos.service';
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class Home {
+export class Home implements OnInit {
+  private readonly productoService = inject(ProductoService);
+
+  productosBackend = signal<Producto[]>([]);
+
+  cargandoProductos = signal(false);
+  errorProductos = signal('');
+
+  terminoBusqueda = signal('');
+  ordenSeleccionado = signal('relevancia');
+
+  ngOnInit(): void {
+    this.cargarProductos();
+  }
+
+  private readonly busquedaService = inject(BusquedaService);
+  constructor() {
+  effect(() => {
+    const termino = this.busquedaService.consulta();
+
+    this.terminoBusqueda.set(termino);
+
+    if (termino) {
+      this.buscarProductos();
+    }
+  });
+}
+
+  cargarProductos(): void {
+    this.cargandoProductos.set(true);
+    this.errorProductos.set('');
+
+    this.productoService.listarProductos().subscribe({
+      next: (productos) => {
+        this.productosBackend.set(productos);
+        this.cargandoProductos.set(false);
+
+        console.log('Productos del backend:', productos);
+      },
+
+      error: (error) => {
+        this.errorProductos.set(mensajeDeError(error));
+        this.cargandoProductos.set(false);
+
+        console.error('Error al cargar productos:', error);
+      }
+    });
+  }
+
+  buscarProductos(): void {
+    this.cargandoProductos.set(true);
+    this.errorProductos.set('');
+
+    this.productoService.buscarProductos(
+      this.terminoBusqueda(),
+      this.ordenSeleccionado()
+    ).subscribe({
+      next: (productos) => {
+        this.productosBackend.set(productos);
+        this.cargandoProductos.set(false);
+      },
+
+      error: (error) => {
+        this.errorProductos.set(mensajeDeError(error));
+        this.cargandoProductos.set(false);
+
+        console.error('Error al buscar productos:', error);
+      }
+    });
+  }
+
+  cambiarBusqueda(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.terminoBusqueda.set(input.value);
+  }
+
+  cambiarOrden(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.ordenSeleccionado.set(select.value);
+
+    this.buscarProductos();
+  }
 
   productos = [
     {
