@@ -1,5 +1,17 @@
 <main class="container my-4 product-detail">
 
+    @if (cargandoProducto()) {
+    <div class="alert alert-info">
+      Cargando producto...
+    </div>
+  }
+
+  @if (errorProducto()) {
+    <div class="alert alert-danger">
+      {{ errorProducto() }}
+    </div>
+  }
+
   <!-- Migas de pan -->
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb small">
@@ -9,14 +21,14 @@
       </li>
 
       <li class="breadcrumb-item">
-        <a href="#">Laptops</a>
+        <a href="#"> {{ categoriaVista() }} </a>
       </li>
 
       <li
         class="breadcrumb-item active"
         aria-current="page"
       >
-        Laptop Gaming HP OMEN 16
+        {{ productoVista().nombre }}
       </li>
 
     </ol>
@@ -75,7 +87,7 @@
 
             <!-- Nombre -->
             <h1 class="h4 mb-2">
-              {{ producto.nombre }}
+              {{ productoVista().nombre }}
             </h1>
 
 
@@ -83,10 +95,10 @@
             <div class="d-flex align-items-center gap-2 mb-2">
 
               <div class="product-rating">
-                {{ producto.calificacion }}
+                {{ productoVista().calificacion }}
 
                 <span class="small-muted">
-                  ({{ producto.opiniones }} opiniones)
+                  ({{ productoVista().opiniones }} opiniones)
                 </span>
               </div>
 
@@ -102,8 +114,8 @@
             <!-- Vendedor -->
             <p class="small text-muted mb-3">
               Vendido y enviado por
-              <strong>{{ producto.vendedor }}</strong>
-              • Garantía {{ producto.garantia }}
+              <strong>{{ productoVista().vendedor }}</strong>
+              • Garantía {{ productoVista().garantia }}
             </p>
 
 
@@ -111,17 +123,17 @@
             <div class="product-detail-price mb-3">
 
               <div class="product-price-old">
-                {{ producto.precioAnterior }}
+                {{ productoVista().precioAnterior }}
               </div>
 
               <div class="product-price-new">
-                {{ producto.precioActual }}
+                {{ productoVista().precioActual }}
               </div>
 
               <span
                 class="badge bg-success-subtle text-success-emphasis ms-2"
               >
-                Ahorra {{ producto.ahorro }}
+                Ahorra {{ productoVista().ahorro }}
               </span>
 
             </div>
@@ -188,7 +200,7 @@
                   type="button"
                   class="btn btn-outline-secondary"
                   (click)="aumentarCantidad()"
-                  [disabled]="cantidad >= producto.stock"
+                  [disabled]="cantidad >= productoVista().stock"
                 >
                   +
                 </button>
@@ -202,7 +214,7 @@
             <div class="stock-info">
               <p class="small text-muted mb-0">
                 Stock disponible:
-                <strong>{{ producto.stock }} unidades</strong>
+                <strong>{{ productoVista().stock }} unidades</strong>
               </p>
             </div>
 
@@ -291,7 +303,7 @@
                     type="button"
                     role="tab"
                   >
-                    Opiniones ({{ producto.opiniones }})
+                    Opiniones ({{ productoVista().opiniones }})
                   </button>
                 </li>
 
@@ -310,10 +322,7 @@
                 >
 
                   <p>
-                    La HP OMEN 16 es una laptop gamer diseñada para ofrecer
-                    alto rendimiento en juegos exigentes y tareas de productividad.
-                    Cuenta con procesador Intel Core i7, 16GB de RAM y tarjeta
-                    gráfica NVIDIA RTX 3070.
+                    {{ descripcionVista() }}
                   </p>
 
                   <ul>
@@ -333,77 +342,23 @@
                   role="tabpanel"
                 >
 
-                  <div class="row">
+                    <div class="row">
+                      @for (
+                        especificacion of especificacionesVista();
+                        track $index
+                      ) {
 
-                    <div class="col-md-6">
+                        <div class="col-md-6">
+                          <p class="small mb-2">
+                            <strong>{{ especificacion.clave }}:</strong>
+                            {{ especificacion.valor }}
+                          </p>
+                        </div>
 
-                      <ul class="list-unstyled small spec-list">
-                        <li>
-                          <strong>Procesador:</strong>
-                          Intel Core i7 (12ª gen)
-                        </li>
-
-                        <li>
-                          <strong>Memoria RAM:</strong>
-                          16GB DDR5
-                        </li>
-
-                        <li>
-                          <strong>Almacenamiento:</strong>
-                          1TB SSD NVMe
-                        </li>
-
-                        <li>
-                          <strong>Gráficos:</strong>
-                          NVIDIA GeForce RTX 3070
-                        </li>
-
-                        <li>
-                          <strong>Pantalla:</strong>
-                          16" FHD 144Hz
-                        </li>
-                      </ul>
+                      }
 
                     </div>
-
-
-                     <div class="col-md-6">
-
-                      <ul class="list-unstyled small spec-list">
-
-                        <li>
-                          <strong>Sistema operativo:</strong>
-                          Windows 11
-                        </li>
-
-                        <li>
-                          <strong>Conectividad:</strong>
-                          Wi-Fi 6, Bluetooth 5.2
-                        </li>
-
-                        <li>
-                          <strong>Puertos:</strong>
-                          USB-C, USB-A, HDMI, RJ-45
-                        </li>
-
-                        <li>
-                          <strong>Peso:</strong>
-                          2.3 kg aprox.
-                        </li>
-
-                        <li>
-                          <strong>Color:</strong>
-                          Negro sombra
-                        </li>
-
-                      </ul>
-
-                    </div>
-
                   </div>
-
-               </div>
-
 
                 <!-- Opiniones -->
                 <div
@@ -418,7 +373,7 @@
                       ⭐⭐⭐⭐☆
                       <strong>4.5 de 5</strong>
                       — basado en
-                      <strong>{{ producto.opiniones }} opiniones</strong>
+                      <strong>{{ productoVista().opiniones }} opiniones</strong>
                     </p>
 
                     <div class="review-item">

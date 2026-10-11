@@ -286,6 +286,7 @@
 <main class="container my-4">
 
   <section>
+
     <h5 class="products-section-title">
       Todos los productos
     </h5>
@@ -311,67 +312,67 @@
 
               @if (producto.id === 'hp-omen-16') {
 
-              <a
-               routerLink="/producto-detalle"
-               class="product-detail-link"
+                <a
+                  [routerLink]="['/producto-detalle', producto.id]"
+                  class="product-detail-link"
+                >
+                  <img
+                    [src]="producto.imagen"
+                    [alt]="producto.nombre"
+                  >
+                </a>
+
+              } @else {
+
+                <img
+                  [src]="producto.imagen"
+                  [alt]="producto.nombre"
+                >
+
+              }
+
+              <!-- Favoritos -->
+              <button
+                type="button"
+                class="fav-add"
+                [class.active]="esFavorito(producto.id)"
+                (click)="alternarFavorito(producto)"
+                [title]="
+                  esFavorito(producto.id)
+                    ? 'Quitar de favoritos'
+                    : 'Agregar a favoritos'
+                "
               >
-               <img
-                 [src]="producto.imagen"
-                 [alt]="producto.nombre"
-               >
-              </a>
+                @if (esFavorito(producto.id)) {
+                  ❤️
+                } @else {
+                  ❤
+                }
+              </button>
 
-            } @else {
-
-              <img
-                [src]="producto.imagen"
-                [alt]="producto.nombre"
-              >
-
-            }
-
-             <!-- Favoritos -->
-             <button
-               type="button"
-               class="fav-add"
-               [class.active]="esFavorito(producto.id)"
-               (click)="alternarFavorito(producto)"
-               [title]="
-                esFavorito(producto.id)
-                 ? 'Quitar de favoritos'
-                 : 'Agregar a favoritos'
-              "
-           >
-             @if (esFavorito(producto.id)) {
-               ❤️
-             } @else {
-               ❤
-           }
-          </button>
-
-        </div>
+            </div>
 
             <!-- Información -->
             <div class="product-body">
 
               @if (producto.id === 'hp-omen-16') {
 
-            <h6 class="product-title">
-               <a
-                 routerLink="/producto-detalle"
-                 class="product-title-link"
-               >
+                <h6 class="product-title">
+                  <a
+                    [routerLink]="['/producto-detalle', producto.id]"
+                    class="product-title-link"
+                  >
+                    {{ producto.nombre }}
+                  </a>
+                </h6>
+
+              } @else {
+
+                <h6 class="product-title">
                   {{ producto.nombre }}
-               </a>
-            </h6>
+                </h6>
 
-            } @else {
-
-             <h6 class="product-title">
-                {{ producto.nombre }}
-             </h6>
-
-            }
+              }
 
               <div class="product-rating">
                 {{ producto.calificacion }}
@@ -411,6 +412,7 @@
       }
 
     </div>
+
   </section>
 
 </main>

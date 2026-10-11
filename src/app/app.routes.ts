@@ -19,7 +19,7 @@ export const routes: Routes = [
     { path: 'malvino', redirectTo: 'malvino-chatbot', pathMatch: 'full' },
     { path: "home", component: Home },
     { path: "cart", component: Cart },
-    { path: "producto-detalle", component: ProductoDetalle },
+    { path: "producto-detalle/:slug", component: ProductoDetalle },
     { path: "favorites", component: Favorites },
     { path: 'checkout', component: Checkout },
     { path: 'confirmacion', component: Confirmacion },
