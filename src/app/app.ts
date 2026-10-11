@@ -4,6 +4,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { CarritoService } from './core/services/carrito.service';
 import { FavoritosService } from './core/services/favoritos.service';
 import { SesionService } from './core/services/sesion.service';
+import { BusquedaService } from './core/services/busqueda.service';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,18 @@ export class App {
   private readonly router = inject(Router);
   logout(): void { this.menuOpen.set(false); this.sesion.cerrarSesion(); void this.router.navigate(['/login']); }
   cerrarAviso(): void { this.carrito.error.set(''); this.favoritos.error.set(''); }
+  private readonly busquedaService = inject(BusquedaService);
+
+  terminoBusqueda = this.busquedaService.termino;
+
+  cambiarBusqueda(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.busquedaService.actualizarTermino(input.value);
+  }
+
+  buscarProductos(): void {
+    this.busquedaService.buscar();
+  }
 
   protected readonly title = signal('desarrollo-web-TF');
 }
