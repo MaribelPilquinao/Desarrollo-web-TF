@@ -1,0 +1,70 @@
+<main class="container my-4">
+  <h3 class="fw-bold mb-3">Pedidos</h3>
+
+  @if (error()) {
+    <div class="alert alert-danger alert-dismissible" role="alert">
+      {{ error() }}
+      <button type="button" class="btn-close" aria-label="Cerrar aviso" (click)="error.set('')"></button>
+    </div>
+  }
+
+  <div class="card shadow-sm border-0 p-3">
+    <div class="btn-group flex-wrap mb-3" role="group" aria-label="Filtrar por estado">
+      @for (f of filtros; track f) {
+        <button type="button" class="btn btn-outline-dark" [class.active]="filtro() === f" (click)="filtro.set(f)">
+          {{ f }} <span class="badge text-bg-light">{{ cantidad(f) }}</span>
+        </button>
+      }
+    </div>
+
+    @if (cargando()) {
+      <p class="text-muted mb-0" role="status">Cargando pedidos…</p>
+    } @else if (pedidos().length === 0) {
+      <p class="text-muted mb-0">Todavía no tienes pedidos.</p>
+    } @else if (visibles().length === 0) {
+      <p class="text-muted mb-0">No hay pedidos en estado «{{ filtro() }}».</p>
+    } @else {
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr><th>Pedido</th><th>Cliente y entrega</th><th>Producto</th><th>Total</th><th>Pago</th><th>Estado</th><th class="text-end">Acciones</th></tr>
+          </thead>
+          <tbody>
+            @for (p of visibles(); track p.id) {
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ p.codi }}</div>
+                  <div class="small text-muted">{{ p.fecha | date: 'dd/MM/yyyy HH:mm' }}</div>
+                </td>
+                <td>
+                  <div>{{ p.cliente }} · <span class="text-muted">{{ p.telefono }}</span></div>
+                  <div class="small text-muted">
+                    {{ p.direccion }}, {{ p.distrito }}, {{ p.departamento }}
+                    @if (p.referencia) { ({{ p.referencia }}) }
+                  </div>
+                </td>
+                <td>{{ p.producto }} <span class="text-muted">×{{ p.cantidad }}</span></td>
+                <td>S/ {{ p.total | number: '1.2-2' }}</td>
+                <td>{{ metodos[p.metodo_pago] }}</td>
+                <td><span [class]="'badge '  claseEstado(p.estado)">{{ p.estado }}</span></td>
+                <td class="text-end text-nowrap">
+                  @if (p.estado === 'Pendiente') {
+                    <button type="button" class="btn btn-sm btn-primary me-1" [disabled]="ocupado() !== null"
+                            (click)="cambiarEstado(p, 'En camino')">Marcar en camino</button>
+                  } @else if (p.estado === 'En camino') {
+                    <button type="button" class="btn btn-sm btn-success me-1" [disabled]="ocupado() !== null"
+                            (click)="cambiarEstado(p, 'Entregado')">Marcar entregado</button>
+                  }
+                  @if (p.estado === 'Pendiente' || p.estado === 'En camino') {
+                    <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="ocupado() !== null"
+                            (click)="cambiarEstado(p, 'Cancelado')">Cancelar</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</main>

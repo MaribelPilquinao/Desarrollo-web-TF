@@ -1,64 +1,101 @@
 <main class="container my-4 proveedor">
-  <h3 class="fw-bold mb-3">Panel del Proveedor</h3>
+   <h3 class="fw-bold mb-3">Panel del Proveedor</h3>
+ 
+  @if (cargando()) {
+    <p class="text-muted" role="status">Cargando tu resumen…</p>
+  } @else if (error()) {
+    <div class="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-sm btn-outline-danger" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (resumen(); as r) {
+    <p class="text-muted">
+      Bienvenido, <strong>{{ r.nombre_comercial }}</strong>. Aquí puedes gestionar tu catálogo, stock y pedidos.
+    </p>
+ 
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg">
+        <a routerLink="/proveedor/productos" class="card shadow-sm metric-card p-3 text-decoration-none text-body h-100">
+          <h6 class="text-muted mb-1">Productos publicados</h6>
+          <h2 class="fw-bold mb-0">{{ r.productos_publicados }}</h2>
+        </a>
+       </div>
 
-  <p class="text-muted" *ngIf="proveedor$ | async as proveedor">
-    Bienvenido, <strong>{{ proveedor.nombre }}</strong>. Aquí puedes gestionar todo tu catálogo, stock y pedidos.
-  </p>
+      <div class="col-6 col-lg">
+        <a routerLink="/proveedor/pedidos" class="card shadow-sm metric-card p-3 text-decoration-none text-body h-100">
+          <h6 class="text-muted mb-1">Pedidos pendientes</h6>
+          <h2 class="fw-bold text-warning mb-0">{{ r.pedidos_pendientes }}</h2>
+        </a>
+       </div>
 
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="card shadow-sm metric-card p-3">
-        <h6 class="text-muted mb-1">Productos publicados</h6>
-        <h2 class="fw-bold">{{ productos.length }}</h2>
+      <div class="col-6 col-lg">
+        <a routerLink="/proveedor/productos" class="card shadow-sm metric-card p-3 text-decoration-none text-body h-100">
+          <h6 class="text-muted mb-1">Productos sin stock</h6>
+          <h2 class="fw-bold text-danger mb-0">{{ r.sin_stock }}</h2>
+        </a>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm metric-card p-3">
-        <h6 class="text-muted mb-1">Pedidos pendientes</h6>
-        <h2 class="fw-bold text-warning">{{ pedidosPendientes.length }}</h2>
+      <div class="col-6 col-lg">
+        <a routerLink="/proveedor/consultas" class="card shadow-sm metric-card p-3 text-decoration-none text-body h-100">
+          <h6 class="text-muted mb-1">Consultas nuevas</h6>
+          <h2 class="fw-bold text-primary mb-0">{{ r.consultas_nuevas }}</h2>
+        </a>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm metric-card p-3">
-        <h6 class="text-muted mb-1">Productos sin stock</h6>
-        <h2 class="fw-bold text-danger">{{ sinStock.length }}</h2>
+      <div class="col-12 col-lg">
+        <div class="card shadow-sm metric-card p-3 h-100">
+          <h6 class="text-muted mb-1">Ventas (sin cancelados)</h6>
+          <h2 class="fw-bold mb-0">S/ {{ r.ventas | number: '1.2-2' }}</h2>
+        </div>
+       </div>
+     </div>
+
+    <div class="card shadow-sm border-0 p-4 mb-4">
+      <h5 class="fw-semibold mb-3">Accesos rápidos</h5>
+      <div class="d-flex flex-wrap gap-3">
+        <a routerLink="/proveedor/agregar-producto" class="btn btn-outline-dark px-4 rounded-pill">➕ Agregar producto</a>
+        <a routerLink="/proveedor/productos" class="btn btn-outline-dark px-4 rounded-pill">📦 Ver productos</a>
+        <a routerLink="/proveedor/pedidos" class="btn btn-outline-dark px-4 rounded-pill">📨 Pedidos</a>
+        <a routerLink="/proveedor/consultas" class="btn btn-outline-dark px-4 rounded-pill">💬 Consultas</a>
       </div>
-    </div>
-  </div>
+     </div>
 
-  <div class="card shadow-sm border-0 p-4 mb-4">
-    <h5 class="fw-semibold mb-3">Accesos rápidos</h5>
-    <div class="d-flex flex-wrap gap-3">
-      <a routerLink="/proveedor/agregar-producto" class="btn btn-outline-dark px-4 rounded-pill">➕ Agregar producto</a>
-      <a routerLink="/proveedor/productos" class="btn btn-outline-dark px-4 rounded-pill">📦 Ver productos</a>
-      <a routerLink="/proveedor/pedidos" class="btn btn-outline-dark px-4 rounded-pill">📨 Pedidos</a>
-      <a routerLink="/proveedor/consultas" class="btn btn-outline-dark px-4 rounded-pill">💬 Consultas</a>
-    </div>
-  </div>
+    @if (r.productos_sin_stock.length > 0) {
+      <div class="alert alert-warning" role="alert">
+        <strong>Sin stock:</strong>
+        @for (p of r.productos_sin_stock; track p.slug; let ultimo = $last) {
+          <a [routerLink]="['/proveedor/editar-producto', p.slug]" class="alert-link">{{ p.titulo }}</a>{{ ultimo ? '' : ', ' }}
+        }
+        — repón el stock para que vuelvan a poder comprarse.
+      </div>
+    }
 
-  <div class="card shadow-sm border-0 p-4">
-    <h5 class="fw-semibold mb-3">Últimos pedidos</h5>
-    <table class="table align-middle">
-      <thead>
-        <tr><th>ID</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Estado</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of pedidos">
-          <td>{{ p.id }}</td>
-          <td>{{ p.cliente }}</td>
-          <td>{{ p.producto }}</td>
-          <td>S/ {{ p.total.toFixed(2) }}</td>
-          <td>
-            <span class="badge"
-              [ngClass]="{
-                'bg-warning': p.estado === 'Pendiente',
-                'bg-success': p.estado === 'Completado' || p.estado === 'Entregado'
-              }">
-              {{ p.estado }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="card shadow-sm border-0 p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-semibold mb-0">Últimos pedidos</h5>
+        <a routerLink="/proveedor/pedidos" class="small">Ver todos</a>
+      </div>
+      @if (r.ultimos_pedidos.length === 0) {
+        <p class="text-muted mb-0">Todavía no tienes pedidos.</p>
+      } @else {
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              @for (p of r.ultimos_pedidos; track p.id) {
+                <tr>
+                  <td>{{ p.codi }}</td>
+                  <td>{{ p.fecha | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ p.cliente }}</td>
+                  <td>{{ p.producto }} <span class="text-muted">×{{ p.cantidad }}</span></td>
+                  <td>S/ {{ p.total | number: '1.2-2' }}</td>
+                  <td><span [class]="'badge '  claseEstado(p.estado)">{{ p.estado }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
 </main>

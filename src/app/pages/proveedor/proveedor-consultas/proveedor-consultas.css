@@ -1,0 +1,9 @@
+.mensaje {
+  font-size: 1.05rem;
+}
+
+.respuesta {
+  background: #f1f8f4;
+  border-left: 4px solid #198754;
+  border-radius: 6px;
+}

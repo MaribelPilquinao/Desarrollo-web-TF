@@ -1,35 +1,40 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ProveedorContextService } from '../../../core/services/proveedor-context.service';
-import { PedidoService } from '../../../core/services/pedido.service';
-import { Pedido } from '../../../core/models/pedido.model';
-import { Producto } from '../../../core/models/producto.model';
-import { ProductoService } from '../../../core/services/producto.service';
 
-@Component({
-  selector: 'app-proveedor-dashboard',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './proveedor-dashboard.html',
-  styleUrl: './proveedor-dashboard.css'
-})
-export class ProveedorDashboard implements OnInit {
-  private ctx = inject(ProveedorContextService);
-  private pedidoService = inject(PedidoService);
-  private productoService = inject(ProductoService);
+import { mensajeDeError } from '../../../core/api';
+import { ResumenProveedor } from '../../../core/models/proveedor.model';
+import { ProveedorService } from '../../../core/services/proveedor.service';
+import { claseEstado } from '../proveedor-ui';
+ 
+ @Component({
+   selector: 'app-proveedor-dashboard',
+  imports: [RouterLink, DatePipe, DecimalPipe],
+   templateUrl: './proveedor-dashboard.html',
+   styleUrl: './proveedor-dashboard.css'
+ })
+ export class ProveedorDashboard implements OnInit {
+  private readonly api = inject(ProveedorService);
 
-  proveedor$ = this.ctx.getProveedorActual();
-  pedidos : Pedido[] = [];
-  pedidosPendientes : Pedido[] = [];
-  productos : Producto[] = [];
-  sinStock : Producto[] = [];
-
-  ngOnInit() {
-    this.pedidos = this.pedidoService.listarUltimos();
-    this.pedidosPendientes = this.pedidoService.listarPendientes();
-    this.productos = this.productoService.listarPorProveedor("mock-1");
-    this.sinStock = this.productos.filter(producto => producto.stock === 0);
+  readonly resumen = signal<ResumenProveedor | null>(null);
+  readonly cargando = signal(true);
+  readonly error = signal('');
+  readonly claseEstado = claseEstado;
+ 
+  ngOnInit(): void {
+    void this.cargar();
   }
-  
+ 
+  async cargar(): Promise<void> {
+    this.cargando.set(true);
+    this.error.set('');
+    try {
+      this.resumen.set(await this.api.resumen());
+    } catch (error) {
+      this.error.set(mensajeDeError(error));
+    } finally {
+      this.cargando.set(false);
+    }
+   }
+
 }

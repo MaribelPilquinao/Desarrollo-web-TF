@@ -18,6 +18,7 @@ LAMBDAS = {
     "pedidos": "pedidos",
     "perfil": "perfil",
     "productos": "productos",
+    "proveedor": "proveedor",
 }
 
 
