@@ -35,36 +35,90 @@
       </form>
 
       <ul class="navbar-nav ms-lg-3 align-items-lg-center nav-actions">
-        <li class="nav-item"><a class="nav-link" routerLink="/malvino-chatbot" (click)="menuOpen.set(false)">Malvino</a></li>
         <li class="nav-item">
-          @if(sesion.conectado()) {
-            <button class="nav-link border-0 bg-transparent" type="button" (click)="logout()">Cerrar sesión</button>
-          } @else { <a class="nav-link" routerLink="/login" (click)="menuOpen.set(false)">Ingresar</a> }
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/mi-cuenta">Mi cuenta</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/favorites" routerLinkActive="fw-semibold" title="Favoritos">
-            <span class="nav-icon">❤</span>
-            <span class="d-lg-inline d-none">Favoritos</span>
-            @if (favoritos.cantidad() > 0) {
-              <span class="badge rounded-pill bg-danger ms-1">{{ favoritos.cantidad() }}</span>
-            }
+          <a class="nav-link" routerLink="/malvino-chatbot" routerLinkActive="activo" (click)="menuOpen.set(false)" title="Malvino, el asistente de Malvitec">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="8" width="18" height="12" rx="3" />
+              <path d="M12 8V4.5" />
+              <circle cx="12" cy="3.2" r="1.2" />
+              <circle cx="8.5" cy="13" r="1" />
+              <circle cx="15.5" cy="13" r="1" />
+              <path d="M9 16.5h6" />
+              <path d="M1 13v3M23 13v3" />
+            </svg>
+            <span>Malvino</span>
           </a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" routerLink="/cart" routerLinkActive="fw-semibold" title="Carrito">
-            <span class="nav-icon">🛒</span>
-            <span class="d-lg-inline d-none">Carrito</span>
-            @if (carrito.cantidadTotal() > 0) {
-              <span class="badge rounded-pill bg-danger ms-1">{{ carrito.cantidadTotal() }}</span>
-            }
+          <a class="nav-link" routerLink="/favorites" routerLinkActive="activo" (click)="menuOpen.set(false)" title="Favoritos">
+            <span class="nav-icon-caja">
+              <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              @if (favoritos.cantidad() > 0) {
+                <span class="badge rounded-pill nav-contador">{{ favoritos.cantidad() }}</span>
+              }
+            </span>
+            <span>Favoritos</span>
           </a>
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/cart" routerLinkActive="activo" (click)="menuOpen.set(false)" title="Carrito">
+            <span class="nav-icon-caja">
+              <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+              @if (carrito.cantidadTotal() > 0) {
+                <span class="badge rounded-pill nav-contador">{{ carrito.cantidadTotal() }}</span>
+              }
+            </span>
+            <span>Carrito</span>
+          </a>
+        </li>
+
+        <!-- La cuenta va al final: con sesión, el nombre abre un menú con Mi cuenta y Cerrar sesión -->
+        @if (sesion.conectado()) {
+          <li class="nav-item dropdown nav-cuenta">
+            <button
+              class="nav-link cuenta-boton"
+              type="button"
+              aria-haspopup="true"
+              [attr.aria-expanded]="menuCuenta()"
+              (click)="$event.stopPropagation(); menuCuenta.set(!menuCuenta())"
+            >
+              <span class="cuenta-inicial" aria-hidden="true">{{ inicial() }}</span>
+              <span class="cuenta-nombre">Hola, {{ nombreCorto() }}</span>
+              <svg class="cuenta-flecha" [class.abierta]="menuCuenta()" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end cuenta-menu" [class.show]="menuCuenta()">
+              <li class="cuenta-correo">{{ sesion.usuario()?.correo }}</li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" routerLink="/mi-cuenta" (click)="menuOpen.set(false)">Mi cuenta</a></li>
+              @if (sesion.usuario()?.rol === 'proveedor') {
+                <li><a class="dropdown-item" routerLink="/proveedor" (click)="menuOpen.set(false)">Panel de proveedor</a></li>
+              }
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item cuenta-salir" type="button" (click)="logout()">Cerrar sesión</button></li>
+            </ul>
+          </li>
+        } @else {
+          <li class="nav-item nav-cuenta">
+            <a class="btn btn-ingresar" routerLink="/login" (click)="menuOpen.set(false)">
+              <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span>Ingresar</span>
+            </a>
+          </li>
+        }
       </ul>
     </div>
   </div>

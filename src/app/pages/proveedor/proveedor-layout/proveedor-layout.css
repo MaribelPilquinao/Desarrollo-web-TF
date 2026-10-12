@@ -1,4 +1,8 @@
 :host {
+  --malvi-red: #e9184b;
+  --malvi-red-dark: #c3133e;
+  --malvi-blue-dark: #113b7a;
+
   display: block;
   min-height: 100vh;
   background: #f6f7f9;
@@ -14,4 +18,158 @@
   width: auto;
   height: 56px;
   object-fit: contain;
+}
+
+/* Etiqueta junto al logo */
+.marca-panel {
+  padding: 0.15rem 0.7rem;
+
+  border-radius: 24px;
+
+  background-color: #eef2f9;
+  color: var(--malvi-blue-dark);
+
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Secciones del panel */
+.nav-actions {
+  gap: 0.25rem;
+}
+
+.nav-actions .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  color: #333333;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.nav-actions .nav-link:hover {
+  color: var(--malvi-red);
+}
+
+.nav-actions .nav-link.activo {
+  color: var(--malvi-red);
+  font-weight: 600;
+}
+
+.nav-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Cuenta: separada del resto por una línea */
+.nav-cuenta {
+  margin-left: 0.5rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid #e3e3e3;
+}
+
+.cuenta-boton {
+  border: none;
+  background: transparent;
+}
+
+.cuenta-inicial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background-color: var(--malvi-blue-dark);
+  color: white;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cuenta-nombre {
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cuenta-flecha {
+  width: 0.9rem;
+  height: 0.9rem;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  transition: transform 0.15s ease;
+}
+
+.cuenta-flecha.abierta {
+  transform: rotate(180deg);
+}
+
+.cuenta-menu {
+  min-width: 13rem;
+  margin-top: 0.4rem;
+
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.cuenta-correo {
+  padding: 0.25rem 1rem;
+
+  color: #777777;
+  font-size: 0.8rem;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cuenta-menu .dropdown-item:active {
+  background-color: var(--malvi-blue-dark);
+}
+
+.cuenta-salir {
+  color: var(--malvi-red);
+}
+
+.cuenta-salir:hover {
+  color: var(--malvi-red-dark);
+}
+
+@media (max-width: 991px) {
+  .nav-actions {
+    align-items: flex-start;
+    padding-top: 0.5rem;
+  }
+
+  /* En el menú desplegado la cuenta queda abajo, separada por una línea horizontal */
+  .nav-cuenta {
+    width: 100%;
+    margin: 0.5rem 0 0;
+    padding: 0.75rem 0 0.25rem;
+
+    border-left: none;
+    border-top: 1px solid #e3e3e3;
+  }
+
+  .cuenta-boton {
+    padding-left: 0;
+  }
 }

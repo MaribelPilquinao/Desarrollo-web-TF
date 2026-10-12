@@ -2,40 +2,86 @@
   Panel de Proveedor – Malvitec Marketplace
 </div>
 
-<nav class="navbar navbar-expand-lg bg-white shadow-sm">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
   <div class="container">
     <a routerLink="/proveedor/dashboard" class="d-flex align-items-center text-decoration-none">
       <img src="/imagenes/malvitec-logo.png" class="logo-malvitec" alt="Malvitec">
-      <span class="navbar-brand fw-bold ms-2 mb-0">Proveedores</span>
+      <span class="marca-panel ms-2">Proveedores</span>
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navProv"
+    <button class="navbar-toggler" type="button" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()"
             aria-controls="navProv" aria-label="Abrir o cerrar menú">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navProv">
-      <ul class="navbar-nav ms-auto align-items-lg-center">
+    <div class="collapse navbar-collapse" id="navProv" [class.show]="menuOpen()">
+      <ul class="navbar-nav ms-auto align-items-lg-center nav-actions">
         <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/proveedor/dashboard" routerLinkActive="active">Resumen</a>
+          <a class="nav-link" routerLink="/proveedor/dashboard" routerLinkActive="activo" (click)="menuOpen.set(false)">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+            </svg>
+            <span>Resumen</span>
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/proveedor/productos" routerLinkActive="active">Mis Productos</a>
+          <a class="nav-link" routerLink="/proveedor/productos" routerLinkActive="activo" (click)="menuOpen.set(false)">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <path d="M3.27 6.96L12 12.01l8.73-5.05" />
+              <path d="M12 22.08V12" />
+            </svg>
+            <span>Mis Productos</span>
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/proveedor/pedidos" routerLinkActive="active">Pedidos</a>
+          <a class="nav-link" routerLink="/proveedor/pedidos" routerLinkActive="activo" (click)="menuOpen.set(false)">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+              <rect x="8" y="2" width="8" height="4" rx="1" />
+              <path d="M9 12h6M9 16h6" />
+            </svg>
+            <span>Pedidos</span>
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/proveedor/consultas" routerLinkActive="active">Consultas</a>
+          <a class="nav-link" routerLink="/proveedor/consultas" routerLinkActive="activo" (click)="menuOpen.set(false)">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <span>Consultas</span>
+          </a>
         </li>
+
+        <!-- La cuenta va al final: el nombre abre un menú con Cerrar sesión -->
         @if (usuario(); as u) {
-          <li class="nav-item text-muted small ms-lg-3">{{ u.nombre }}</li>
+          <li class="nav-item dropdown nav-cuenta">
+            <button
+              class="nav-link cuenta-boton"
+              type="button"
+              aria-haspopup="true"
+              [attr.aria-expanded]="menuCuenta()"
+              (click)="$event.stopPropagation(); menuCuenta.set(!menuCuenta())"
+            >
+              <span class="cuenta-inicial" aria-hidden="true">{{ inicial() }}</span>
+              <span class="cuenta-nombre">{{ u.nombre }}</span>
+              <svg class="cuenta-flecha" [class.abierta]="menuCuenta()" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end cuenta-menu" [class.show]="menuCuenta()">
+              <li class="cuenta-correo">{{ u.correo }}</li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" routerLink="/home" (click)="menuOpen.set(false)">Ver la tienda</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item cuenta-salir" type="button" (click)="cerrarSesion()">Cerrar sesión</button></li>
+            </ul>
+          </li>
         }
-        <li class="nav-item">
-          <button type="button" class="nav-link text-danger fw-semibold border-0 bg-transparent" (click)="cerrarSesion()">
-            Cerrar sesión
-          </button>
-        </li>
       </ul>
     </div>
   </div>
