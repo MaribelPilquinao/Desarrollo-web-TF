@@ -83,7 +83,7 @@ Rutas públicas: no piden token. Los proveedores crean y editan sus productos en
 - La lista devuelve solo productos activos, con `id`, `slug`, `titulo`, `descripcion`, `precio_actual`, `precio_anterior`, `descuento_pct`, `stock`, `imagen_url`, `tipo_envio`, `garantia_meses`, `calificacion_prom`, `num_opiniones`, `tipo_accesorio`, `proveedor` y `categoria`.
 - `buscar` compara con el título, la descripción y el nombre del proveedor. En el título y la descripción no distingue mayúsculas ni tildes.
 - El detalle agrega `imagenes` (`url`, `orden`) y `especificaciones` (`clave`, `valor`, `orden`). Responde `404` si el producto no existe o está inactivo.
-- El detalle también trae `configuraciones` (`slug`, `nombre`, `precio_actual`, `stock`): las variantes del mismo modelo, incluida la que se está viendo; lista vacía si no tiene. Cada configuración es un producto propio, así que elegirla es abrir su slug. Necesita la tabla `producto_configuraciones`, que se crea con `database/producto_configuraciones.sql`.
+- El detalle también trae `configuraciones` (`slug`, `nombre`, `precio_actual`, `stock`): las variantes del mismo modelo, incluida la que se está viendo; lista vacía si no tiene. Cada configuración es un producto propio, así que elegirla es abrir su slug. Necesita la tabla `producto_configuraciones`, que crea `database/malvitec_sqlserver.sql`; en una base creada antes de que existiera, se agrega con `database/producto_configuraciones.sql`.
 
 ### `malvitec-proveedor` (panel del proveedor) 🔒
 

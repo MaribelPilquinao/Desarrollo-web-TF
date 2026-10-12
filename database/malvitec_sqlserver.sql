@@ -1,5 +1,9 @@
 ﻿  CREATE DATABASE malvitec;
 
+  GO
+  use malvitec;
+  GO
+
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
@@ -109,6 +113,22 @@ CREATE TABLE producto_especificaciones (
   CONSTRAINT pk_producto_especificaciones PRIMARY KEY (id),
   CONSTRAINT uq_especificaciones_producto_clave UNIQUE (producto_id, clave),
   CONSTRAINT fk_producto_especificaciones_producto FOREIGN KEY (producto_id) REFERENCES productos (id) ON DELETE CASCADE
+);
+
+-- Configuraciones de un mismo modelo (por ejemplo "16GB RAM • 1TB SSD"). Cada configuración es un
+-- producto propio, con su slug, precio y stock; esta tabla solo dice cuáles son variantes del mismo
+-- modelo y con qué nombre se muestra cada una. grupo_id es el producto base: todas las variantes
+-- comparten el mismo grupo_id, y la base también tiene su fila.
+CREATE TABLE producto_configuraciones (
+  producto_id INT          NOT NULL,
+  grupo_id    INT          NOT NULL,
+  nombre      NVARCHAR(60) NOT NULL,
+  orden       TINYINT      NOT NULL CONSTRAINT df_producto_configuraciones_orden DEFAULT 1,
+  CONSTRAINT pk_producto_configuraciones PRIMARY KEY (producto_id),
+  CONSTRAINT fk_producto_configuraciones_producto FOREIGN KEY (producto_id) REFERENCES productos (id) ON DELETE CASCADE,
+  CONSTRAINT fk_producto_configuraciones_grupo FOREIGN KEY (grupo_id) REFERENCES productos (id),
+  CONSTRAINT uq_producto_configuraciones_nombre UNIQUE (grupo_id, nombre),
+  INDEX ix_producto_configuraciones_grupo (grupo_id, orden)
 );
 
 CREATE TABLE opiniones (
@@ -276,7 +296,7 @@ INSERT INTO usuarios (id, nombre, apellidos, correo, telefono, contrasena_hash, 
  (4,  N'Luis',               N'Torres',   N'luis.torres@example.com',    '900000004', @pwd, 'cliente',   NULL),
  (5,  N'Juan',               N'Pérez',    N'juan.perez@example.com',     '900000005', @pwd, 'cliente',   NULL),
  (6,  N'Camila',             N'Torres',   N'camila.torres@example.com',  '900000006', @pwd, 'cliente',   NULL),
- (7,  N'Die ',              N'Ramos',    N'die .ramos@example.com',    '900000007', @pwd, 'cliente',   NULL),
+ (7,  N'Diego',              N'Ramos',    N'diego.ramos@example.com',    '900000007', @pwd, 'cliente',   NULL),
  (8,  N'TechPower Store',    NULL,        N'techpower@malvitec.com',     '900000008', @pwd, 'proveedor', NULL),
  (9,  N'GamerZone Perú',     NULL,        N'gamerzone@malvitec.com',     '900000009', @pwd, 'proveedor', NULL),
  (10, N'Accesorios Express', NULL,        N'accesorios@malvitec.com',    '900000010', @pwd, 'proveedor', NULL),
@@ -311,7 +331,7 @@ INSERT INTO productos
   stock, imagen_url, tipo_envio, garantia_meses, tipo_accesorio) VALUES
  (1, 'hp-omen-16', 1, 1,
   N'Laptop Gaming HP OMEN 16 - Intel Core i7, 16GB RAM, RTX 3070',
-  N'La HP OMEN 16 es una laptop gamer diseñada para ofrecer alto rendimiento en jue s exigentes y tareas de productividad. Cuenta con procesador Intel Core i7, 16GB de RAM y tarjeta gráfica NVIDIA RTX 3070. Pantalla 16" Full HD 144Hz, teclado retroiluminado RGB y sistema de refrigeración optimizado. Diseñada para gaming y creación de contenido.',
+  N'La HP OMEN 16 es una laptop gamer diseñada para ofrecer alto rendimiento en juegos exigentes y tareas de productividad. Cuenta con procesador Intel Core i7, 16GB de RAM y tarjeta gráfica NVIDIA RTX 3070. Pantalla 16" Full HD 144Hz, teclado retroiluminado RGB y sistema de refrigeración optimizado. Diseñada para gaming y creación de contenido.',
   5547.00, 7299.00, 24, 15,
   'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800',
   'gratis', 12, NULL),
@@ -358,8 +378,8 @@ INSERT INTO productos
   229.00, NULL, 0, 18, 'https://placehold.co/800x800/png?text=Teclado+Mecanico+RGB', 'estandar', 12, NULL),
  (11, 'sony-wh-xb910n', 1, 3, N'Audífonos Sony WH-XB910', N'Audífonos inalámbricos Sony WH-XB910.',
   589.00, NULL, 0, 9, 'https://placehold.co/800x800/png?text=Sony+WH-XB910', 'estandar', 12, NULL),
- (12, 'teclado-mecanico-redra n', 1, 5, N'Teclado Mecánico Redra n', N'Teclado mecánico Redra n con switches red.',
-  179.00, NULL, 0, 22, 'https://placehold.co/800x800/png?text=Teclado+Redra n', 'estandar', 12, NULL),
+ (12, 'teclado-mecanico-redragon', 1, 5, N'Teclado Mecánico Redragon', N'Teclado mecánico Redragon con switches red.',
+  179.00, NULL, 0, 22, 'https://placehold.co/800x800/png?text=Teclado+Redragon', 'estandar', 12, NULL),
  (13, 'audifonos-hyperx-cloud-ii', 1, 3, N'Audífonos HyperX Cloud II', N'Audífonos gamer HyperX Cloud II.',
   349.00, NULL, 0, 0, 'https://placehold.co/800x800/png?text=HyperX+Cloud+II', 'estandar', 12, NULL),
  -- Accesorios para Malvino (fichas del chatbot)
@@ -394,6 +414,61 @@ INSERT INTO producto_especificaciones (producto_id, clave, valor, orden) VALUES
  (1, N'Peso',              N'2.3 kg aprox.',              9),
  (1, N'Color',             N'Negro sombra',               10);
 
+-- Configuraciones de la HP OMEN 16: dos variantes copiadas de la base, con su propio precio y stock.
+INSERT INTO productos
+ (slug, proveedor_id, categoria_id, titulo, descripcion, precio_actual, precio_anterior, descuento_pct,
+  stock, imagen_url, tipo_envio, garantia_meses, tipo_accesorio)
+SELECT 'hp-omen-16-32gb-1tb', proveedor_id, categoria_id,
+       N'Laptop Gaming HP OMEN 16 - Intel Core i7, 32GB RAM, 1TB SSD, RTX 3070',
+       REPLACE(descripcion, N'16GB de RAM', N'32GB de RAM'),
+       5947.00, 7699.00, 23, 6, imagen_url, tipo_envio, garantia_meses, tipo_accesorio
+  FROM productos
+ WHERE slug = 'hp-omen-16';
+
+INSERT INTO productos
+ (slug, proveedor_id, categoria_id, titulo, descripcion, precio_actual, precio_anterior, descuento_pct,
+  stock, imagen_url, tipo_envio, garantia_meses, tipo_accesorio)
+SELECT 'hp-omen-16-32gb-2tb', proveedor_id, categoria_id,
+       N'Laptop Gaming HP OMEN 16 - Intel Core i7, 32GB RAM, 2TB SSD, RTX 3070',
+       REPLACE(descripcion, N'16GB de RAM', N'32GB de RAM'),
+       6447.00, 8199.00, 21, 3, imagen_url, tipo_envio, garantia_meses, tipo_accesorio
+  FROM productos
+ WHERE slug = 'hp-omen-16';
+
+-- Las variantes llevan la misma galería que la base.
+INSERT INTO producto_imagenes (producto_id, url, orden)
+SELECT v.id, i.url, i.orden
+  FROM producto_imagenes i
+  JOIN productos b ON b.id = i.producto_id AND b.slug = 'hp-omen-16'
+ CROSS JOIN productos v
+ WHERE v.slug IN ('hp-omen-16-32gb-1tb', 'hp-omen-16-32gb-2tb');
+
+-- Y las mismas especificaciones, cambiando la memoria y el almacenamiento.
+INSERT INTO producto_especificaciones (producto_id, clave, valor, orden)
+SELECT v.id, e.clave,
+       CASE
+         WHEN e.clave = N'Memoria RAM' THEN N'32GB DDR5'
+         WHEN e.clave = N'Almacenamiento' AND v.slug = 'hp-omen-16-32gb-2tb' THEN N'2TB SSD NVMe'
+         ELSE e.valor
+       END,
+       e.orden
+  FROM producto_especificaciones e
+  JOIN productos b ON b.id = e.producto_id AND b.slug = 'hp-omen-16'
+ CROSS JOIN productos v
+ WHERE v.slug IN ('hp-omen-16-32gb-1tb', 'hp-omen-16-32gb-2tb');
+
+-- El grupo: las tres filas apuntan a la HP OMEN 16 base.
+INSERT INTO producto_configuraciones (producto_id, grupo_id, nombre, orden)
+SELECT p.id, b.id, c.nombre, c.orden
+  FROM (VALUES
+         ('hp-omen-16',          N'16GB RAM • 1TB SSD', 1),
+         ('hp-omen-16-32gb-1tb', N'32GB RAM • 1TB SSD', 2),
+         ('hp-omen-16-32gb-2tb', N'32GB RAM • 2TB SSD', 3)
+       ) AS c (slug, nombre, orden)
+  JOIN productos p ON p.slug = c.slug
+ CROSS JOIN productos b
+ WHERE b.slug = 'hp-omen-16';
+
 SET IDENTITY_INSERT modelos_celular ON;
 INSERT INTO modelos_celular (id, slug, nombre) VALUES
  (1, 'iphone-13',      N'iPhone 13'),
@@ -409,7 +484,7 @@ INSERT INTO compatibilidad (producto_id, modelo_id) VALUES
 -- Cada producto del home tiene al menos una, con la misma cantidad de estrellas que muestra home.ts;
 -- la HP OMEN promedia 4.5, igual que la pestaña Opiniones del detalle.
 INSERT INTO opiniones (producto_id, usuario_id, calificacion, comentario, creado_en) VALUES
- (1, 11, 5, N'Rinde muy bien con jue s exigentes y la pantalla ofrece una buena calidad.', '2026-09-20T18:30:00'),
+ (1, 11, 5, N'Rinde muy bien con juegos exigentes y la pantalla ofrece una buena calidad.', '2026-09-20T18:30:00'),
  (1, 12, 5, N'Muy rápida para edición de video y trabajos pesados.',                        '2026-09-21T10:05:00'),
  (1, 13, 4, N'Buena relación entre rendimiento y precio.',                                  '2026-09-22T21:10:00'),
  (1, 2,  4, N'Buena laptop, se calienta un poco con carga alta.',                           '2026-09-23T08:40:00'),
@@ -474,5 +549,6 @@ SELECT 'usuarios' AS tabla, COUNT(*) AS filas FROM usuarios UNION ALL SELECT 'pr
 UNION ALL SELECT 'categorias', COUNT(*) FROM categorias UNION ALL SELECT 'productos', COUNT(*) FROM productos
 UNION ALL SELECT 'opiniones', COUNT(*) FROM opiniones
 UNION ALL SELECT 'pedidos', COUNT(*) FROM pedidos UNION ALL SELECT 'pedido_items', COUNT(*) FROM pedido_items
-UNION ALL SELECT 'consultas', COUNT(*) FROM consultas UNION ALL SELECT 'compatibilidad', COUNT(*) FROM compatibilidad;
+UNION ALL SELECT 'consultas', COUNT(*) FROM consultas UNION ALL SELECT 'compatibilidad', COUNT(*) FROM compatibilidad
+UNION ALL SELECT 'producto_configuraciones', COUNT(*) FROM producto_configuraciones;
  

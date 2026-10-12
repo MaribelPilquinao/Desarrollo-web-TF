@@ -6,7 +6,9 @@
 -- qué nombre se muestra cada una. Así el carrito, los pedidos y el stock
 -- funcionan sin cambios: al elegir una configuración se abre ese producto.
 --
--- Se ejecuta sobre la base malvitec, después de malvitec_sqlserver.sql.
+-- SOLO para una base creada antes de que existiera esta tabla (por ejemplo la
+-- de AWS). malvitec_sqlserver.sql ya la crea y la carga: en una base nueva
+-- basta con ese script y este no hace falta.
 -- No usa variables ni bloques: cada sentencia funciona sola, así que sirve
 -- igual en DBeaver, SSMS o sqlcmd. Si se vuelve a ejecutar no duplica nada.
 -- =====================================================================

@@ -130,7 +130,7 @@ export class MiCuenta {
     if (!c.actual) {
       this.errorContrasena.set('Ingresa tu contraseña actual.');
       return;
-    }
+    } 
     if (!CONTRASENA_VALIDA.test(c.nueva)) {
       this.errorContrasena.set('La contraseña nueva debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.');
       return;
