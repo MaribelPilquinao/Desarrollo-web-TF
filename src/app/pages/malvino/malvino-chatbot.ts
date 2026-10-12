@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MalvinoService, MensajeChat, ProductoRecomendado } from '../../core/services/malvino.service';
 import { CarritoService } from '../../core/services/carrito.service';
+import { SesionService } from '../../core/services/sesion.service';
 
 @Component({
   selector: 'app-malvino-chatbot',
@@ -16,17 +17,19 @@ export class MalvinoChatbotComponent implements OnInit {
   mensajes: MensajeChat[] = [];
   mensajeActual: string = '';
   cargando: boolean = false;
+  escalando: boolean = false;
 
   constructor(
     private malvinoService: MalvinoService,
     private carritoService: CarritoService,
+    private sesionService: SesionService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.mensajes.push({
       remitente: 'malvino',
-      texto: '¡Hola! Soy Malvino, tu asistente en hardware. ¿Qué componentes estás buscando o necesitas consultar?',
+      texto: '¡Hola! Soy Malvino. Si tienes dudas de compatibilidad o componentes, cuéntame y te ayudo.',
       hora: this.obtenerHoraActual()
     });
   }
@@ -49,17 +52,55 @@ export class MalvinoChatbotComponent implements OnInit {
           remitente: 'malvino',
           texto: res.respuesta,
           hora: this.obtenerHoraActual(),
-          productos: res.productos
+          productos: res.productos,
+          puede_escalar: res.puede_escalar,
+          pregunta_original: res.pregunta_original
         });
         this.cargando = false;
       },
       error: () => {
         this.mensajes.push({
           remitente: 'malvino',
-          texto: 'Lo siento, tuve un problema al procesar tu solicitud. Por favor intenta de nuevo.',
+          texto: 'Ocurrió un error al procesar tu consulta.',
           hora: this.obtenerHoraActual()
         });
         this.cargando = false;
+      }
+    });
+  }
+
+  escalarDuda(m: MensajeChat): void {
+    if (!this.sesionService.estaAutenticado()) {
+      this.mensajes.push({
+        remitente: 'sistema',
+        texto: 'Para enviar esta duda a un asesor o proveedor, necesitas iniciar sesión.',
+        hora: this.obtenerHoraActual()
+      });
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.escalando = true;
+    const preguntaAEscalar = m.pregunta_original || m.texto;
+
+    this.malvinoService.escalarConsulta(preguntaAEscalar).subscribe({
+      next: (res) => {
+        m.puede_escalar = false;
+        m.escalado_enviado = true;
+        this.mensajes.push({
+          remitente: 'sistema',
+          texto: '✅ Tu pregunta ha sido enviada al módulo de consultas. Un proveedor te responderá pronto.',
+          hora: this.obtenerHoraActual()
+        });
+        this.escalando = false;
+      },
+      error: (err) => {
+        this.mensajes.push({
+          remitente: 'sistema',
+          texto: 'No se pudo enviar la consulta al proveedor. Intenta más tarde.',
+          hora: this.obtenerHoraActual()
+        });
+        this.escalando = false;
       }
     });
   }
@@ -79,7 +120,6 @@ export class MalvinoChatbotComponent implements OnInit {
   }
 
   private obtenerHoraActual(): string {
-    const ahora = new Date();
-    return ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 }

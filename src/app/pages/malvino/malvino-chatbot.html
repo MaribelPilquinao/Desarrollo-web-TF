@@ -34,13 +34,25 @@
           </div>
         </div>
 
+        <!-- Tarjeta de Escalado hacia Consultas -->
+        <div *ngIf="m.puede_escalar" class="alerta-escalado">
+          <p class="escalado-texto">¿Deseas enviar esta pregunta a un proveedor especializado para que te responda?</p>
+          <button class="btn-escalar" [disabled]="escalando" (click)="escalarDuda(m)">
+            📩 Escalar pregunta a un Proveedor
+          </button>
+        </div>
+
+        <div *ngIf="m.escalado_enviado" class="escalado-confirmado">
+          <span>✓ Pregunta enviada al proveedor</span>
+        </div>
+
         <span class="hora">{{ m.hora }}</span>
       </div>
     </div>
 
     <div *ngIf="cargando" class="mensaje malvino">
       <div class="burbuja escribiendo">
-        <span>Malvino está escribiendo...</span>
+        <span>Malvino está buscando información...</span>
       </div>
     </div>
   </div>
@@ -50,7 +62,7 @@
       type="text" 
       [(ngModel)]="mensajeActual" 
       (keyup.enter)="enviar()" 
-      placeholder="Pregunta por componentes, compatibilidad o tus pedidos..." 
+      placeholder="Escribe tu consulta..." 
     />
     <button (click)="enviar()" [disabled]="!mensajeActual.trim() || cargando">
       Enviar
