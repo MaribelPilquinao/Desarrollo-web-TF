@@ -14,7 +14,7 @@ URL del API (etapa `v1`): `https://y1fqqcqake.execute-api.us-east-1.amazonaws.co
 | Carpeta / archivo | Contenido |
 |---|---|
 | `capa/python/malvitec_comun/` | Código compartido: conexión, token y formato de respuestas |
-| `auth/`, `favoritos/`, `carrito/`, `pedidos/`, `perfil/`, `productos/`, `proveedor/`, `opiniones/`, `consultas/`, `compatibilidad/` | Una Lambda por carpeta, cada una con su `lambda_function.py` |
+| `auth/`, `favoritos/`, `carrito/`, `pedidos/`, `perfil/`, `productos/`, `proveedor/`, `opiniones/`, `consultas/`, `compatibilidad/`, `malvino/` | Una Lambda por carpeta, cada una con su `lambda_function.py` |
 | `empaquetar.py` | Genera los `.zip` para subir a AWS |
 | `servidor_local.py` | Simula API Gateway en tu PC |
 | `.env.ejemplo` | Plantilla de variables de entorno para trabajar en local |
@@ -143,6 +143,21 @@ Rutas públicas, para Malvino.
 
 - La primera devuelve `modelos` (`slug`, `nombre`) y `accesorios` (`slug`, `titulo`, `tipo_accesorio`, `precio_actual`, `stock`, `imagen_url` y `modelos`, la lista de slugs con los que es compatible). Un accesorio es un producto activo con `tipo_accesorio`.
 - La segunda recibe el slug del accesorio y devuelve `compatible` (`true` o `false`), `accesorio`, `modelo` y `alternativas`: si no es compatible, los accesorios del mismo tipo que sí sirven para ese modelo.
+
+### `malvitec-malvino` (tablas `productos`, `categorias`, `pedidos`, `pedido_items` y `consultas`)
+
+Chat de Malvino por palabras clave, sin IA. Una sola ruta; el campo `accion` del cuerpo decide qué hace.
+
+| Método | Ruta | Cuerpo |
+|---|---|---|
+| POST | `/malvino` | `accion: "consultar"` (por defecto) y `mensaje` (hasta 500 caracteres) |
+| POST | `/malvino` 🔒 | `accion: "escalar"`, `pregunta` (hasta 500 caracteres) e `id_producto` |
+
+- **consultar** es pública y responde `respuesta` (texto), `productos` (hasta 3, con `id`, `slug`, `nombre`, `precio`, `stock`, `imagen_url`), `puede_escalar` y `pregunta_original`. Busca en este orden: pedidos, productos cuyo título tiene todas las palabras del mensaje, categoría, y productos con alguna de las palabras. Solo sugiere productos activos y con stock.
+- Si el mensaje habla de pedidos y llega el token, lista los 3 últimos pedidos del usuario con el estado de cada ítem; sin token pide iniciar sesión.
+- `puede_escalar` es `true` cuando hay productos sugeridos: una consulta siempre pertenece a un producto, porque así llega a su proveedor.
+- **escalar** es solo para clientes: guarda la pregunta en `consultas` y responde `201` con `mensaje` y `escalado_exitoso`. El cliente la ve en Mi Cuenta (`GET /consultas`) y el proveedor la responde en su panel.
+- **API Gateway:** recurso `/malvino` con el método `POST`, integración de proxy de Lambda y CORS activado.
 
 ### `malvitec-perfil` (tablas `usuarios` y `direcciones`) 🔒
 

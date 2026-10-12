@@ -371,30 +371,30 @@ INSERT INTO productos
   'https://images.pexels.com/photos/279906/pexels-photo-279906.jpeg?auto=compress&cs=tinysrgb&w=800',
   'gratis', 12, NULL),
  -- Productos que aparecen en los datos mock del panel de proveedor (precio de ejemplo cuando no existía).
- -- Sus imágenes y las de los accesorios son marcadores de posición (placehold.co), no fotos reales.
+ -- Sus imágenes y las de los accesorios son fotos con licencia libre de Wikimedia Commons y Flickr.
  (9,  'mouse-gamer-logitech-g502', 1, 5, N'Mouse Gamer Logitech G502', N'Mouse gamer Logitech G502.',
-  189.00, NULL, 0, 40, 'https://placehold.co/800x800/png?text=Mouse+Gamer+G502', 'estandar', 12, NULL),
+  189.00, NULL, 0, 40, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Logitech_G502_Hero.jpg/960px-Logitech_G502_Hero.jpg', 'estandar', 12, NULL),
  (10, 'teclado-mecanico-rgb', 1, 5, N'Teclado Mecánico RGB', N'Teclado mecánico con iluminación RGB.',
-  229.00, NULL, 0, 18, 'https://placehold.co/800x800/png?text=Teclado+Mecanico+RGB', 'estandar', 12, NULL),
+  229.00, NULL, 0, 18, 'https://upload.wikimedia.org/wikipedia/commons/f/fe/Logitech-g910_%2816475940137%29.jpg', 'estandar', 12, NULL),
  (11, 'sony-wh-xb910n', 1, 3, N'Audífonos Sony WH-XB910', N'Audífonos inalámbricos Sony WH-XB910.',
-  589.00, NULL, 0, 9, 'https://placehold.co/800x800/png?text=Sony+WH-XB910', 'estandar', 12, NULL),
+  589.00, NULL, 0, 9, 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Sony-WH-1000XM3-kabellose-Bluetooth-Noise-Cancelling-Kopfhoerer.5.jpg/960px-Sony-WH-1000XM3-kabellose-Bluetooth-Noise-Cancelling-Kopfhoerer.5.jpg', 'estandar', 12, NULL),
  (12, 'teclado-mecanico-redragon', 1, 5, N'Teclado Mecánico Redragon', N'Teclado mecánico Redragon con switches red.',
-  179.00, NULL, 0, 22, 'https://placehold.co/800x800/png?text=Teclado+Redragon', 'estandar', 12, NULL),
+  179.00, NULL, 0, 22, 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Redragon_-_52795210242.jpg/960px-Redragon_-_52795210242.jpg', 'estandar', 12, NULL),
  (13, 'audifonos-hyperx-cloud-ii', 1, 3, N'Audífonos HyperX Cloud II', N'Audífonos gamer HyperX Cloud II.',
-  349.00, NULL, 0, 0, 'https://placehold.co/800x800/png?text=HyperX+Cloud+II', 'estandar', 12, NULL),
+  349.00, NULL, 0, 0, 'https://live.staticflickr.com/5602/15489257016_ec3863caee_b.jpg', 'estandar', 12, NULL),
  -- Accesorios para Malvino (fichas del chatbot)
  (14, 'case-iphone-13', 3, 7, N'Case para iPhone 13', N'Case protector para iPhone 13.',
-  29.90, NULL, 0, 50, 'https://placehold.co/800x800/png?text=Case+iPhone+13', 'estandar', 3, 'case'),
+  29.90, NULL, 0, 50, 'https://live.staticflickr.com/65535/52138459837_44fcbac551_b.jpg', 'estandar', 3, 'case'),
  (15, 'case-iphone-14', 3, 7, N'Case para iPhone 14', N'Case protector para iPhone 14.',
-  29.90, NULL, 0, 50, 'https://placehold.co/800x800/png?text=Case+iPhone+14', 'estandar', 3, 'case'),
+  29.90, NULL, 0, 50, 'https://live.staticflickr.com/5657/22872769096_bbd87b72a3_b.jpg', 'estandar', 3, 'case'),
  (16, 'protector-pantalla-iphone-13', 3, 7, N'Protector de pantalla para iPhone 13', N'Protector de vidrio templado para iPhone 13.',
-  19.90, NULL, 0, 80, 'https://placehold.co/800x800/png?text=Protector+iPhone+13', 'estandar', 3, 'protector'),
+  19.90, NULL, 0, 80, 'https://live.staticflickr.com/5797/22898738085_3295232ae6_b.jpg', 'estandar', 3, 'protector'),
  (17, 'bateria-samsung-a32-4g', 3, 7, N'Batería para Samsung A32 4G', N'Batería de repuesto para Samsung A32 4G.',
-  59.90, NULL, 0, 15, 'https://placehold.co/800x800/png?text=Bateria+A32+4G', 'estandar', 6, 'bateria'),
+  59.90, NULL, 0, 15, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Samsung_mobile_phone_battery.JPG/960px-Samsung_mobile_phone_battery.JPG', 'estandar', 6, 'bateria'),
  (18, 'bateria-samsung-a32-5g', 3, 7, N'Batería para Samsung A32 5G', N'Batería de repuesto para Samsung A32 5G.',
-  64.90, NULL, 0, 12, 'https://placehold.co/800x800/png?text=Bateria+A32+5G', 'estandar', 6, 'bateria'),
+  64.90, NULL, 0, 12, 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Samsung_GT-S5230_-_Li-ion_Battery_AB603443CU-9999.jpg/960px-Samsung_GT-S5230_-_Li-ion_Battery_AB603443CU-9999.jpg', 'estandar', 6, 'bateria'),
  (19, 'kit-cargador-iphone-13', 3, 7, N'Kit cargador para iPhone 13', N'Kit de cargador para iPhone 13.',
-  79.90, NULL, 0, 25, 'https://placehold.co/800x800/png?text=Cargador+iPhone+13', 'estandar', 6, 'cargador');
+  79.90, NULL, 0, 25, 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Apple_5W_USB_Power_Adapter_%284937%29.jpg/960px-Apple_5W_USB_Power_Adapter_%284937%29.jpg', 'estandar', 6, 'cargador');
 SET IDENTITY_INSERT productos OFF;
 
 INSERT INTO producto_imagenes (producto_id, url, orden) VALUES

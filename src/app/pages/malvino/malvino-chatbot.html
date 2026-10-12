@@ -1,6 +1,94 @@
-<main class="chat-shell"><header><div><h1>Malvino</h1><p>Ayuda con tu celular</p></div><button type="button" (click)="clear()">Borrar conversación</button></header>
-<p class="notice">Asistente de respuestas programadas, sin IA. La compatibilidad se consulta en el catálogo de Malvitec.</p>
-<section class="checker" aria-labelledby="checker-title"><h2 id="checker-title">Comprobador de compatibilidad</h2>@if(catalogError()){<p class="notice">{{catalogError()}}</p>}<label for="accessory">Accesorio</label><select id="accessory" [(ngModel)]="accessory">@for(a of accessories();track a.slug){<option [value]="a.slug">{{a.titulo}}</option>}</select><label for="model">Modelo del celular</label><select id="model" [(ngModel)]="model">@for(m of models();track m.slug){<option [value]="m.slug">{{m.nombre}}</option>}</select><button type="button" (click)="check()" [disabled]="checking() || !accessory || !model">{{checking()?'Comprobando…':'Comprobar compatibilidad'}}</button></section>
-<div class="suggestions"><button (click)="send('¿Este case sirve para un iPhone 13?')">Case para iPhone 13</button><button (click)="send('¿Esta batería sirve para Samsung A32?')">Batería para Samsung A32</button><button (click)="send('¿Cómo creo una cuenta?')">Crear cuenta</button></div>
-<section #history class="messages" role="log" aria-live="polite" aria-label="Conversación con Malvino">@for(m of messages();track $index){<article [class.user]="m.role==='user'"><strong>{{m.role==='user'?'Tú':'Malvino'}}</strong><p>{{m.text}}</p></article>}</section>
-<form (ngSubmit)="send()"><label for="message">Escribe tu consulta</label><div class="compose"><input id="message" name="message" [(ngModel)]="text" maxlength="500" autocomplete="off" placeholder="Ej.: ¿Esta batería sirve para Samsung A32?"><button type="submit" [disabled]="!text.trim()">Enviar</button></div></form></main>
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="bot-info">
+      <div class="bot-avatar" aria-hidden="true">🤖</div>
+      <div>
+        <h1>Malvino</h1>
+        <span class="status-badge">En línea</span>
+      </div>
+    </div>
+    <button type="button" class="btn-borrar" (click)="borrar()">Borrar conversación</button>
+  </div>
+
+  <p class="aviso">Asistente de respuestas programadas, sin IA. Busca en el catálogo de Malvitec y, si no resuelve tu duda, la envía al proveedor del producto.</p>
+
+  <section class="comprobador" aria-labelledby="titulo-comprobador">
+    <h2 id="titulo-comprobador">Comprobador de compatibilidad</h2>
+    <p *ngIf="errorCatalogo()" class="aviso">{{ errorCatalogo() }}</p>
+    <label for="accesorio">Accesorio</label>
+    <select id="accesorio" [(ngModel)]="accesorio">
+      <option *ngFor="let a of accesorios()" [value]="a.slug">{{ a.titulo }}</option>
+    </select>
+    <label for="modelo">Modelo del celular</label>
+    <select id="modelo" [(ngModel)]="modelo">
+      <option *ngFor="let m of modelos()" [value]="m.slug">{{ m.nombre }}</option>
+    </select>
+    <button type="button" (click)="comprobar()" [disabled]="comprobando() || !accesorio || !modelo">
+      {{ comprobando() ? 'Comprobando…' : 'Comprobar compatibilidad' }}
+    </button>
+  </section>
+
+  <div #historial class="chat-body" role="log" aria-live="polite" aria-label="Conversación con Malvino">
+    <div *ngFor="let m of mensajes()" [ngClass]="['mensaje', m.remitente]">
+      <div class="burbuja">
+        <p class="texto-mensaje">{{ m.texto }}</p>
+
+        <!-- Tarjetas de productos sugeridos -->
+        <div *ngIf="m.productos && m.productos.length > 0" class="productos-sugeridos">
+          <div *ngFor="let p of m.productos" class="tarjeta-producto-chat">
+            <img [src]="p.imagen_url" [alt]="p.nombre" class="producto-img" />
+            <div class="producto-info">
+              <span class="producto-nombre">{{ p.nombre }}</span>
+              <span class="producto-precio">S/ {{ p.precio | number:'1.2-2' }}</span>
+              <span class="producto-stock" [class.sin-stock]="p.stock <= 0">
+                Stock: {{ p.stock > 0 ? p.stock + ' un.' : 'Agotado' }}
+              </span>
+            </div>
+            <div class="producto-acciones">
+              <button type="button" class="btn-detalle" (click)="verProducto(p.slug)">Ver</button>
+              <button type="button" class="btn-carrito" [disabled]="p.stock <= 0" (click)="agregarAlCarrito(p)">
+                🛒 Agregar
+              </button>
+              <!-- Escalado hacia Consultas: la pregunta va al proveedor de este producto -->
+              <button *ngIf="m.puede_escalar" type="button" class="btn-escalar" [disabled]="escalando()" (click)="escalarDuda(m, p)">
+                📩 Preguntar al proveedor
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="m.puede_escalar" class="alerta-escalado">
+          <p class="escalado-texto">¿No resolví tu duda? Envía tu pregunta al proveedor del producto que te interesa.</p>
+        </div>
+
+        <div *ngIf="m.escalado_enviado" class="escalado-confirmado">
+          <span>✓ Pregunta enviada al proveedor</span>
+        </div>
+
+        <span class="hora">{{ m.hora }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="cargando()" class="mensaje malvino">
+      <div class="burbuja escribiendo">
+        <span>Malvino está buscando información...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <label for="mensaje" class="visually-hidden">Escribe tu consulta</label>
+    <input
+      id="mensaje"
+      type="text"
+      [(ngModel)]="mensajeActual"
+      (keyup.enter)="enviar()"
+      maxlength="500"
+      autocomplete="off"
+      placeholder="Ej.: case iPhone 13, laptops, mis pedidos"
+    />
+    <button type="button" (click)="enviar()" [disabled]="!mensajeActual.trim() || cargando()">
+      Enviar
+    </button>
+  </div>
+</div>

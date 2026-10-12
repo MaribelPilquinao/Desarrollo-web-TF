@@ -22,6 +22,7 @@ LAMBDAS = {
     "opiniones": "opiniones",
     "consultas": "consultas",
     "compatibilidad": "compatibilidad",
+    "malvino": "malvino",
 }
 
 
