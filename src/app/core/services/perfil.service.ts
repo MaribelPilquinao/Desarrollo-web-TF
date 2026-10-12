@@ -22,11 +22,27 @@ export interface Perfil {
   direccion: Direccion | null;
 }
 
+// Solo se envía lo que cambia. La contraseña nueva exige la actual.
+export interface CambiosPerfil {
+  nombre?: string;
+  apellidos?: string;
+  telefono?: string;
+  preferencia_pago?: string | null;
+  direccion?: { departamento: string; distrito: string; direccion: string; referencia: string };
+  contrasena_actual?: string;
+  contrasena_nueva?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PerfilService {
   private readonly http = inject(HttpClient);
 
   obtener(): Promise<Perfil> {
     return firstValueFrom(this.http.get<Perfil>(`${API_URL}/perfil`));
+  }
+
+  // Devuelve el perfil ya actualizado.
+  actualizar(cambios: CambiosPerfil): Promise<Perfil> {
+    return firstValueFrom(this.http.put<Perfil>(`${API_URL}/perfil`, cambios));
   }
 }

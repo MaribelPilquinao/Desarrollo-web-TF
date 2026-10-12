@@ -37,9 +37,19 @@ export interface EspecificacionProducto {
 }
 
 
+// Cada configuración es otro producto del mismo modelo, con su precio y su stock.
+export interface ConfiguracionProducto {
+  slug: string;
+  nombre: string;
+  precio_actual: number;
+  stock: number;
+}
+
+
 export interface ProductoDetalle extends Producto {
   imagenes: ImagenProducto[];
   especificaciones: EspecificacionProducto[];
+  configuraciones: ConfiguracionProducto[];
 }
 
 

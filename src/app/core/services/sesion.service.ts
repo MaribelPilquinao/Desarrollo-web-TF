@@ -26,6 +26,10 @@ export interface DatosRegistro {
   contrasena: string;
   codigo: string;
   preferencia_pago: string;
+  // Dirección de entrega: opcional, pero va completa o no va.
+  departamento?: string;
+  distrito?: string;
+  direccion?: string;
 }
 
 @Injectable({ providedIn: 'root' })

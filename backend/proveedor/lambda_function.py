@@ -10,6 +10,8 @@ TIPOS_ENVIO = ("gratis", "estandar")
 TIPOS_ACCESORIO = ("case", "protector", "bateria", "cargador")
 URL_VALIDA = re.compile(r"^https?://\S+$", re.IGNORECASE)
 MAXIMO_RESPUESTA = 500
+MAXIMO_IMAGENES = 8
+MAXIMO_ESPECIFICACIONES = 30
 
 # Estados que un proveedor puede dar a un ítem de pedido. Completado, Entregado y Cancelado son finales.
 TRANSICIONES_PEDIDO = {
@@ -161,7 +163,60 @@ def validar_campos(cursor, datos, completo):
         if not isinstance(datos["activo"], bool):
             raise ErrorApi(400, "El campo activo debe ser true o false")
         cambios["activo"] = 1 if datos["activo"] else 0
+    # No son columnas de productos: van a sus propias tablas (por eso el guion bajo, igual que _categoria_slug).
+    if enviado("imagenes"):
+        cambios["_imagenes"] = leer_imagenes(datos["imagenes"])
+    if enviado("especificaciones"):
+        cambios["_especificaciones"] = leer_especificaciones(datos["especificaciones"])
     return cambios
+
+
+def leer_imagenes(valor):
+    if not isinstance(valor, list) or len(valor) > MAXIMO_IMAGENES:
+        raise ErrorApi(400, f"La galería admite hasta {MAXIMO_IMAGENES} imágenes")
+    imagenes = []
+    for url in valor:
+        if not isinstance(url, str) or len(url.strip()) > 500 or not URL_VALIDA.match(url.strip()):
+            raise ErrorApi(400, "Cada imagen de la galería debe ser un enlace que empiece con http:// o https://")
+        imagenes.append(url.strip())
+    return imagenes
+
+
+def leer_especificaciones(valor):
+    if not isinstance(valor, list) or len(valor) > MAXIMO_ESPECIFICACIONES:
+        raise ErrorApi(400, f"Un producto admite hasta {MAXIMO_ESPECIFICACIONES} especificaciones")
+    especificaciones = []
+    for fila in valor:
+        if not isinstance(fila, dict):
+            raise ErrorApi(400, "Cada especificación lleva un nombre y un valor")
+        clave = leer_texto(fila, "clave", "el nombre de la especificación", 1, 60)
+        dato = leer_texto(fila, "valor", f"el valor de {clave}", 1, 150)
+        # La tabla no admite dos filas con el mismo nombre para un producto.
+        if clave.lower() in (anterior[0].lower() for anterior in especificaciones):
+            raise ErrorApi(400, f"La especificación {clave} está repetida")
+        especificaciones.append((clave, dato))
+    return especificaciones
+
+
+def guardar_detalles(cursor, proveedor_id, slug, imagenes, especificaciones):
+    """Reemplaza la galería y las especificaciones del producto. None significa que no se enviaron."""
+    if imagenes is None and especificaciones is None:
+        return
+    cursor.execute("SELECT id FROM productos WHERE slug = %s AND proveedor_id = %s", (slug, proveedor_id))
+    producto_id = cursor.fetchone()["id"]
+    if imagenes is not None:
+        cursor.execute("DELETE FROM producto_imagenes WHERE producto_id = %s", (producto_id,))
+        for orden, url in enumerate(imagenes, start=1):
+            cursor.execute(
+                "INSERT INTO producto_imagenes (producto_id, url, orden) VALUES (%s, %s, %s)", (producto_id, url, orden)
+            )
+    if especificaciones is not None:
+        cursor.execute("DELETE FROM producto_especificaciones WHERE producto_id = %s", (producto_id,))
+        for orden, (clave, dato) in enumerate(especificaciones, start=1):
+            cursor.execute(
+                "INSERT INTO producto_especificaciones (producto_id, clave, valor, orden) VALUES (%s, %s, %s, %s)",
+                (producto_id, clave, dato, orden),
+            )
 
 
 def calcular_descuento(precio_actual, precio_anterior):
@@ -187,6 +242,27 @@ def leer_producto(cursor, proveedor_id, slug):
     producto = cursor.fetchone()
     if not producto:
         raise ErrorApi(404, "El producto no existe")
+
+    cursor.execute(
+        """
+        SELECT i.url
+        FROM producto_imagenes i JOIN productos p ON p.id = i.producto_id
+        WHERE p.slug = %s AND p.proveedor_id = %s
+        ORDER BY i.orden, i.id
+        """,
+        (slug, proveedor_id),
+    )
+    producto["imagenes"] = [fila["url"] for fila in cursor.fetchall()]
+    cursor.execute(
+        """
+        SELECT e.clave, e.valor
+        FROM producto_especificaciones e JOIN productos p ON p.id = e.producto_id
+        WHERE p.slug = %s AND p.proveedor_id = %s
+        ORDER BY e.orden, e.id
+        """,
+        (slug, proveedor_id),
+    )
+    producto["especificaciones"] = cursor.fetchall()
     return producto
 
 
@@ -212,6 +288,8 @@ def crear_producto(cursor, proveedor_id, datos):
     cambios = validar_campos(cursor, datos, completo=True)
     cambios.setdefault("precio_anterior", None)
     categoria_slug = cambios.pop("_categoria_slug")
+    imagenes = cambios.pop("_imagenes", None)
+    especificaciones = cambios.pop("_especificaciones", None)
     descuento = calcular_descuento(cambios["precio_actual"], cambios["precio_anterior"])
     # Solo los accesorios llevan tipo (lo usa Malvino para la compatibilidad).
     tipo_accesorio = cambios.get("tipo_accesorio") if categoria_slug == "accesorios" else None
@@ -230,6 +308,7 @@ def crear_producto(cursor, proveedor_id, datos):
             cambios.get("imagen_url"), cambios["tipo_envio"], cambios["garantia_meses"], tipo_accesorio,
         ),
     )
+    guardar_detalles(cursor, proveedor_id, slug, imagenes, especificaciones)
     return respuesta(201, leer_producto(cursor, proveedor_id, slug))
 
 
@@ -240,6 +319,8 @@ def editar_producto(cursor, proveedor_id, slug, datos):
         raise ErrorApi(400, "No enviaste ningún cambio")
 
     categoria_slug = cambios.pop("_categoria_slug", actual["categoria"])
+    imagenes = cambios.pop("_imagenes", None)
+    especificaciones = cambios.pop("_especificaciones", None)
     precio_actual = cambios.get("precio_actual", actual["precio_actual"])
     precio_anterior = cambios["precio_anterior"] if "precio_anterior" in cambios else actual["precio_anterior"]
     if "precio_actual" in cambios or "precio_anterior" in cambios:
@@ -247,11 +328,12 @@ def editar_producto(cursor, proveedor_id, slug, datos):
     if categoria_slug != "accesorios":
         cambios["tipo_accesorio"] = None
 
-    asignaciones = ", ".join(f"{columna} = %s" for columna in cambios)
+    asignaciones = "".join(f"{columna} = %s, " for columna in cambios)
     cursor.execute(
-        f"UPDATE productos SET {asignaciones}, actualizado_en = SYSDATETIME() WHERE slug = %s AND proveedor_id = %s",
+        f"UPDATE productos SET {asignaciones}actualizado_en = SYSDATETIME() WHERE slug = %s AND proveedor_id = %s",
         (*cambios.values(), slug, proveedor_id),
     )
+    guardar_detalles(cursor, proveedor_id, slug, imagenes, especificaciones)
     return respuesta(200, leer_producto(cursor, proveedor_id, slug))
 
 
@@ -273,8 +355,10 @@ def listar_pedidos(cursor, proveedor_id, limite=200):
 
 def cambiar_estado_pedido(cursor, proveedor_id, item_id, datos):
     nuevo = datos.get("estado")
+    # UPDLOCK: si llegan dos cambios a la vez, el segundo espera y ya ve el estado nuevo (no devuelve el stock dos veces).
     cursor.execute(
-        "SELECT estado FROM pedido_items WHERE id = %s AND proveedor_id = %s", (item_id, proveedor_id)
+        "SELECT estado, producto_id, cantidad FROM pedido_items WITH (UPDLOCK) WHERE id = %s AND proveedor_id = %s",
+        (item_id, proveedor_id),
     )
     item = cursor.fetchone()
     if not item:
@@ -288,6 +372,12 @@ def cambiar_estado_pedido(cursor, proveedor_id, item_id, datos):
     cursor.execute(
         "UPDATE pedido_items SET estado = %s WHERE id = %s AND proveedor_id = %s", (nuevo, item_id, proveedor_id)
     )
+    # Al comprar se descontó el stock; si el pedido no se entrega, esas unidades vuelven a estar a la venta.
+    if nuevo == "Cancelado":
+        cursor.execute(
+            "UPDATE productos SET stock = stock + %s, actualizado_en = SYSDATETIME() WHERE id = %s",
+            (item["cantidad"], item["producto_id"]),
+        )
     cursor.execute(
         f"""
         SELECT {COLUMNAS_PEDIDO}

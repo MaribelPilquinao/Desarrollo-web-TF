@@ -65,6 +65,20 @@ def coincide(contrasena, contrasena_hash):
     return bcrypt.checkpw(datos, contrasena_hash.encode("ascii"))
 
 
+def leer_direccion(datos):
+    """Dirección de entrega del registro. Es opcional, pero si se envía debe venir completa."""
+    campos = {"departamento": 40, "distrito": 80, "direccion": 200, "referencia": 200}
+    valores = {campo: texto(datos, campo) for campo in campos}
+    if not any(valores.values()):
+        return None
+    if not (valores["departamento"] and valores["distrito"] and valores["direccion"]):
+        raise ErrorApi(400, "Para guardar tu dirección indica el departamento, el distrito y la dirección")
+    for campo, largo in campos.items():
+        if len(valores[campo]) > largo:
+            raise ErrorApi(400, f"El campo {campo} no puede tener más de {largo} caracteres")
+    return (valores["departamento"], valores["distrito"], valores["direccion"], valores["referencia"] or None)
+
+
 def registrar(cursor, datos):
     nombre = texto(datos, "nombre")
     if not 2 <= len(nombre) <= 100:
@@ -82,6 +96,8 @@ def registrar(cursor, datos):
         if not preferencia:
             raise ErrorApi(400, "Método de pago no válido")
 
+    direccion = leer_direccion(datos)
+
     cursor.execute("SELECT 1 AS existe FROM usuarios WHERE correo = %s", (correo,))
     if cursor.fetchone():
         raise ErrorApi(409, "Ya existe una cuenta con ese correo")
@@ -96,7 +112,17 @@ def registrar(cursor, datos):
         """,
         (nombre, correo, telefono, cifrar(contrasena), preferencia),
     )
-    return respuesta(201, cursor.fetchone())
+    usuario = cursor.fetchone()
+
+    if direccion:
+        cursor.execute(
+            """
+            INSERT INTO direcciones (usuario_id, departamento, distrito, direccion, referencia, es_principal)
+            VALUES (%s, %s, %s, %s, %s, 1)
+            """,
+            (usuario["id"], *direccion),
+        )
+    return respuesta(201, usuario)
 
 
 def iniciar_sesion(cursor, datos):

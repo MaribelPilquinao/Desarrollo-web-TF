@@ -38,7 +38,8 @@ describe('ProveedorService', () => {
   it('crea y edita productos con el slug codificado en la ruta', async () => {
     const datos = {
       titulo: 'Mouse', descripcion: null, categoria: 'perifericos', precio_actual: 10, precio_anterior: null,
-      stock: 3, imagen_url: null, tipo_envio: 'estandar' as const, garantia_meses: 12, tipo_accesorio: null
+      stock: 3, imagen_url: null, tipo_envio: 'estandar' as const, garantia_meses: 12, tipo_accesorio: null,
+      imagenes: [], especificaciones: []
     };
     const alta = servicio.crearProducto(datos);
     const reqAlta = http.expectOne(`${API_URL}/proveedor/productos`);

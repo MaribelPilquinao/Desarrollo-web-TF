@@ -100,19 +100,19 @@
       <div class="col-md-2">
         <h6>Categorías</h6>
 
-        <p><a href="#">Laptops</a></p>
-        <p><a href="#">Celulares</a></p>
-        <p><a href="#">Audio</a></p>
-        <p><a href="#">Accesorios</a></p>
+        <p><a routerLink="/home" [queryParams]="{ categoria: 'laptops' }">Laptops</a></p>
+        <p><a routerLink="/home" [queryParams]="{ categoria: 'celulares' }">Celulares</a></p>
+        <p><a routerLink="/home" [queryParams]="{ categoria: 'audio' }">Audio</a></p>
+        <p><a routerLink="/home" [queryParams]="{ categoria: 'accesorios' }">Accesorios</a></p>
       </div>
 
       <div class="col-md-3">
         <h6>Ayuda</h6>
 
-        <p><a href="#">Centro de ayuda</a></p>
-        <p><a href="#">Comprar</a></p>
-        <p><a href="#">Vender</a></p>
-        <p><a href="#">Contacto</a></p>
+        <p><a routerLink="/malvino-chatbot">Centro de ayuda</a></p>
+        <p><a routerLink="/home">Comprar</a></p>
+        <p><a routerLink="/proveedor">Vender</a></p>
+        <p><a routerLink="/malvino-chatbot">Contacto</a></p>
       </div>
 
       <div class="col-md-3">

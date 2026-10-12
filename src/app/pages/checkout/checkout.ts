@@ -6,6 +6,11 @@ import { Router } from '@angular/router';
 import { mensajeDeError } from '../../core/api';
 import { CarritoService } from '../../core/services/carrito.service';
 import { PedidoService } from '../../core/services/pedido.service';
+import { PerfilService } from '../../core/services/perfil.service';
+import { SesionService } from '../../core/services/sesion.service';
+
+// Los departamentos que ofrece el formulario.
+const DEPARTAMENTOS = ['Lima', 'Arequipa', 'La Libertad', 'Piura'];
 
 @Component({
   selector: 'app-checkout',
@@ -39,8 +44,38 @@ export class Checkout {
   constructor(
     public carrito: CarritoService,
     private router: Router,
-    private pedidoService: PedidoService
-  ) {}
+    private pedidoService: PedidoService,
+    private perfilService: PerfilService,
+    sesion: SesionService
+  ) {
+    if (sesion.conectado()) {
+      void this.rellenar();
+    }
+  }
+
+  // signal: se actualiza después de un await y hace que la pantalla muestre los datos cargados.
+  readonly datosCargados = signal(false);
+
+  // Llena el formulario con los datos de la cuenta, sin pisar lo que el usuario ya escribió.
+  private async rellenar() {
+    try {
+      const perfil = await this.perfilService.obtener();
+      this.nombres ||= perfil.nombre;
+      this.apellidos ||= perfil.apellidos ?? '';
+      this.correo ||= perfil.correo;
+      this.telefono ||= perfil.telefono ?? '';
+      this.metodoPago ||= perfil.preferencia_pago ?? '';
+      if (perfil.direccion && !this.direccion) {
+        this.departamento ||= DEPARTAMENTOS.includes(perfil.direccion.departamento) ? perfil.direccion.departamento : '';
+        this.distrito ||= perfil.direccion.distrito;
+        this.direccion = perfil.direccion.direccion;
+        this.referencia ||= perfil.direccion.referencia ?? '';
+      }
+      this.datosCargados.set(true);
+    } catch {
+      // Si el perfil no carga, el formulario queda vacío y se llena a mano.
+    }
+  }
 
   async confirmarCompra() {
 

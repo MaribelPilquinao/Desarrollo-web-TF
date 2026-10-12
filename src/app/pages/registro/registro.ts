@@ -17,7 +17,7 @@ export class Registro {
     phone:new FormControl('',{nonNullable:true,validators:[Validators.required,Validators.pattern(/^9\d{8}$/)]}),
     password:new FormControl('',{nonNullable:true,validators:[Validators.required,Validators.minLength(8),Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/)]}),
     confirm:new FormControl('',{nonNullable:true,validators:[Validators.required]}),
-    address:new FormControl('',{nonNullable:true}),payment:new FormControl('',{nonNullable:true})
+    department:new FormControl('',{nonNullable:true}),district:new FormControl('',{nonNullable:true}),address:new FormControl('',{nonNullable:true}),payment:new FormControl('',{nonNullable:true})
   },{validators:matching});
   readonly verification=new FormControl('',{nonNullable:true,validators:[Validators.required,Validators.pattern(/^\d{6}$/)]});
   invalid(field:keyof typeof this.form.controls):boolean {const c=this.form.controls[field];return c.touched && c.invalid;}
@@ -27,8 +27,10 @@ export class Registro {
     this.form.markAllAsTouched();
     if(this.form.invalid){this.error.set('Revisa los campos indicados y confirma que ambas contraseñas coincidan.');return;}
     const value=this.form.getRawValue();
-    // La dirección todavía no se guarda en el backend.
-    this.pending={nombre:value.name,correo:value.email,telefono:value.phone,contrasena:value.password,preferencia_pago:value.payment.toLowerCase()};
+    // La dirección es opcional, pero si se llena tiene que ir completa: el backend la guarda en la cuenta.
+    const address=[value.department,value.district,value.address].map(v=>v.trim());
+    if(address.some(Boolean) && !address.every(Boolean)){this.error.set('Para guardar tu dirección indica el departamento, el distrito y la dirección.');return;}
+    this.pending={nombre:value.name,correo:value.email,telefono:value.phone,contrasena:value.password,preferencia_pago:value.payment.toLowerCase(),...(address[0]?{departamento:address[0],distrito:address[1],direccion:address[2]}:{})};
     this.verification.reset();this.step.set('verify');
   }
   async verify():Promise<void> {

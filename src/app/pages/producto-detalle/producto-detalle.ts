@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit, computed  } from '@angular/core';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 
 import { DatePipe } from '@angular/common';
 import { CarritoService } from '../../core/services/carrito.service';
@@ -9,6 +9,7 @@ import { Opinion, OpinionService } from '../../core/services/opinion.service';
 import { SesionService } from '../../core/services/sesion.service';
 import {ProductoService, ProductoDetalle as ProductoDetalleApi } from '../../services/producto';
 import { mensajeDeError } from '../../core/api';
+import { CATEGORIAS } from '../../core/formato';
 
 @Component({
   selector: 'app-producto-detalle',
@@ -19,6 +20,7 @@ import { mensajeDeError } from '../../core/api';
 export class ProductoDetalle implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly productoService = inject(ProductoService);
   private readonly favoritosService = inject(FavoritosService);
   private readonly carritoService = inject(CarritoService);
@@ -185,6 +187,11 @@ categoriaVista = computed(() => {
   return this.productoBackend()?.categoria || 'Laptops';
 });
 
+// El backend devuelve el nombre de la categoría; el inicio filtra por su slug.
+categoriaSlug = computed(() => {
+  return CATEGORIAS.find(c => c.nombre === this.categoriaVista())?.slug ?? null;
+});
+
 especificacionesEstaticas = [
   { clave: 'Procesador', valor: 'Intel Core i7 (12ª gen)', orden: 1 },
   { clave: 'Memoria RAM', valor: '16GB DDR5', orden: 2 },
@@ -233,16 +240,16 @@ formatearCalificacion(calificacion: number | null): string {
 
 
 
-configuraciones = [
-  '16GB RAM • 1TB SSD',
-  '32GB RAM • 1TB SSD',
-  '32GB RAM • 2TB SSD'
-];
+// Configuraciones del mismo modelo que devuelve el backend; vacío si el producto no tiene variantes.
+configuraciones = computed(() => {
+  return this.productoBackend()?.configuraciones ?? [];
+});
 
-configuracionSeleccionada = '16GB RAM • 1TB SSD';
-
-seleccionarConfiguracion(configuracion: string): void {
-  this.configuracionSeleccionada = configuracion;
+// Cada configuración es un producto propio: elegirla abre su página, con su precio y su stock.
+seleccionarConfiguracion(slug: string): void {
+  if (slug !== this.productoVista().id) {
+    void this.router.navigate(['/producto-detalle', slug]);
+  }
 }
 
   imagenes = [

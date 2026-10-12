@@ -17,6 +17,14 @@ export interface Producto {
   tipo_accesorio: TipoAccesorio | null;
   activo: boolean;
   actualizado_en: string;
+  // Solo vienen al pedir un producto, no en la lista.
+  imagenes?: string[];
+  especificaciones?: Especificacion[];
+}
+
+export interface Especificacion {
+  clave: string;
+  valor: string;
 }
 
 export interface DatosProducto {
@@ -30,6 +38,8 @@ export interface DatosProducto {
   tipo_envio: TipoEnvio;
   garantia_meses: number;
   tipo_accesorio: TipoAccesorio | null;
+  imagenes: string[];
+  especificaciones: Especificacion[];
 }
 
 export interface Categoria {

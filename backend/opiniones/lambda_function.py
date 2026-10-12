@@ -1,4 +1,4 @@
-"""malvitec-opiniones: opiniones de un producto. Verlas es público; opinar pide sesión de cliente. Rutas en backend/README.md."""
+"""malvitec-opiniones: opiniones de un producto. Verlas es público; opina el cliente que lo compró. Rutas en backend/README.md."""
 
 from malvitec_comun import ErrorApi, conexion, cuerpo, manejar, metodo, parametro, respuesta, usuario_actual
 
@@ -38,6 +38,20 @@ def opinar(cursor, usuario_id, slug, datos):
         raise ErrorApi(400, "El comentario no puede tener más de 500 caracteres")
 
     producto_id = buscar_producto(cursor, slug)
+
+    # Solo opina quien compró el producto; un pedido cancelado no cuenta.
+    cursor.execute(
+        """
+        SELECT TOP 1 1 AS comprado
+        FROM pedido_items i
+        JOIN pedidos p ON p.id = i.pedido_id
+        WHERE p.usuario_id = %s AND i.producto_id = %s AND i.estado <> 'Cancelado'
+        """,
+        (usuario_id, producto_id),
+    )
+    if not cursor.fetchone():
+        raise ErrorApi(403, "Solo puedes opinar sobre productos que compraste")
+
     cursor.execute(
         "SELECT id FROM opiniones WHERE producto_id = %s AND usuario_id = %s",
         (producto_id, usuario_id),

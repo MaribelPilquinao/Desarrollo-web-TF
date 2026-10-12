@@ -128,7 +128,7 @@
                 Hasta 50% de descuento en laptops y tablets
               </p>
 
-              <button class="btn btn-light btn-lg">
+              <button type="button" class="btn btn-light btn-lg" (click)="verCatalogo('laptops', productos)">
                 Ver ofertas
               </button>
             </div>
@@ -159,7 +159,7 @@
                 Descubre los últimos smartphones y wearables
               </p>
 
-              <button class="btn btn-light btn-lg">
+              <button type="button" class="btn btn-light btn-lg" (click)="verCatalogo('celulares', productos)">
                 Explorar
               </button>
             </div>
@@ -190,7 +190,7 @@
                 En compras superiores a S/.50 en todo el catálogo
               </p>
 
-              <button class="btn btn-light btn-lg">
+              <button type="button" class="btn btn-light btn-lg" (click)="verCatalogo('all', productos)">
                 Comprar ahora
               </button>
             </div>
@@ -283,7 +283,7 @@
 }
 
 <!-- Productos -->
-<main class="container my-4">
+<main class="container my-4" #productos>
 
   <section>
 

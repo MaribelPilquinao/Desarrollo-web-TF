@@ -181,12 +181,19 @@ describe('Panel de proveedor', () => {
     http.expectNone(`${base}/productos`); // anterior <= actual
     expect(c.form.hasError('precioAnterior')).toBe(true);
 
-    c.form.patchValue({ precio_anterior: 150, tipo_accesorio: 'case' });
+    c.form.patchValue({ precio_anterior: 150, tipo_accesorio: 'case', especificaciones: 'Sensor óptico' });
+    await c.guardar();
+    http.expectNone(`${base}/productos`); // falta el «Nombre: valor»
+    expect(c.form.controls.especificaciones.invalid).toBe(true);
+
+    c.form.patchValue({ imagenes: ' https://x.pe/a.png \n\nhttps://x.pe/b.png', especificaciones: 'Sensor: Óptico 25K\n Peso : 63 g ' });
     const envio = c.guardar();
     const req = http.expectOne(`${base}/productos`);
     expect(req.request.body).toEqual({
       titulo: 'Mouse Pro', descripcion: null, categoria: 'perifericos', precio_actual: 120, precio_anterior: 150, stock: 5,
-      imagen_url: null, tipo_envio: 'estandar', garantia_meses: 12, tipo_accesorio: null
+      imagen_url: null, tipo_envio: 'estandar', garantia_meses: 12, tipo_accesorio: null,
+      imagenes: ['https://x.pe/a.png', 'https://x.pe/b.png'],
+      especificaciones: [{ clave: 'Sensor', valor: 'Óptico 25K' }, { clave: 'Peso', valor: '63 g' }]
     });
     req.flush({ slug: 'mouse-pro' }, { status: 201, statusText: 'Created' });
     await envio;
@@ -215,9 +222,13 @@ describe('Panel de proveedor', () => {
     f.detectChanges();
     http.expectOne(`${base}/categorias`).flush([{ slug: 'perifericos', nombre: 'Periféricos' }]);
     await Promise.resolve();
-    http.expectOne(`${base}/productos/mouse-gamer`).flush({ ...PRODUCTO, stock: 4 });
+    http.expectOne(`${base}/productos/mouse-gamer`).flush({
+      ...PRODUCTO, stock: 4, imagenes: ['https://x.pe/a.png'], especificaciones: [{ clave: 'Peso', valor: '63 g' }]
+    });
     await asentar(f);
     expect(f.componentInstance.editando).toBe(true);
+    expect(f.componentInstance.form.controls.imagenes.value).toBe('https://x.pe/a.png');
+    expect(f.componentInstance.form.controls.especificaciones.value).toBe('Peso: 63 g');
     expect(f.componentInstance.form.controls.titulo.value).toBe('Mouse Gamer');
     expect(f.componentInstance.form.controls.stock.value).toBe(4);
 

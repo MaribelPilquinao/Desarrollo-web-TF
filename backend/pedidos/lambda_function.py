@@ -1,9 +1,9 @@
-"""malvitec-pedidos: crea el pedido desde el carrito, lista los pedidos y cambia su estado. Rutas en backend/README.md."""
+"""malvitec-pedidos: crea el pedido desde el carrito y lista las compras del cliente. Rutas en backend/README.md."""
 
 from decimal import Decimal
 from uuid import uuid4
 
-from malvitec_comun import ErrorApi, conexion, cuerpo, manejar, metodo, parametro, respuesta, usuario_actual
+from malvitec_comun import ErrorApi, conexion, cuerpo, manejar, metodo, respuesta, usuario_actual
 
 ENVIO_GRATIS_DESDE = Decimal("50")
 COSTO_ENVIO = Decimal("15")
@@ -156,7 +156,26 @@ def crear(cursor, usuario_id, datos):
 
     # Todo va en la misma transacción: si algo falla, no queda pedido sin descontar stock ni carrito a medias.
     cursor.execute("DELETE FROM carrito_items WHERE usuario_id = %s", (usuario_id,))
+    completar_cuenta(cursor, usuario_id, entrega)
     return respuesta(201, pedido)
+
+
+def completar_cuenta(cursor, usuario_id, entrega):
+    """Con la primera compra se guardan en la cuenta los apellidos y la dirección, si todavía no los tenía."""
+    # El registro solo pide el nombre. No se pisan datos que el usuario ya haya puesto en Mi Cuenta.
+    cursor.execute(
+        "UPDATE usuarios SET apellidos = %s WHERE id = %s AND apellidos IS NULL",
+        (entrega["apellidos"], usuario_id),
+    )
+    cursor.execute("SELECT TOP 1 1 AS existe FROM direcciones WHERE usuario_id = %s", (usuario_id,))
+    if not cursor.fetchone():
+        cursor.execute(
+            """
+            INSERT INTO direcciones (usuario_id, departamento, distrito, direccion, referencia, es_principal)
+            VALUES (%s, %s, %s, %s, %s, 1)
+            """,
+            (usuario_id, entrega["departamento"], entrega["distrito"], entrega["direccion"], entrega["referencia"]),
+        )
 
 
 def listar_pedidos_cliente(cursor, usuario_id):
@@ -222,164 +241,16 @@ def listar_pedidos_cliente(cursor, usuario_id):
     return pedidos
 
 
-def listar_pedidos_proveedor(cursor, usuario_id):
-    cursor.execute(
-        """
-        SELECT
-            pi.id AS item_id,
-            p.id AS pedido_id,
-            p.codi,
-            p.entrega_nombres,
-            p.entrega_apellidos,
-            p.entrega_telefono,
-            p.entrega_departamento,
-            p.entrega_distrito,
-            p.entrega_direccion,
-            p.entrega_referencia,
-            p.creado_en,
-            pi.titulo,
-            pi.precio_unitario,
-            pi.cantidad,
-            (pi.precio_unitario * pi.cantidad) AS total_item,
-            pi.estado
-        FROM pedido_items pi
-        JOIN pedidos p
-            ON p.id = pi.pedido_id
-        JOIN proveedores pr
-            ON pr.id = pi.proveedor_id
-        WHERE pr.usuario_id = %s
-        ORDER BY
-            p.creado_en DESC,
-            pi.id DESC
-        """,
-        (usuario_id,),
-    )
-
-    return cursor.fetchall()
-
-
-def cambiar_estado(cursor, usuario_id, item_id, datos):
-    nuevo_estado = texto(datos, "estado")
-
-    if nuevo_estado not in (
-        "En camino",
-        "Entregado",
-    ):
-        raise ErrorApi(
-            400,
-            "Estado no válido"
-        )
-
-    cursor.execute(
-        """
-        SELECT
-            pi.estado
-        FROM pedido_items pi
-        JOIN proveedores pr
-            ON pr.id = pi.proveedor_id
-        WHERE
-            pi.id = %s
-            AND pr.usuario_id = %s
-        """,
-        (
-            item_id,
-            usuario_id,
-        ),
-    )
-
-    item = cursor.fetchone()
-
-    if not item:
-        raise ErrorApi(
-            404,
-            "Pedido no encontrado"
-        )
-
-    estado_actual = item["estado"]
-
-    if (
-        estado_actual == "Pendiente"
-        and nuevo_estado != "En camino"
-    ):
-        raise ErrorApi(
-            409,
-            "El pedido primero debe pasar a En camino"
-        )
-
-    if (
-        estado_actual == "En camino"
-        and nuevo_estado != "Entregado"
-    ):
-        raise ErrorApi(
-            409,
-            "El siguiente estado debe ser Entregado"
-        )
-
-    if estado_actual in (
-        "Entregado",
-        "Completado",
-        "Cancelado",
-    ):
-        raise ErrorApi(
-            409,
-            f"El pedido ya se encuentra en estado {estado_actual}"
-        )
-
-    cursor.execute(
-        """
-        UPDATE pi
-        SET estado = %s
-        FROM pedido_items pi
-        JOIN proveedores pr
-            ON pr.id = pi.proveedor_id
-        WHERE
-            pi.id = %s
-            AND pr.usuario_id = %s
-        """,
-        (
-            nuevo_estado,
-            item_id,
-            usuario_id,
-        ),
-    )
-
-    return {
-        "mensaje": "Estado actualizado",
-        "item_id": item_id,
-        "estado": nuevo_estado,
-    }
-
-
 @manejar
 def lambda_handler(event, context):
+    # Las compras son del cliente; el proveedor ve y atiende sus pedidos en malvitec-proveedor.
+    usuario_id = usuario_actual(event, "cliente")["usuario_id"]
     accion = metodo(event)
-    # En API Gateway el parámetro de la ruta se llama {slug}, igual que en las demás Lambdas.
-    item_id = parametro(event, "id") or parametro(event, "slug")
 
-    # GET /pedidos: el cliente ve sus compras; el proveedor, los ítems que le toca atender.
-    if accion == "GET" and not item_id:
-        usuario = usuario_actual(event)
-        with conexion() as cursor:
-            if usuario["rol"] == "cliente":
-                return respuesta(200, listar_pedidos_cliente(cursor, usuario["usuario_id"]))
-            if usuario["rol"] == "proveedor":
-                return respuesta(200, listar_pedidos_proveedor(cursor, usuario["usuario_id"]))
-        raise ErrorApi(403, "No tienes permiso para ver pedidos")
-
-    # POST /pedidos
-    if accion == "POST" and not item_id:
-        usuario = usuario_actual(event, "cliente")
-        with conexion() as cursor:
-            return crear(cursor, usuario["usuario_id"], cuerpo(event))
-
-    # PUT /pedidos/{id}: el id es el del ítem, porque cada proveedor atiende sus propios ítems.
-    if accion == "PUT" and item_id:
-        usuario = usuario_actual(event, "proveedor")
-        try:
-            item_id = int(item_id)
-        except (TypeError, ValueError):
-            raise ErrorApi(400, "Id de pedido no válido")
-        with conexion() as cursor:
-            return respuesta(200, cambiar_estado(cursor, usuario["usuario_id"], item_id, cuerpo(event)))
+    with conexion() as cursor:
+        if accion == "GET":
+            return respuesta(200, listar_pedidos_cliente(cursor, usuario_id))
+        if accion == "POST":
+            return crear(cursor, usuario_id, cuerpo(event))
 
     raise ErrorApi(404, "Ruta no encontrada")

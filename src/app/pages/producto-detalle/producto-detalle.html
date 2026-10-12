@@ -21,7 +21,7 @@
       </li>
 
       <li class="breadcrumb-item">
-        <a href="#"> {{ categoriaVista() }} </a>
+        <a routerLink="/home" [queryParams]="{ categoria: categoriaSlug() }"> {{ categoriaVista() }} </a>
       </li>
 
       <li
@@ -153,8 +153,8 @@
             <hr>
 
 
-            <!-- Configuración: solo la laptop de ejemplo tiene variantes -->
-            @if (productoVista().id === 'hp-omen-16') {
+            <!-- Configuración: solo los productos que tienen variantes -->
+            @if (configuraciones().length > 1) {
             <div class="mb-3">
 
               <h6 class="small text-uppercase text-muted mb-2">
@@ -164,19 +164,20 @@
               <div class="d-flex flex-wrap gap-2">
 
                 @for (
-                  configuracion of configuraciones;
-                  track configuracion
+                  configuracion of configuraciones();
+                  track configuracion.slug
                 ) {
 
                   <button
                     type="button"
                     class="btn btn-outline-secondary btn-sm config-option"
                     [class.active]="
-                      configuracionSeleccionada === configuracion
+                      configuracion.slug === productoVista().id
                     "
-                    (click)="seleccionarConfiguracion(configuracion)"
+                    [title]="configuracion.stock === 0 ? 'Agotado' : ''"
+                    (click)="seleccionarConfiguracion(configuracion.slug)"
                   >
-                    {{ configuracion }}
+                    {{ configuracion.nombre }}
                   </button>
 
                 }

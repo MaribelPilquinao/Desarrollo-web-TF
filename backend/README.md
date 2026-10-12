@@ -24,11 +24,11 @@ URL del API (etapa `v1`): `https://y1fqqcqake.execute-api.us-east-1.amazonaws.co
 
 Las rutas marcadas con 🔒 piden el encabezado `Authorization: Bearer <token>`.
 
-### `malvitec-auth` (tabla `usuarios`)
+### `malvitec-auth` (tablas `usuarios` y `direcciones`)
 
 | Método | Ruta | Cuerpo | Respuesta |
 |---|---|---|---|
-| POST | `/auth/registro` | `nombre`, `correo`, `telefono`, `contrasena`, `codigo`, `preferencia_pago` (opcional) | 201 con `id`, `nombre`, `correo` |
+| POST | `/auth/registro` | `nombre`, `correo`, `telefono`, `contrasena`, `codigo` y, opcionales, `preferencia_pago`, `departamento`, `distrito`, `direccion`, `referencia` | 201 con `id`, `nombre`, `correo` |
 | POST | `/auth/login` | `correo`, `contrasena` | `token` y `usuario` |
 | POST | `/auth/recuperar` | `correo`, `codigo`, `nueva_contrasena` | `mensaje` |
 
@@ -36,6 +36,7 @@ Las rutas marcadas con 🔒 piden el encabezado `Authorization: Bearer <token>`.
 - El código de verificación es fijo: `123456`. No se envían correos ni SMS.
 - Contraseña: mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo. Teléfono: 9 dígitos y empieza en 9.
 - `preferencia_pago` acepta `yape`, `plin`, `tarjeta` o `contra entrega`. Yape y Plin se guardan como `yape_plin`.
+- La dirección es opcional, pero va completa o no va: si llega alguno de `departamento`, `distrito` o `direccion`, se exigen los tres. Se guarda como dirección principal de la cuenta.
 
 ### `malvitec-favoritos` (tabla `favoritos`) 🔒
 
@@ -59,36 +60,30 @@ Todas devuelven el carrito actualizado: `items` (`slug`, `titulo`, `imagen_url`,
 
 ### `malvitec-pedidos` (tablas `pedidos` y `pedido_items`) 🔒
 
+Rutas solo para clientes. El proveedor ve y atiende sus pedidos en `malvitec-proveedor`.
+
 | Método | Ruta | Cuerpo |
 |---|---|---|
 | GET | `/pedidos` | — |
 | POST | `/pedidos` | `nombres`, `apellidos`, `correo`, `telefono`, `departamento`, `distrito`, `direccion`, `referencia` (opcional), `metodo_pago` (`tarjeta`, `yape_plin` o `contra_entrega`), `clave` (opcional) |
-| PUT | `/pedidos/{slug}` | `estado` (`En camino` o `Entregado`) |
 
-- **GET** responde según el rol del token. Al cliente le devuelve sus pedidos, del más reciente al más antiguo: `id`, `codi`, `subtotal`, `costo_envio`, `total`, `metodo_pago`, `fecha` e `items` (`id`, `titulo`, `precio`, `cantidad`, `estado`). Al proveedor le devuelve los ítems que le toca atender: `item_id`, `pedido_id`, `codi`, los datos de entrega (`entrega_nombres`, `entrega_apellidos`, `entrega_telefono`, `entrega_departamento`, `entrega_distrito`, `entrega_direccion`, `entrega_referencia`), `creado_en`, `titulo`, `precio_unitario`, `cantidad`, `total_item` y `estado`.
-- **POST** es solo para clientes. Crea el pedido con lo que hay en el carrito del usuario y responde `201` con `id`, `codi`, `subtotal`, `costo_envio` y `total`. En la misma transacción descuenta el stock de cada producto y vacía el carrito. Si se repite la `clave` (doble clic o reintento), devuelve el pedido ya creado con `200` en vez de duplicarlo.
-- **PUT** es solo para proveedores. En la ruta va el `item_id` del ítem (el estado vive en `pedido_items`, porque cada proveedor atiende sus propios ítems). El estado solo avanza `Pendiente` → `En camino` → `Entregado`; cualquier otro cambio responde `409`.
+- **GET** devuelve las compras del cliente, de la más reciente a la más antigua: `id`, `codi`, `subtotal`, `costo_envio`, `total`, `metodo_pago`, `fecha` e `items` (`id`, `titulo`, `precio`, `cantidad`, `estado`). El estado va por ítem, porque cada proveedor atiende los suyos.
+- **POST** crea el pedido con lo que hay en el carrito del usuario y responde `201` con `id`, `codi`, `subtotal`, `costo_envio` y `total`. En la misma transacción descuenta el stock de cada producto y vacía el carrito. Si se repite la `clave` (doble clic o reintento), devuelve el pedido ya creado con `200` en vez de duplicarlo.
+- Con la compra se completa la cuenta: si el usuario no tenía apellidos o no tenía ninguna dirección, se guardan los del pedido. Los datos que ya tenía no se pisan.
 
-### `malvitec-productos` (tablas `productos`, `producto_imagenes`, `producto_especificaciones` y `categorias`)
+### `malvitec-productos` (tablas `productos`, `producto_imagenes`, `producto_especificaciones`, `producto_configuraciones` y `categorias`)
 
-Ver el catálogo es público. Las rutas marcadas con 🔒 son solo para proveedores.
+Rutas públicas: no piden token. Los proveedores crean y editan sus productos en `malvitec-proveedor`.
 
-| Método | Ruta | Parámetros o cuerpo |
+| Método | Ruta | Parámetros |
 |---|---|---|
-| GET | `/productos` | Parámetros opcionales: `buscar`, `categoria` (slug, por ejemplo `laptops`) y `orden` (`relevancia`, `precio_asc`, `precio_desc` o `valoracion`) |
-| GET | `/productos?mios=1` 🔒 | Los mismos parámetros. Devuelve solo los productos del proveedor |
+| GET | `/productos` | Opcionales: `buscar`, `categoria` (slug, por ejemplo `laptops`) y `orden` (`relevancia`, `precio_asc`, `precio_desc` o `valoracion`) |
 | GET | `/productos/{slug}` | — |
-| POST | `/productos` 🔒 | `titulo`, `categoria` (slug), `precio_actual` y, opcionales, `descripcion`, `precio_anterior`, `descuento_pct`, `stock`, `imagen_url`, `tipo_envio` (`gratis` o `estandar`), `garantia_meses`, `tipo_accesorio` (`case`, `protector`, `bateria` o `cargador`) |
-| PUT | `/productos/{slug}` 🔒 | Los mismos campos; solo se cambian los que se envían |
-| DELETE | `/productos/{slug}` 🔒 | — |
 
 - La lista devuelve solo productos activos, con `id`, `slug`, `titulo`, `descripcion`, `precio_actual`, `precio_anterior`, `descuento_pct`, `stock`, `imagen_url`, `tipo_envio`, `garantia_meses`, `calificacion_prom`, `num_opiniones`, `tipo_accesorio`, `proveedor` y `categoria`.
 - `buscar` compara con el título, la descripción y el nombre del proveedor. En el título y la descripción no distingue mayúsculas ni tildes.
 - El detalle agrega `imagenes` (`url`, `orden`) y `especificaciones` (`clave`, `valor`, `orden`). Responde `404` si el producto no existe o está inactivo.
-- **POST** responde `201` con el detalle del producto. El `slug` se arma con el título (`Audífonos Sony` → `audifonos-sony`) y, si ya existe, se le agrega un número.
-- **PUT** y **DELETE** responden `404` si el producto es de otro proveedor. El slug no cambia al editar el título.
-- **DELETE** no borra la fila: pone `activo = 0`, porque los pedidos ya hechos siguen apuntando al producto.
-- Todavía no hay rutas para cargar la galería de imágenes ni las especificaciones; esas tablas se llenan desde la base.
+- El detalle también trae `configuraciones` (`slug`, `nombre`, `precio_actual`, `stock`): las variantes del mismo modelo, incluida la que se está viendo; lista vacía si no tiene. Cada configuración es un producto propio, así que elegirla es abrir su slug. Necesita la tabla `producto_configuraciones`, que se crea con `database/producto_configuraciones.sql`.
 
 ### `malvitec-proveedor` (panel del proveedor) 🔒
 
@@ -99,7 +94,7 @@ Todas las rutas son solo para proveedores y trabajan únicamente con los product
 | GET | `/proveedor/resumen` | — |
 | GET | `/proveedor/categorias` | — |
 | GET | `/proveedor/productos` | — |
-| POST | `/proveedor/productos` | `titulo`, `categoria` (slug), `precio_actual`, `stock` y, opcionales, `descripcion`, `precio_anterior`, `imagen_url`, `tipo_envio`, `garantia_meses`, `tipo_accesorio` |
+| POST | `/proveedor/productos` | `titulo`, `categoria` (slug), `precio_actual`, `stock` y, opcionales, `descripcion`, `precio_anterior`, `imagen_url`, `tipo_envio`, `garantia_meses`, `tipo_accesorio`, `imagenes`, `especificaciones` |
 | GET | `/proveedor/productos/{slug}` | — |
 | PUT | `/proveedor/productos/{slug}` | Los mismos campos, más `activo` (`true` o `false`); solo se cambian los que se envían |
 | GET | `/proveedor/pedidos` | — |
@@ -109,11 +104,10 @@ Todas las rutas son solo para proveedores y trabajan únicamente con los product
 
 - **Resumen:** `nombre_comercial`, `productos_publicados`, `sin_stock`, `pedidos_pendientes`, `consultas_nuevas`, `ventas`, `ultimos_pedidos` y `productos_sin_stock`.
 - **Productos:** la lista incluye los ocultos (`activo = false`). El descuento se calcula solo a partir de `precio_anterior`, que debe ser mayor que `precio_actual`. `tipo_accesorio` solo se guarda en la categoría `accesorios`.
-- **Pedidos:** una fila por ítem. El estado avanza `Pendiente` → `En camino` → `Entregado`, y desde los dos primeros se puede pasar a `Cancelado`; cualquier otro cambio responde `409`.
+- **Galería y especificaciones:** `imagenes` es una lista de hasta 8 enlaces y `especificaciones` una lista de hasta 30 `{ "clave", "valor" }` sin nombres repetidos. Si se envían, reemplazan a las que había; si no se envían, no se tocan. El detalle de un producto las devuelve; la lista no.
+- **Pedidos:** una fila por ítem. El estado avanza `Pendiente` → `En camino` → `Entregado`, y desde los dos primeros se puede pasar a `Cancelado`; cualquier otro cambio responde `409`. Al cancelar, las unidades vuelven al stock del producto.
 - **Consultas:** responder una consulta ya respondida da `409`.
 - **API Gateway:** la Lambda lee la ruta completa, así que basta un solo recurso `/proveedor/{proxy+}` con el método `ANY` (integración de proxy de Lambda y CORS activado), en lugar de un recurso por ruta.
-
-Las rutas de proveedor que también existen en `malvitec-productos` (`POST`, `PUT`, `DELETE`, `?mios=1`), `malvitec-pedidos` (`PUT` y el `GET` de proveedor) y `malvitec-consultas` (`PUT` y el `GET` de proveedor) hacen lo mismo de forma más simple; el front no las usa.
 
 ### `malvitec-opiniones` (tabla `opiniones`)
 
@@ -123,21 +117,20 @@ Las rutas de proveedor que también existen en `malvitec-productos` (`POST`, `PU
 | POST | `/opiniones/{slug}` 🔒 | `calificacion` (entero del 1 al 5), `comentario` (opcional, hasta 500 caracteres) |
 
 - El `{slug}` es el del producto. **GET** es público y devuelve `id`, `autor`, `calificacion`, `comentario` y `creado_en`, de la más reciente a la más antigua.
-- **POST** es solo para clientes. Cada usuario tiene una opinión por producto: la primera responde `201`; si vuelve a opinar, se reemplaza y responde `200`.
+- **POST** es solo para clientes que compraron el producto: sin un pedido de ese producto (los cancelados no cuentan) responde `403`. Cada usuario tiene una opinión por producto: la primera responde `201`; si vuelve a opinar, se reemplaza y responde `200`.
 - En la misma transacción se recalculan `calificacion_prom` y `num_opiniones` del producto, y la respuesta trae esos dos valores ya actualizados.
-- No se comprueba que el cliente haya comprado el producto.
 
 ### `malvitec-consultas` (tabla `consultas`) 🔒
+
+Rutas solo para clientes. El proveedor las ve y las responde en `malvitec-proveedor`.
 
 | Método | Ruta | Cuerpo |
 |---|---|---|
 | GET | `/consultas` | — |
 | POST | `/consultas` | `slug` (del producto), `mensaje` (hasta 500 caracteres) |
-| PUT | `/consultas/{slug}` | `respuesta` (hasta 500 caracteres) |
 
-- **GET** responde según el rol: al cliente, las consultas que hizo; al proveedor, las de sus productos. Devuelve `id`, `cliente`, `slug`, `producto`, `mensaje`, `respuesta`, `estado` (`Nueva` o `Respondida`), `creado_en` y `respondida_en`.
-- **POST** es solo para clientes y responde `201`.
-- **PUT** es solo para proveedores. En la ruta va el `id` de la consulta. Guarda la respuesta y pasa el estado a `Respondida`; responde `404` si la consulta es de un producto de otro proveedor.
+- **GET** devuelve las consultas que hizo el cliente, con la respuesta cuando ya existe: `id`, `slug`, `producto`, `proveedor`, `mensaje`, `respuesta`, `estado` (`Nueva` o `Respondida`), `creado_en` y `respondida_en`.
+- **POST** responde `201`.
 
 ### `malvitec-compatibilidad` (tablas `compatibilidad` y `modelos_celular`)
 
@@ -156,8 +149,13 @@ Rutas públicas, para Malvino.
 | Método | Ruta | Cuerpo |
 |---|---|---|
 | GET | `/perfil` | — |
+| PUT | `/perfil` | Cualquiera de: `nombre`, `apellidos`, `telefono`, `preferencia_pago`, `direccion`, y el par `contrasena_actual` + `contrasena_nueva` |
 
-Devuelve los datos de la cuenta para Mi Cuenta: `nombre`, `apellidos`, `correo`, `telefono`, `rol`, `preferencia_pago`, `creado_en` y `direccion` (`departamento`, `distrito`, `direccion`, `referencia`). La dirección es la marcada como principal o, si no hay, la más reciente; es `null` si el usuario no tiene ninguna.
+- **GET** devuelve los datos de la cuenta para Mi Cuenta: `nombre`, `apellidos`, `correo`, `telefono`, `rol`, `preferencia_pago`, `creado_en` y `direccion` (`departamento`, `distrito`, `direccion`, `referencia`). La dirección es la marcada como principal o, si no hay, la más reciente; es `null` si el usuario no tiene ninguna.
+- **PUT** solo cambia lo que se envía y responde el perfil actualizado. El correo no se puede cambiar.
+- `preferencia_pago` acepta `tarjeta`, `yape_plin`, `contra_entrega` o `null`.
+- `direccion` es un objeto con `departamento`, `distrito`, `direccion` y `referencia` (opcional). Edita la dirección que muestra el GET o, si no hay ninguna, la crea como principal.
+- Para cambiar la contraseña se envían `contrasena_actual` y `contrasena_nueva`; si la actual no coincide responde `403` y no se guarda nada de esa petición.
 
 ### Errores
 

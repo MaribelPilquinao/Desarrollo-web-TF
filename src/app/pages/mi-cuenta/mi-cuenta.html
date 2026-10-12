@@ -2,6 +2,10 @@
 
 <h2 class="mb-4">Mi Cuenta</h2>
 
+@if (aviso()) {
+<div class="alert alert-success">{{ aviso() }}</div>
+}
+
 <div class="card shadow-sm">
 
     <div class="card-body">
@@ -12,9 +16,17 @@
     <div class="alert alert-danger mb-0">{{ error() }}</div>
     } @else if (perfil(); as p) {
 
-    <h5>Información personal</h5>
+    @if (!editando()) {
 
-    <p><strong>Nombre:</strong> {{ p.nombre }} {{ p.apellidos ?? '' }}</p>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h5 class="mb-0">Información personal</h5>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-dark" (click)="editar()">Editar datos</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cambiandoContrasena.set(!cambiandoContrasena())">Cambiar contraseña</button>
+        </div>
+    </div>
+
+    <p class="mt-3"><strong>Nombre:</strong> {{ p.nombre }} {{ p.apellidos ?? '' }}</p>
     <p><strong>Correo:</strong> {{ p.correo }}</p>
     <p><strong>Teléfono:</strong> {{ p.telefono ?? 'No registrado' }}</p>
     <p><strong>Método de pago preferido:</strong> {{ metodoPago(p.preferencia_pago) }}</p>
@@ -32,6 +44,93 @@
     }
     } @else {
     <p class="text-muted mb-0">Aún no tienes una dirección guardada.</p>
+    }
+
+    } @else {
+
+    <h5>Editar mis datos</h5>
+
+    <form (ngSubmit)="guardar()" class="row g-3 mt-1">
+        <div class="col-md-6">
+            <label class="form-label" for="cuenta-nombre">Nombre</label>
+            <input id="cuenta-nombre" name="nombre" class="form-control" maxlength="100" [(ngModel)]="datos.nombre">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="cuenta-apellidos">Apellidos</label>
+            <input id="cuenta-apellidos" name="apellidos" class="form-control" maxlength="100" [(ngModel)]="datos.apellidos">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="cuenta-telefono">Teléfono</label>
+            <input id="cuenta-telefono" name="telefono" type="tel" class="form-control" maxlength="9" [(ngModel)]="datos.telefono">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="cuenta-pago">Método de pago preferido</label>
+            <select id="cuenta-pago" name="preferencia_pago" class="form-select" [(ngModel)]="datos.preferencia_pago">
+                <option value="">Sin preferencia</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="yape_plin">Yape / Plin</option>
+                <option value="contra_entrega">Contra entrega</option>
+            </select>
+        </div>
+
+        <div class="col-12"><h6 class="mb-0 mt-2">Dirección de entrega</h6></div>
+
+        <div class="col-md-6">
+            <label class="form-label" for="cuenta-departamento">Departamento</label>
+            <input id="cuenta-departamento" name="departamento" class="form-control" maxlength="40" [(ngModel)]="datos.departamento">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="cuenta-distrito">Distrito</label>
+            <input id="cuenta-distrito" name="distrito" class="form-control" maxlength="80" [(ngModel)]="datos.distrito">
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="cuenta-direccion">Dirección</label>
+            <input id="cuenta-direccion" name="direccion" class="form-control" maxlength="200" [(ngModel)]="datos.direccion">
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="cuenta-referencia">Referencia</label>
+            <input id="cuenta-referencia" name="referencia" class="form-control" maxlength="200" [(ngModel)]="datos.referencia">
+        </div>
+
+        @if (errorEdicion()) {
+        <div class="col-12"><div class="alert alert-danger mb-0">{{ errorEdicion() }}</div></div>
+        }
+
+        <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-dark" [disabled]="guardando()">{{ guardando() ? 'Guardando...' : 'Guardar cambios' }}</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+        </div>
+    </form>
+
+    }
+
+    @if (cambiandoContrasena() && !editando()) {
+    <hr>
+
+    <h5>Cambiar contraseña</h5>
+
+    <form (ngSubmit)="cambiarContrasena()" class="row g-3 mt-1">
+        <div class="col-md-4">
+            <label class="form-label" for="clave-actual">Contraseña actual</label>
+            <input id="clave-actual" name="actual" type="password" class="form-control" autocomplete="current-password" [(ngModel)]="contrasena.actual">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="clave-nueva">Contraseña nueva</label>
+            <input id="clave-nueva" name="nueva" type="password" class="form-control" autocomplete="new-password" [(ngModel)]="contrasena.nueva">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="clave-confirmar">Repite la contraseña nueva</label>
+            <input id="clave-confirmar" name="confirmar" type="password" class="form-control" autocomplete="new-password" [(ngModel)]="contrasena.confirmar">
+        </div>
+
+        @if (errorContrasena()) {
+        <div class="col-12"><div class="alert alert-danger mb-0">{{ errorContrasena() }}</div></div>
+        }
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-dark" [disabled]="guardando()">{{ guardando() ? 'Guardando...' : 'Cambiar contraseña' }}</button>
+        </div>
+    </form>
     }
 
     }
@@ -75,6 +174,46 @@
             <span class="text-muted">Envío: S/ {{ compra.costo_envio | number:'1.2-2' }}</span>
             <strong class="ms-2">Total: S/ {{ compra.total | number:'1.2-2' }}</strong>
         </div>
+    </div>
+    }
+
+    }
+
+    </div>
+
+</div>
+
+<div class="card shadow-sm mt-4">
+
+    <div class="card-body">
+
+    <h5>Mis consultas</h5>
+
+    @if (cargandoConsultas()) {
+    <p class="text-muted mb-0">Cargando tus consultas...</p>
+    } @else if (errorConsultas()) {
+    <div class="alert alert-danger mb-0">{{ errorConsultas() }}</div>
+    } @else if (consultas().length === 0) {
+    <p class="text-muted mb-0">Aún no has hecho consultas. Puedes preguntarle al vendedor desde la página de cada producto.</p>
+    } @else {
+
+    @for (consulta of consultas(); track consulta.id) {
+    <div class="border rounded p-3 mt-3">
+        <div class="d-flex flex-wrap justify-content-between gap-2">
+            <a [routerLink]="['/producto-detalle', consulta.slug]" class="fw-semibold">{{ consulta.producto }}</a>
+            <span class="text-muted">{{ consulta.creado_en | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        <p class="my-2">{{ consulta.mensaje }}</p>
+
+        @if (consulta.respuesta) {
+        <div class="bg-light rounded p-2">
+            <span class="text-muted small">{{ consulta.proveedor }} respondió @if (consulta.respondida_en) { el {{ consulta.respondida_en | date:'dd/MM/yyyy HH:mm' }} }</span>
+            <p class="mb-0">{{ consulta.respuesta }}</p>
+        </div>
+        } @else {
+        <span class="badge bg-warning text-dark">Esperando respuesta de {{ consulta.proveedor }}</span>
+        }
     </div>
     }
 

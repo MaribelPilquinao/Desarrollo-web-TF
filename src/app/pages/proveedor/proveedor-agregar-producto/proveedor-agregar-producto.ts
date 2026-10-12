@@ -4,7 +4,7 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validatio
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
  
 import { mensajeDeError } from '../../../core/api';
-import { Categoria, DatosProducto, TipoAccesorio, TipoEnvio } from '../../../core/models/producto.model';
+import { Categoria, DatosProducto, Especificacion, TipoAccesorio, TipoEnvio } from '../../../core/models/producto.model';
 import { ProveedorService } from '../../../core/services/proveedor.service';
 
 // Misma regla que el backend: el precio anterior (tachado) tiene que ser mayor que el actual.
@@ -14,6 +14,34 @@ function preciosCoherentes(grupo: AbstractControl): ValidationErrors | null {
   return typeof actual === 'number' && typeof anterior === 'number' && anterior <= actual
     ? { precioAnterior: true }
     : null;
+}
+
+// La galería se escribe con un enlace por línea.
+function leerImagenes(texto: string): string[] {
+  return texto.split('\n').map(linea => linea.trim()).filter(Boolean);
+}
+
+// Las especificaciones se escriben una por línea, como "Procesador: Intel Core i7".
+function leerEspecificaciones(texto: string): Especificacion[] | null {
+  const filas: Especificacion[] = [];
+  for (const linea of texto.split('\n').map(l => l.trim()).filter(Boolean)) {
+    const corte = linea.indexOf(':');
+    const clave = linea.slice(0, corte).trim();
+    const valor = linea.slice(corte + 1).trim();
+    if (corte < 1 || !valor) {
+      return null;
+    }
+    filas.push({ clave, valor });
+  }
+  return filas;
+}
+
+function especificacionesValidas(control: AbstractControl): ValidationErrors | null {
+  return leerEspecificaciones(control.value ?? '') ? null : { formato: true };
+}
+
+function imagenesValidas(control: AbstractControl): ValidationErrors | null {
+  return leerImagenes(control.value ?? '').every(url => /^https?:\/\/\S+$/i.test(url)) ? null : { formato: true };
 }
 
 /** Sirve para crear (/proveedor/agregar-producto) y para editar (/proveedor/editar-producto/:slug). */
@@ -48,7 +76,9 @@ export class ProveedorAgregarProducto implements OnInit {
       imagen_url: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(500), Validators.pattern(/^\s*(https?:\/\/\S+)?\s*$/i)] }),
       tipo_envio: new FormControl<TipoEnvio>('estandar', { nonNullable: true }),
       garantia_meses: new FormControl<number | null>(12, [Validators.required, Validators.min(0), Validators.max(60), Validators.pattern(/^\d+$/)]),
-      tipo_accesorio: new FormControl<TipoAccesorio | ''>('', { nonNullable: true })
+      tipo_accesorio: new FormControl<TipoAccesorio | ''>('', { nonNullable: true }),
+      imagenes: new FormControl('', { nonNullable: true, validators: [imagenesValidas] }),
+      especificaciones: new FormControl('', { nonNullable: true, validators: [especificacionesValidas] })
     },
     { validators: preciosCoherentes }
   );
@@ -73,7 +103,9 @@ export class ProveedorAgregarProducto implements OnInit {
           imagen_url: p.imagen_url ?? '',
           tipo_envio: p.tipo_envio,
           garantia_meses: p.garantia_meses,
-          tipo_accesorio: p.tipo_accesorio ?? ''
+          tipo_accesorio: p.tipo_accesorio ?? '',
+          imagenes: (p.imagenes ?? []).join('\n'),
+          especificaciones: (p.especificaciones ?? []).map(e => `${e.clave}: ${e.valor}`).join('\n')
         });
       }
     } catch (error) {
@@ -107,7 +139,9 @@ export class ProveedorAgregarProducto implements OnInit {
       imagen_url: v.imagen_url.trim() || null,
       tipo_envio: v.tipo_envio,
       garantia_meses: Number(v.garantia_meses),
-      tipo_accesorio: v.categoria === 'accesorios' && v.tipo_accesorio ? v.tipo_accesorio : null
+      tipo_accesorio: v.categoria === 'accesorios' && v.tipo_accesorio ? v.tipo_accesorio : null,
+      imagenes: leerImagenes(v.imagenes),
+      especificaciones: leerEspecificaciones(v.especificaciones) ?? []
     };
 
     this.guardando.set(true);

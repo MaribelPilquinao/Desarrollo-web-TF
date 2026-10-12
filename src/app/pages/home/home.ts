@@ -1,5 +1,5 @@
 import { Component, inject, signal, effect, untracked } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CarritoService } from '../../core/services/carrito.service';
 import { FavoritosService } from '../../core/services/favoritos.service';
@@ -33,12 +33,24 @@ export class Home {
   private peticion?: Subscription;
 
   constructor() {
+    // /home?categoria=laptops abre el inicio con esa categoría (enlaces del pie de página y del detalle).
+    inject(ActivatedRoute).queryParamMap.subscribe(parametros => {
+      const categoria = parametros.get('categoria');
+
+      if (categoria && categoria !== this.categoriaSeleccionada && CATEGORIAS.some(c => c.slug === categoria)) {
+        this.seleccionarCategoria(categoria);
+      }
+    });
+
     // Carga al entrar y cada vez que se busca desde la barra superior.
     effect(() => {
       this.terminoBusqueda.set(this.busquedaService.consulta());
 
       // La barra superior busca en todo el catálogo; después se puede acotar con las categorías.
-      this.categoriaSeleccionada = 'all';
+      // Al entrar no hay búsqueda, y se respeta la categoría que venga en la URL.
+      if (this.terminoBusqueda()) {
+        this.categoriaSeleccionada = 'all';
+      }
 
       untracked(() => this.cargarProductos());
     });
@@ -79,6 +91,13 @@ export class Home {
     this.categoriaSeleccionada = categoria;
 
     this.cargarProductos();
+  }
+
+  // Botones del carrusel: muestran la categoría (o todo el catálogo) y bajan hasta los productos.
+  verCatalogo(categoria: string, productos: HTMLElement): void {
+    this.seleccionarCategoria(categoria);
+
+    productos.scrollIntoView({ behavior: 'smooth' });
   }
 
   tituloSeccion(): string {
